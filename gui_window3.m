@@ -49,17 +49,17 @@ set(hGui.pattern, 'callback', @stim_pattern);
 %%% %%%
 uicontrol('style','text','position',[10 575 60 15],'string','Stim.Shape','Horizontalalignment','left');
 hGui.shape=uicontrol('style','popupmenu','position',[10 555 75 20],'string',[{'Rect'},{'Circle'}]);
-set(hGui.shape, 'callback',@ch_shape);
+set(hGui.shape, 'callback', @ch_shape);
 set(hGui.shape, 'value', 2); % default: 'FillOval'
 
-uicontrol('style','text','position',[90 575 45 15],'strin','Div.Zoom','Horizontalalignment','left');
-hGui.div_zoom=uicontrol('style','edit','position',[90 550 40 25],'string',sobj.div_zoom,'BackGroundColor','w');
-set(hGui,'callback',@ch_zoom);
+uicontrol('style','text','position',[90 575 45 15],'string','Div.Zoom','Horizontalalignment','left');
+hGui.div_zoom = uicontrol('style','edit','position',[90 550 40 25],'string',sobj.div_zoom,'BackGroundColor','w');
+set(hGui.div_zoom,'callback', {@ch_zoom, hGui});
 
 %distance from the center point
 uicontrol('style','text','position',[140 575 50 15],'string','Dist(deg)','Horizontalalignment','left');
-hGui.dist=uicontrol('style','edit','position',[140 550 40 25],'string',sobj.dist,'BackGroundColor','w');
-set(hGui.dist, 'callback',@ch_zoom);
+hGui.dist = uicontrol('style','edit','position',[140 550 40 25],'string',sobj.dist,'BackGroundColor','w');
+set(hGui.dist, 'callback', {@ch_zoom, hGui});
 
 %%% Luminance %%%
 uicontrol('style','text','position',[10 530 55 15],'string','Stim.Lumi','Horizontalalignment','left');
@@ -67,7 +67,8 @@ hGui.stimlumi=uicontrol('style','edit','position',[10 505 45 25],'string',sobj.s
 set(hGui.stimlumi, 'callback',@ch_lumi);
 
 uicontrol('style','text','position',[65 530 45 15],'string','BG.Lumi','Horizontalalignment','left');
-hGui.bgcol=uicontrol('style','edit','position',[65 505 45 25],'string',sobj.bgcol,'callback','sobj.bgcol = re_write(hGui.bgcol);check_lumi2','BackGroundColor','w');
+hGui.bgcol=uicontrol('style','edit','position',[65 505 45 25],'string',sobj.bgcol,'BackGroundColor','w');
+set(hGui.bgcol, 'callback','sobj.bgcol = re_write(hGui.bgcol);check_lumi2');
 
 uicontrol('style','text','position',[120 530 40 15],'string','Lumi','Horizontalalignment','left');
 hGui.lumi=uicontrol('style','popupmenu','position',[120 510 75 20],'string',[{'Fix'},{'Rand'}],'callback','Random_luminance');
@@ -168,7 +169,7 @@ uicontrol('style','text','position',[265 400 25 15],'string','deg','Horizontalal
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%              Electrophysiology             %%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-uipanel('Title','NI DAQ Setting','FontSize',12,'Position',[0.42 0.73 0.55 0.26]);
+uipanel('Title', 'Rec Setting','FontSize',12,'Position',[0.42 0.73 0.55 0.26]);
 %%%
 uicontrol('style','text','position',[435 695 60 15],'string','Samp.Freq','Horizontalalignment','left');
 hGui.sampf=uicontrol('style','edit','position',[435 670 50 25],'string',recobj.sampf/1000,'callback','recobj.sampf = str2double(get(hGui.sampf,''string''))*1000; daqsetting;ch_plot','BackGroundColor','w');
@@ -354,18 +355,15 @@ switch(get(hObject, 'value'));
     case 2
         shape = 'FillOval';
 end
-disp(shape);
 sobj.shape = shape;
-disp(sobj.shape);
 end
 %%
-function y = re_write(handles)
-y = str2double(get(handles,'string'));
-end
+
 %%
-function ch_zoom(hObject, ~)
+function ch_zoom(~, ~, hGui)
 global sobj
-sobj.div_zoom = re_write(hObject);
+sobj.div_zoom = re_write(hGui.div_zoom);
+sobj.dist = re_write(hGui.dist);
 check_zoom;
 end
 %%
