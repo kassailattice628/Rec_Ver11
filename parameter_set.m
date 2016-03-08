@@ -5,16 +5,17 @@ global dev
 %AIO
 global s
 global InCh
-global OutCh
-global lh % DAQ listner handle
+%global OutCh
 %DIO
 global dio
 %Rotary
 global sRot
+%captured data
+
 
 
 %% NBA version
-recobj.NBAver = 11;%Mac Test Version
+recobj.NBAver = 11.0; %Test Ver
 
 %% Recordings
 recobj.interval = 1; %loop interval(s);
@@ -34,8 +35,8 @@ recobj.dataall = zeros(recobj.recp,4);%4 AI channels
 
 %elec stim
 recobj.EOf = 0;
-recobj.OutData = zeros(recobj.recp,2); %pulse data
-recobj.pulseAmp = 0.1; % stim amp(nA)
+recobj.OutData = zeros(recobj.recp,2); %矩形波データ
+recobj.pulseAmp = 0.1; %stim amp(nA)
 recobj.pulseDelay = 0.2; %sec
 recobj.pulseDuration = 0.2; %sec
 
@@ -46,7 +47,7 @@ recobj.stepAmp = 0:0.1:0.5;%Cstep
 %DAQoutput gain Axoclamp2B, head stage gain (H) = *0.1
 %[(current pulse gain:ME1 cmd output(10*H nA/V)), (voltage pulse gain)]:
 % 1V in ->  20 mV(=0.02V) out
-recobj.gain = [1, 0.05]; %for Axoclamp2B Command V output, [ME1 cmd output(10*H nA/V), VC cmd output(20 mV/V)]; % 
+recobj.gain = [1, 0.05]; %for Axoclamp2B Command V output, [ME1 cmd output(10*H nA/V), VC cmd output(20 mV/V)]; %
 
 %% PTB
 %scrsz=get(0,'ScreenSize');
@@ -59,8 +60,8 @@ else
     sNum = sobj.ScrNum;
 end
 %%
-sobj.ScreenSize = [MP(sNum,3)-MP(sNum,1)+1, MP(sNum,4)-MP(sNum,2)+1];%monitor size of stim monitor
-%sobj.ScreenSize = [MP(sNum,3),MP(sNum,4)];%for Windows8
+%sobj.ScreenSize = [MP(sNum,3)-MP(sNum,1)+1, MP(sNum,4)-MP(sNum,2)+1];%monitor size of stim monitor
+sobj.ScreenSize = [MP(sNum,3),MP(sNum,4)];%for Windows8
 % monitor dependent prameter (DeLL 19-inch)
 sobj.pixpitch = 0.264;%(mm)
 
@@ -131,17 +132,17 @@ sobj.dist_pix = 0;
 %Zoom and Fine mapping
 sobj.zoom_dist = 0;
 sobj.zoom_ang = 0;
-%check_zoom;
+check_zoom;
 
 %Image presentation
 sobj.img_i = 0;
 sobj.ImageNum = 256;
 sobj.list_img = 1:sobj.ImageNum;
 
-%% Session Based DAQ 
-dev = [];
+%% Session Based DAQ
+%dev = []; for Mac test
 
-%{
+
 dev = daq.getDevices;
 s = daq.createSession(dev.Vendor.ID);
 
@@ -149,18 +150,15 @@ s.Rate = recobj.sampf;
 s.DurationInSeconds = recobj.rect/1000;%sec, when AO channel is set, s.DurationInSeconds is replaced with 's.scansqued/s.rate'.
 s.NotifyWhenDataAvailableExceeds = recobj.recp;
 
-InCh = addAnalogInputChannel(s, dev.ID, 0:4, 'Voltage');%(1):Vm, (2):Im, (3):photo sensor, (4):Trigger pulse
+InCh = addAnalogInputChannel(s, dev.ID, 0:3, 'Voltage');%(1):Vm, (2):Im, (3):photo sensor, (4):Trigger pulse
 InCh(1).TerminalConfig = 'Differential';%default SingleEnded, -> Differential．
 InCh(2).TerminalConfig = 'Differential';
 InCh(3).TerminalConfig = 'Differential';
 InCh(4).TerminalConfig = 'Differential';%This channle is used for hardware timing
 
-OutCh = addAnalogOutputChannel(s, dev.ID, 0:1,'Voltage');
+%OutCh = addAnalogOutputChannel(s, dev.ID, 0:1,'Voltage');
 %(1):Curretn Pulse (C clamp)
 %(2):Voltage Pulse (V clamp)
-
-lh = addlistener(s, 'DataAvailable', @RecPlotData2);
-stop(s)
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% for digital Trigger
@@ -175,7 +173,7 @@ dio.TrigFV = daq.createSession(dev.Vendor.ID);
 addDigitalChannel(dio.TrigFV, dev.ID, 'port0/line1', 'OutputOnly');
 outputSingleScan(dio.TrigFV,0);%reset trigger signals at Low
 
-%P0.2:Visual Stimulus On Timing 
+%P0.2:Visual Stimulus On Timing
 dio.VSon = daq.createSession(dev.Vendor.ID);
 addDigitalChannel(dio.VSon, dev.ID, 'port0/line2', 'OutputOnly');
 outputSingleScan(dio.VSon,0); %reset trigger signals at Low
@@ -188,6 +186,6 @@ outputSingleScan(dio.TTL3,0); %reset trigger signals at Low
 %if other digital outputs will be needed, the code is here.
 
 %% for Rotary Encoder
-RotCh = addCounterInputChannel(s, dev.ID, 'ctr0', 'Position');
-RotCh.EncoderType='X4'; %decode mode:X1, X2, X4, 'X4' is the most fine mode.
-%}
+sRot = addCounterInputChannel(s, dev.ID, 'ctr0', 'Position');
+sRot.EncoderType='X4'; %decode mode:X1, X2, X4, 'X4' is the most fine mode.
+

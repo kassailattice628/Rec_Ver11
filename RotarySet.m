@@ -23,7 +23,7 @@ switch get(hObject,'value')
         end
 end
     function FigRot
-        figUIobj.f2 = figure('Position',[400, 500, 500, 200], 'Name','RotoryEncoder','Menubar','none');
+        figUIobj.f2 = figure('Position',[400, 500, 650, 250], 'Name','RotoryEncoder','Menubar','none');
         figUIobj.yRot = recobj.dataall(:,1);
         figUIobj.tRot = recobj.rectaxis/1000;
         figUIobj.pRot = plot(figUIobj.tRot,figUIobj.yRot, 'XdataSource','figUIobj.tRot','YDataSource','figUIobj.yRot');

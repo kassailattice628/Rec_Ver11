@@ -4,7 +4,7 @@ global recobj
 recobj.plot = get(hObject,'value')+1;
 switch recobj.plot
     case 1%V-plot
-        set(hGui.plot,'string','V-plot','BackgroundColor','B');
+        set(hGui.plot,'string','V-plot','ForegroundColor','white','BackgroundColor','B');
         %plot
         set(get(hGui.s2, 'Title'), 'string','V-DATA');
         set(get(hGui.s2, 'Ylabel'), 'string','mV');

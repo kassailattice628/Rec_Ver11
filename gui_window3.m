@@ -1,4 +1,4 @@
-function hGui = gui_window3(s, sTrig)
+function hGui = gui_window3(s, dio)
 %gui_window3 creates a None But Air Graphical User Interface
 % hGui = gui_window3(s, sTrig) returns a structure of graphics components
 % handles (hGui) and create a GUI for PTB visual stimuli, data acquisition
@@ -9,8 +9,8 @@ global recobj
 
 %% %---------- Create GUI window ----------%
 %open GUI window
-hGui.F1 = figure('Position',[10, 20, 1000, 750], 'Name','None But Air','Menubar','none');
-
+hGui.F1 = figure('Position',[10, 20, 1000, 750], 'Name','None But Air','Menubar','none', 'Resize', 'off');
+set(hGui.F1, 'DeleteFcn', {@quit_NBA, s});
 %set GUI components
 hGui.ONSCR = uicontrol('style','pushbutton','string','OpenScreen','position',[5 705 80 30],'Horizontalalignment','center');
 set(hGui.ONSCR,'Callback', {@OpenSCR, sobj});
@@ -19,10 +19,10 @@ set(hGui.CLSCR, 'Callback',{@CloseSCR, sobj});
 
 hGui.stim=uicontrol('style','togglebutton','position',[110 705 100 30],'string','Stim-OFF','callback',@stimON,'Horizontalalignment','center');
 %main_loopingtest
-hGui.loop=uicontrol('style','togglebutton','position',[110 670 100 30],'string','Loop-OFF','callback',@loopON,'BackGroundColor','r');
+hGui.loop=uicontrol('style','togglebutton','position',[110 670 100 30],'string','Loop-OFF','callback',{@loopON,s, dio},'BackGroundColor','r');
 
 hGui.EXIT=uicontrol('string','EXIT','position',[345 705 65 30],'FontSize',12,'Horizontalalignment','center');
-set(hGui.EXIT, 'CallBack', {@quit_NBA, s, sTrig});
+set(hGui.EXIT, 'CallBack', {@quit_NBA, s});
 
 %%
 %stim state monitor% %%
@@ -41,19 +41,23 @@ hGui.t = recobj.rectaxis/1000;
 % trace 1
 hGui.s2 = subplot('position', [0.46 0.35 0.52 0.35]);
 set(hGui.s2,'YlimMode','Auto');
-hGui.y2 = recobj.dataall(:,1);
-hGui.p2 = plot(hGui.t,hGui.y2, 'XdataSource','hGui.t','YDataSource', 'hGui.y2');
+%hGui.y2 = recobj.dataall(:,1);
+%hGui.p2 = plot(hGui.t,hGui.y2, 'XdataSource','hGui.t','YDataSource', 'hGui.y2');
+hGui.p2 = plot(0, zeros(1,1));
+%set(hGui.p2, 'XData', NaN, 'YData', NaN);
+
 title('V-DATA');
 xlabel('Time (sec)');
 ylabel('mV');
-hGui.flash2 = line('xdata',[0 0],'ydata',[0 0],'Color','r','LineWidth',1);
-hGui.flash3 = line('xdata',[0 0],'ydata',[0 0],'Color','r','LineWidth',1);
+%hGui.flash2 = line('xdata',[0 0],'ydata',[0 0],'Color','r','LineWidth',1);
+%hGui.flash3 = line('xdata',[0 0],'ydata',[0 0],'Color','r','LineWidth',1);
 
 % trace 2
 hGui.s3 = subplot('position', [0.46 0.1 0.52 0.15]);
 set(hGui.s3,'YlimMode','Auto');
 hGui.y3 = recobj.dataall(:,3);
-hGui.p3 = plot(hGui.t,hGui.y3,'XdataSource','hGui.t','YDataSource', 'hGui.y3');
+%hGui.p3 = plot(hGui.t,hGui.y3,'XdataSource','hGui.t','YDataSource', 'hGui.y3');
+hGui.p3 = plot(NaN, NaN(1,1));
 title('Photo Sensor');
 xlabel('Time (sec)');
 ylabel('mV');
@@ -136,7 +140,7 @@ set(hGui.size, 'callback', @reload_params);
 uicontrol('style','text','position',[65 305 30 15],'string','deg','Horizontalalignment','left');
 %Auto-Fill
 hGui.auto_size=uicontrol('style','togglebutton','position',[105 300 70 30],'string','Auto OFF','Horizontalalignment','center');
-set(hGui.auto_size, 'callback', {@autosizing,sobj.MonitorDist, hGui});
+set(hGui.auto_size, 'callback', {@autosizing, sobj.MonitorDist, hGui});
 
 uicontrol('style','text','position',[10 280 70 15],'string','Monitor Div.','Horizontalalignment','left');
 hGui.divnum=uicontrol('style','edit','position',[10 255 50 25],'string',sobj.divnum,'BackGroundColor','w');
@@ -290,7 +294,7 @@ hGui.stepf = uicontrol('style','togglebutton','position',[805 645 40 25],'string
 
 %%
 uicontrol('style','text','position',[435 650 55 15],'string','Plot Type ','Horizontalalignment','left');
-hGui.plot=uicontrol('style','togglebutton','position',[435 625 90 30],'string','V-plot');
+hGui.plot=uicontrol('style','togglebutton','position',[435 625 90 30],'string','V-plot','ForegroundColor','white','BackGroundColor','b');
 set(hGui.plot,'callback',{@ch_plot, hGui});
 
 uicontrol('style','text','position',[530 650 55 15],'string','Y-axis','Horizontalalignment','left');
@@ -364,15 +368,11 @@ switch get(hObject,'value');
 end
 end
 %%
-function loopON
-reload_params;
-end
 %%
-function quit_NBA(~, ~, s, sTrig)
+function quit_NBA(~, ~, s)
 global sobj
 global dev
 delete(s)
-delete(sTrig)
 if isempty(dev)
 else
     daq.reset;
@@ -382,7 +382,7 @@ if sobj.ScrNum ~= 0
 end
 %clear windows, variables
 sca;
-clear all;
+clear;
 close all;
 end
 %%
@@ -411,7 +411,7 @@ function autosizing(hObject, ~, dist, hGui)
 global sobj
 
 if get(hObject, 'value')==1
-    set(hObject,'string','Auto FILL');
+    set(hObject,'string','Auto FILL','BackGroundColor','g');
     Rx = floor((sobj.ScreenSize(1)/sobj.divnum));
     Ry = floor((sobj.ScreenSize(2)/sobj.divnum));
     sobj.stimsz = [Rx,Ry];
@@ -419,8 +419,9 @@ if get(hObject, 'value')==1
     set(hGui.size,'string',[num2str(szdeg(1)), ' x ', num2str(szdeg(2))]);
     
 elseif get(hObject,'value')==0
-    set(hObject,'string','Auto OFF');
-    sobj.stimsz = round(ones(1,2)*Deg2Pix(str2double(get(hGui.size,'string')), dist));
+    set(hObject,'string','Auto OFF','BackGroundColor',[0.701961 0.701961 0.701961]);
+    sobj.stimsz = round(ones(1,2)*Deg2Pix(1,sobj.MonitorDist));% default ‚Í 1“x
+    set(hGui.size,'string', 1);
 end
 end
 
@@ -467,11 +468,11 @@ function TTL3(hObject, ~, hGui)
 global recobj
 switch get(hObject,'value')
     case 1
-        set(hObject,'string', 'TTL-ON');
+        set(hObject,'string', 'TTL-ON','BackGroundColor','g');
         set(hGui.delayTTL3,'string','0')
         recobj.delayTTL3 = 0;
     case 0
-        set(hObject,'string', 'TTL-OFF')
+        set(hObject,'string', 'TTL-OFF','BackGroundColor',[0.701961 0.701961 0.701961]);
 end
 end
 %%

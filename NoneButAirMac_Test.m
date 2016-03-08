@@ -1,10 +1,10 @@
 %%%%%%%%%%%%%%%%%%%%%
 %%%%%     None But Air_ Visual Stim Test on OSX     %%%%%%
 %%%%%%%%%%%%%%%%%%%%%
-% visual stimlus Simulator
+% visual stimlus controller and recording elechtrical data
 
-clear all;
 sca;% Screen Close ALL for PTB
+clear;
 close all;
 %% Reset DAQ
 %daq.reset
@@ -14,7 +14,9 @@ global recobj
 global figUIobj
 global floop
 global s
-global sTrig
+global dio
+%Rotary
+global sRot
 
 %% parameter setting
 floop = 1;
@@ -25,6 +27,7 @@ recobj.cycleNum = 0 - recobj.prestim; %loop cycle number
 
 %% open Window PTB %%
 PsychDefaultSetup(2);
+
 [sobj.wPtr, RECT] = Screen('OpenWindow', sobj.ScrNum,sobj.bgcol);
 [sobj.ScrCen1terX, sobj.ScrCenterY]= RectCenter(RECT);% center positionof of stim monitor
 sobj.m_int = Screen('GetFlipInterval', sobj.wPtr);
@@ -36,6 +39,6 @@ sobj.duration = sobj.flipNum*sobj.m_int;% sec
 
 %%
 Screen('CloseAll');
-figUIobj = gui_window3(s, sTrig); %loop ÇÕ Ç±ÇÃíÜÇ≈éQè∆ÇµÇƒÇÈ main_looping
+figUIobj = gui_window3(s, dio, sRot); %loop ÇÕ Ç±ÇÃíÜÇ≈éQè∆ÇµÇƒÇÈ main_looping
 
 %check_duration2;
