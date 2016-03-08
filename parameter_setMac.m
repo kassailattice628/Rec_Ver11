@@ -90,9 +90,10 @@ sobj.stimcol2 = sobj.stimlumi2 * sobj.stimRGB;
 sobj.flipNum2 = 75;
 sobj.delayPTBflip2 = 20; %delay flip number
 sobj.delayPTB2 = 0;% PTBflip * m_int だけど
-recobj.delayTTL2 = 0;
+recobj.delayTTL3 = 0;
+recobj.durationTTL3 = 0;
 %計測時間値（変数宣言のみ）
-recobj.tTTL2=0;
+recobj.tTTL3=0;
 recobj.tRec=0;
 sobj.tPTBon=0;
 sobj.tPTBoff=0;

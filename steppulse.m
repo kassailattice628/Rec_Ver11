@@ -30,5 +30,3 @@ switch get(hObject,'value');
                 set(hGui.Cstep,'BackGroundColor','w')
         end
 end
-
-ch_Estep;
