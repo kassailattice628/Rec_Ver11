@@ -1,4 +1,4 @@
-function [trigDetected, trigMoment] = trigDetect(latestData, trigConfig)
+function [trigDetected, trigMoment] = trigDetectNBA(latestData, trigConfig)
 %TRIGDETECT Detect if trigger condition is met in acquired data
 %   [TRIGDETECTED, TRIGMOMENT] = TRIGDETECT(PREVDATA, LATESTDATA, TRIGCONFIG)
 %   Returns a detection flag (TRIGDETECTED) and the corresponding timestamp

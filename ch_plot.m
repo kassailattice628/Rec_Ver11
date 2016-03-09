@@ -12,9 +12,9 @@ switch recobj.plot
         %C-pulse
         set(hGui.ampunit,'string','nA');
         set(hGui.presetAmp,'string', '1 nA', 'value',0)
-        %preset
+
     case 2%C-plot
-        set(hGui.plot,'string','I-plot','BackgroundColor','R');
+        set(hGui.plot,'string','I-plot','ForegroundColor','k','BackgroundColor','R');
         %plot
         set(get(hGui.s2, 'Title'), 'string','I-DATA');
         set(get(hGui.s2, 'Ylabel'), 'string','nA');
@@ -25,15 +25,15 @@ switch recobj.plot
         
 end
 
-%軸の更新も必要か
+%axis reset
 switch recobj.yaxis
-    case 0
+    case 0 %y axis -auto
         set(hGui.s2,'YlimMode','Auto');
         set(hGui.VYmax,'BackGroundColor','w')
         set(hGui.VYmin,'BackGroundColor','w')
         set(hGui.CYmax,'BackGroundColor','w')
         set(hGui.CYmin,'BackGroundColor','w')
-    case 1
+    case 1 %y axis -manual
         set(hGui.s2,'YlimMode','Manual');
         set(hGui.s2,'Ylim',[recobj.yrange(recobj.plot*2-1),recobj.yrange(recobj.plot*2)]);
         switch recobj.plot

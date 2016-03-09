@@ -10,8 +10,9 @@ global recobj
 %% %---------- Create GUI window ----------%
 %open GUI window
 hGui.F1 = figure('Position',[10, 20, 1000, 750], 'Name','None But Air','Menubar','none', 'Resize', 'off');
-set(hGui.F1, 'DeleteFcn', {@quit_NBA, s});
-%set GUI components
+%set(hGui.F1, 'DeleteFcn', {@quit_NBA, s});
+
+%GUI components
 hGui.ONSCR = uicontrol('style','pushbutton','string','OpenScreen','position',[5 705 80 30],'Horizontalalignment','center');
 set(hGui.ONSCR,'Callback', {@OpenSCR, sobj});
 hGui.CLSCR = uicontrol('style','pushbutton','string','CloseScreen','position', [5 670 80 30],'Horizontalalignment','center');
@@ -43,7 +44,7 @@ hGui.s2 = subplot('position', [0.46 0.35 0.52 0.35]);
 set(hGui.s2,'YlimMode','Auto');
 %hGui.y2 = recobj.dataall(:,1);
 %hGui.p2 = plot(hGui.t,hGui.y2, 'XdataSource','hGui.t','YDataSource', 'hGui.y2');
-hGui.p2 = plot(0, zeros(1,1));
+hGui.p2 = plot(NaN, NaN(1,1));
 %set(hGui.p2, 'XData', NaN, 'YData', NaN);
 
 title('V-DATA');
@@ -222,17 +223,17 @@ set(hGui.matchS1S2, 'callback',{@match_stim2cond, hGui})
 uipanel('Title', 'Rec Setting','FontSize',12,'Position',[0.42 0.73 0.55 0.26]);
 %%
 uicontrol('style','text','position',[435 695 60 15],'string','Samp.Freq','Horizontalalignment','left');
-hGui.sampf=uicontrol('style','edit','position',[435 670 50 25],'string',recobj.sampf/1000,'BackGroundColor','w');
+hGui.sampf=uicontrol('style','edit','position',[435 670 50 25],'string',recobj.sampf/1000,'BackGroundColor','g');
 set(hGui.sampf,'callback', @reload_params);
 uicontrol('style','text','position',[490 670 25 15],'string','kHz','Horizontalalignment','left');
 
 uicontrol('style','text','position',[515 695 60 15],'string','Rec.Time','Horizontalalignment','left');
-hGui.rect=uicontrol('style','edit','position',[515 670 50 25],'string',recobj.rect,'BackGroundColor','w');
+hGui.rect=uicontrol('style','edit','position',[515 670 50 25],'string',recobj.rect,'BackGroundColor','g');
 set(hGui.rect,'callback', @reload_params);
 uicontrol('style','text','position',[570 670 20 15],'string','ms','Horizontalalignment','left');
 
 uicontrol('style','text','position',[595 695 70 15],'string','Loop Interval','Horizontalalignment','left');
-hGui.interval=uicontrol('style','edit','position',[595 670 50 25],'string',recobj.interval,'BackGroundColor','w');
+hGui.interval=uicontrol('style','edit','position',[595 670 50 25],'string',recobj.interval,'BackGroundColor','g');
 set(hGui.rect,'callback', @reload_params);
 uicontrol('style','text','position',[650 670 25 15],'string','sec','Horizontalalignment','left');
 
@@ -242,8 +243,8 @@ set(hGui.DAQrange,'callback',@ch_DaqRange);
 
 %%
 uicontrol('style','text','position',[610 650 80 15],'string','V range (mV)')
-hGui.VYmin = uicontrol('style','edit','position',[610 625 40 25],'string',recobj.yrange(1)','BackGroundColor','w');
-hGui.VYmax = uicontrol('style','edit','position',[655 625 40 25],'string',recobj.yrange(2)','BackGroundColor','w');
+hGui.VYmin = uicontrol('style','edit','position',[610 625 40 25],'string',recobj.yrange(1)','BackGroundColor','g');
+hGui.VYmax = uicontrol('style','edit','position',[655 625 40 25],'string',recobj.yrange(2)','BackGroundColor','g');
 uicontrol('style','text','position',[705 650 80 15],'string','C range (nA)')
 hGui.CYmin = uicontrol('style','edit','position',[705 625 40 25],'string',recobj.yrange(3)','BackGroundColor','w');
 hGui.CYmax = uicontrol('style','edit','position',[750 625 40 25],'string',recobj.yrange(4)','BackGroundColor','w');
@@ -292,7 +293,7 @@ hGui.Vstep = uicontrol('style','edit','position',[920 595 30 25],'string',recobj
 
 hGui.stepf = uicontrol('style','togglebutton','position',[805 645 40 25],'string','step','Callback',{@steppulse, hGui});
 
-%%
+%% select plot channel %%
 uicontrol('style','text','position',[435 650 55 15],'string','Plot Type ','Horizontalalignment','left');
 hGui.plot=uicontrol('style','togglebutton','position',[435 625 90 30],'string','V-plot','ForegroundColor','white','BackGroundColor','b');
 set(hGui.plot,'callback',{@ch_plot, hGui});

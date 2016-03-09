@@ -15,8 +15,6 @@ global figUIobj
 global floop
 global s
 global dio
-%Rotary
-global sRot
 global lh
 global capture
 
@@ -52,10 +50,10 @@ capture.TimeSpan = recobj.rect/1000;
 callbackTimeSpan = double(s.NotifyWhenDataAvailableExceeds)/s.Rate;
 
 % Determine required buffer timespan, seconds
-capture.bufferTimeSpan = max([capture.TimeSpan * 2, callbackTimeSpan * 3]);
+capture.bufferTimeSpan = max([capture.TimeSpan, callbackTimeSpan*2]);
 
 % Determine data buffer size
 capture.bufferSize =  round(capture.bufferTimeSpan * s.Rate);
 
-lh = addlistener(s, 'DataAvailable', @(src,event) dataCapture(src, event, capture, figUIobj));
+lh = addlistener(s, 'DataAvailable', @(src,event) dataCaptureNBA(src, event, capture, figUIobj, s, dio));
 %%

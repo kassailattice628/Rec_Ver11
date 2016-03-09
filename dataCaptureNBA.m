@@ -1,4 +1,4 @@
-function dataCapture(src, event, c, hGui)
+function dataCaptureNBA(src, event, c, hGui, s, dio)
 %dataCapture Process DAQ acquired data when called by DataAvailable event.
 %  dataCapture (SRC, EVENT, C, HGUI) processes latest acquired data (EVENT.DATA)
 %  and timestamps (EVENT.TIMESTAMPS) from session (SRC), and, based on specified
@@ -9,7 +9,6 @@ function dataCapture(src, event, c, hGui)
 %   c.TimeSpan        = triggered capture timespan (seconds)
 %   c.bufferTimeSpan  = required data buffer timespan (seconds)
 %   c.bufferSize      = required data buffer size (number of scans)
-%   c.plotTimeSpan    = continuous acquired data timespan (seconds)
 %
 
 % The incoming data (event.Data and event.TimeStamps) is stored in a
@@ -32,7 +31,8 @@ if event.TimeStamps(1)==0
 end
 
 % Store continuous acquistion data in persistent FIFO buffer dataBuffer
-latestData = [event.TimeStamps, event.Data];
+latestData = [event.TimeStamps, event.Data]; %after event is avairable
+
 dataBuffer = [dataBuffer; latestData];
 numSamplesToDiscard = size(dataBuffer,1) - c.bufferSize;
 if (numSamplesToDiscard > 0)
@@ -46,24 +46,23 @@ end
 
 % Get capture push button (loop) value (1 or 0) from UI
 captureRequested = get(hGui.loop, 'value'); % Loop-ON
-%trigConfig.Channel = 4;%Trigger input ‚Í AI3
 if captureRequested && (~trigActive)
     % State: "Looking for trigger event"
     disp('Waiting for trigger');
-
+    
     % Get the trigger configuration parameters from UI text inputs and
     %   place them in a structure.
     % For simplicity, validation of user input is not addressed in this example.
-    trigConfig.Channel = 4;
-    trigConfig.Level = 1;
+    trigConfig.Channel = 4; %Trigger monitor
+    trigConfig.Level = 1; %(V) Trigger threshold
     
     % Determine whether trigger condition is met in the latest acquired data
     % A custom trigger condition is defined in trigDetect user function
-    [trigActive, trigMoment] = trigDetect(latestData, trigConfig);
+    [trigActive, trigMoment] = trigDetectNBA(latestData, trigConfig);
     
 elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) > c.TimeSpan)
     % State: "Acquired enough data for a complete capture"
-    disp('Acquired enough data');
+    
     % If triggered and if there is enough data in dataBuffer for triggered
     % capture, then captureData can be obtained from dataBuffer.
     
@@ -75,17 +74,18 @@ elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) > c.Tim
     
     % Reset trigger flag, to allow for a new triggered data capture
     trigActive = false;
-
+    
     % Update captured data plot (one line for each acquisition channel)
     % captureData(:,1) is timstamp
     % captureData(:,2:n) is data from AI channel(1:n)
     % plot AI0
-    %hGui.p2 = plot(hGui.t,hGui.y2, 'XdataSource','hGui.t','YDataSource', 'hGui.y2');
-    %hGui.t = captureData(:,1);
-    %hGui.y2 = captureData(:,2);
     set(hGui.p2, 'XData', captureData(:, 1), 'YData', captureData(:, 2))
+    set(hGui.p3, 'XData', captureData(:, 1), 'YData', captureData(:, 5))
+    disp(size(captureData));
     
-    
+    % once data is captured and plotted, stop the session
+    outputSingleScan(dio.TrigAI,0);%reset trigger signals at Low
+    stop(s)
 elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) < c.TimeSpan)
     disp('Capturing data')
 elseif ~captureRequested
@@ -95,6 +95,7 @@ elseif ~captureRequested
     disp('Capture not requested')
 end
 
+%update plot
 drawnow;
 
 end
