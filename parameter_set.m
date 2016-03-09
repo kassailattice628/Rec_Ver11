@@ -149,7 +149,7 @@ s = daq.createSession(dev.Vendor.ID);
 
 s.Rate = recobj.sampf;
 s.DurationInSeconds = recobj.rect/1000;%sec, when AO channel is set, s.DurationInSeconds is replaced with 's.scansqued/s.rate'.
-s.NotifyWhenDataAvailableExceeds = recobj.recp;
+%s.NotifyWhenDataAvailableExceeds = recobj.recp; %10 times/sec in default
 s.IsContinuous = true;
 
 InCh = addAnalogInputChannel(s, dev.ID, 0:3, 'Voltage');%(1):Vm, (2):Im, (3):photo sensor, (4):Trigger pulse
@@ -166,6 +166,13 @@ InCh(4).TerminalConfig = 'Differential';%This channle is used for hardware timin
 %% for digital Trigger
 
 %P0.0:Trig NIDAQ -> connect to PFI0
+%P0.1:FV start Timing -> connect to Olympus FV PC
+dio.TrigAIFV = daq.createSession(dev.Vendor.ID);
+addDigitalChannel(dio.TrigAIFV, dev.ID, 'port0/line0:1', 'OutputOnly');
+outputSingleScan(dio.TrigAIFV,[0,0]);%reset trigger signals at Low
+
+%{
+%P0.0:Trig NIDAQ -> connect to PFI0
 dio.TrigAI = daq.createSession(dev.Vendor.ID);
 addDigitalChannel(dio.TrigAI, dev.ID, 'port0/line0', 'OutputOnly');
 outputSingleScan(dio.TrigAI,0);%reset trigger signals at Low
@@ -174,6 +181,7 @@ outputSingleScan(dio.TrigAI,0);%reset trigger signals at Low
 dio.TrigFV = daq.createSession(dev.Vendor.ID);
 addDigitalChannel(dio.TrigFV, dev.ID, 'port0/line1', 'OutputOnly');
 outputSingleScan(dio.TrigFV,0);%reset trigger signals at Low
+%}
 
 %P0.2:Visual Stimulus On Timing
 dio.VSon = daq.createSession(dev.Vendor.ID);

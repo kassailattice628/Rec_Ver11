@@ -1,4 +1,4 @@
-function dataCaptureNBA(src, event, c, hGui, s, dio)
+function dataCaptureNBA(src, event, c, hGui, ~, ~)
 %dataCapture Process DAQ acquired data when called by DataAvailable event.
 %  dataCapture (SRC, EVENT, C, HGUI) processes latest acquired data (EVENT.DATA)
 %  and timestamps (EVENT.TIMESTAMPS) from session (SRC), and, based on specified
@@ -10,11 +10,9 @@ function dataCaptureNBA(src, event, c, hGui, s, dio)
 %   c.bufferTimeSpan  = required data buffer timespan (seconds)
 %   c.bufferSize      = required data buffer size (number of scans)
 %
-
 % The incoming data (event.Data and event.TimeStamps) is stored in a
 % persistent buffer (dataBuffer), which is sized to allow triggered data
 % capture.
-
 % Since multiple calls to dataCapture will be needed for a triggered
 % capture, a trigger condition flag (trigActive) and a corresponding
 % data timestamp (trigMoment) are used as persistent variables.
@@ -24,16 +22,12 @@ global FigRot
 global RecData
 
 persistent dataBuffer trigActive trigMoment
-disp('dataCapture called')
 
 % If dataCapture is running for the first time, initialize persistent vars
 if event.TimeStamps(1)==0
     dataBuffer = [];          % data buffer
     trigActive = false;       % trigger condition flag
     trigMoment = [];          % data timestamp when trigger condition met
-    prevData =[];
-else
-    prevData = dataBuffer(end, :);
 end
 
 % Store continuous acquistion data in persistent FIFO buffer dataBuffer
@@ -44,8 +38,7 @@ if (numSamplesToDiscard > 0)
     dataBuffer(1:numSamplesToDiscard, :) = [];
 end
 
-% Update live data plot
-% Plot latest plotTimeSpan seconds of data in dataBuffer
+%% Update live data plot, Plot latest plotTimeSpan seconds of data in dataBuffer
 samplesToPlot = min([round(c.plotTimeSpan * src.Rate), size(dataBuffer,1)]);
 firstPoint = size(dataBuffer, 1) - samplesToPlot + 1;
 % Update x-axis limits
@@ -54,30 +47,23 @@ xlim(hGui.s3, [dataBuffer(firstPoint,1), dataBuffer(end,1)]);
 
 set(hGui.p3, 'XData', dataBuffer(firstPoint:end, 1), ...
     'YData', dataBuffer(firstPoint:end, 5))
-
-
-
+%%
 % If capture is requested, analyze latest acquired data until a trigger
 % condition is met. After enough data is acquired for a complete capture,
 % as specified by the capture timespan, extract the capture data from the
 % data buffer and save it to a base workspace variable.
 
-% Get capture push button (loop) value (1 or 0) from UI
 captureRequested = get(hGui.loop, 'value'); % Loop-ON
-
-
 if captureRequested && (~trigActive)
     % State: "Looking for trigger event"
-    disp('Waiting for trigger');
     
     % Trigger Configuration
     trigConfig.Channel = 4; %Trigger monitor
-    trigConfig.Level = 1; %(V) Trigger threshold
+    trigConfig.Level = 3; %(V) Trigger threshold
     
     % Determine whether trigger condition is met in the latest acquired data
-    % A custom trigger condition is defined in trigDetect user function
     [trigActive, trigMoment] = trigDetectNBA(latestData, trigConfig);
-    
+    disp(trigMoment);
 elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) > c.TimeSpan)
     % State: "Acquired enough data for a complete capture"
     % If triggered and if there is enough data in dataBuffer for triggered
@@ -88,11 +74,6 @@ elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) > c.Tim
     % Find index of sample in dataBuffer to complete the capture
     lastSampleIndex = round(trigSampleIndex + c.TimeSpan * src.Rate());
     captureData = dataBuffer(trigSampleIndex:lastSampleIndex, :);
-    
-    % Reset trigger flag, to allow for a new triggered data capture
-
-    %stop(s)
-    trigActive = false;
     
     % Update captured data plot (one line for each acquisition channel)
     % captureData(:,1) is timstamp
@@ -106,25 +87,22 @@ elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) > c.Tim
         positionDataDeg = DecodeRot(captureData(:,6));
         set(FigRot.pRot, 'XData', captureData(:, 1), 'YData', positionDataDeg)%Decoded Angular position data
     end
+    %update plot
+    drawnow update;
     
-    disp(size(captureData));
-    
+    trigActive = false;
+    %disp(size(captureData));
     %save data
     RecData = [RecData; captureData];
     
 elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) < c.TimeSpan)
-    disp('Triggered')
-        outputSingleScan(dio.TrigAI,0);
+    %disp('Triggered')
 elseif ~captureRequested
-    % State: "Capture not requested"
+    % State: "Loop Out"
     trigActive = false;
 end
-
-
-%update plot
-drawnow update;
-
 end
+
 %%
 function [trigDetected, trigMoment] = trigDetectNBA(latestData, trigConfig)
 %TRIGDETECT Detect if trigger condition is met in acquired data
@@ -143,6 +121,7 @@ if trigDetected
     trigMoment = trigTimeStamps(1);
 end
 end
+
 %%
 function positionDataDeg = DecodeRot(CTRin)
 % Transform counter data from rotary encoder into angular position (deg).

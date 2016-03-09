@@ -44,15 +44,18 @@ figUIobj = gui_window3(s, dio); %loop ÇÕ Ç±ÇÃíÜÇ≈éQè∆ÇµÇƒÇÈ main_looping
 %% DAQ capture settings
 % Specify triggered capture timespan, in seconds
 capture.TimeSpan = recobj.rect/1000;% sec
-% Specify continuous data plot timespan, in seconds
-capture.plotTimeSpan = 0.5;
+
+% Specify continuous data plot timespan
+capture.plotTimeSpan = 1; %sec
+
 % Determine the timespan corresponding to the block of samples supplied
 % to the DataAvailable event callback function.
 callbackTimeSpan = double(s.NotifyWhenDataAvailableExceeds)/s.Rate;
 
 % Determine required buffer timespan, seconds
 %capture.bufferTimeSpan = max([capture.TimeSpan, callbackTimeSpan*2]);
-capture.bufferTimeSpan=capture.TimeSpan*2;
+%capture.bufferTimeSpan=capture.TimeSpan*2;
+capture.bufferTimeSpan = max([capture.plotTimeSpan, capture.TimeSpan * 3, callbackTimeSpan * 3]);
 
 % Determine data buffer size
 capture.bufferSize =  round(capture.bufferTimeSpan * s.Rate);
