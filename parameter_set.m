@@ -11,6 +11,7 @@ global dio
 %Rotary
 global sRot
 %captured data
+global RecData
 
 
 
@@ -141,7 +142,7 @@ sobj.list_img = 1:sobj.ImageNum;
 
 %% Session Based DAQ
 %dev = []; for Mac test
-
+RecData =[];
 
 dev = daq.getDevices;
 s = daq.createSession(dev.Vendor.ID);
@@ -149,6 +150,7 @@ s = daq.createSession(dev.Vendor.ID);
 s.Rate = recobj.sampf;
 s.DurationInSeconds = recobj.rect/1000;%sec, when AO channel is set, s.DurationInSeconds is replaced with 's.scansqued/s.rate'.
 s.NotifyWhenDataAvailableExceeds = recobj.recp;
+s.IsContinuous = true;
 
 InCh = addAnalogInputChannel(s, dev.ID, 0:3, 'Voltage');%(1):Vm, (2):Im, (3):photo sensor, (4):Trigger pulse
 InCh(1).TerminalConfig = 'Differential';%default SingleEnded, -> DifferentialD

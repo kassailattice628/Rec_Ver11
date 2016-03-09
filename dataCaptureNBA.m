@@ -21,6 +21,8 @@ function dataCaptureNBA(src, event, c, hGui, s, dio)
 % Persistent variables retain their values between calls to the function.
 
 global FigRot
+global RecData
+
 persistent dataBuffer trigActive trigMoment
 disp('dataCapture called')
 
@@ -29,16 +31,31 @@ if event.TimeStamps(1)==0
     dataBuffer = [];          % data buffer
     trigActive = false;       % trigger condition flag
     trigMoment = [];          % data timestamp when trigger condition met
+    prevData =[];
+else
+    prevData = dataBuffer(end, :);
 end
 
 % Store continuous acquistion data in persistent FIFO buffer dataBuffer
 latestData = [event.TimeStamps, event.Data]; %after event is avairable
-
 dataBuffer = [dataBuffer; latestData];
 numSamplesToDiscard = size(dataBuffer,1) - c.bufferSize;
 if (numSamplesToDiscard > 0)
     dataBuffer(1:numSamplesToDiscard, :) = [];
 end
+
+% Update live data plot
+% Plot latest plotTimeSpan seconds of data in dataBuffer
+samplesToPlot = min([round(c.plotTimeSpan * src.Rate), size(dataBuffer,1)]);
+firstPoint = size(dataBuffer, 1) - samplesToPlot + 1;
+% Update x-axis limits
+xlim(hGui.s3, [dataBuffer(firstPoint,1), dataBuffer(end,1)]);
+% Live plot has one line for each acquisition channel
+
+set(hGui.p3, 'XData', dataBuffer(firstPoint:end, 1), ...
+    'YData', dataBuffer(firstPoint:end, 5))
+
+
 
 % If capture is requested, analyze latest acquired data until a trigger
 % condition is met. After enough data is acquired for a complete capture,
@@ -47,13 +64,13 @@ end
 
 % Get capture push button (loop) value (1 or 0) from UI
 captureRequested = get(hGui.loop, 'value'); % Loop-ON
+
+
 if captureRequested && (~trigActive)
     % State: "Looking for trigger event"
     disp('Waiting for trigger');
     
-    % Get the trigger configuration parameters from UI text inputs and
-    %   place them in a structure.
-    % For simplicity, validation of user input is not addressed in this example.
+    % Trigger Configuration
     trigConfig.Channel = 4; %Trigger monitor
     trigConfig.Level = 1; %(V) Trigger threshold
     
@@ -63,7 +80,6 @@ if captureRequested && (~trigActive)
     
 elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) > c.TimeSpan)
     % State: "Acquired enough data for a complete capture"
-    
     % If triggered and if there is enough data in dataBuffer for triggered
     % capture, then captureData can be obtained from dataBuffer.
     
@@ -74,16 +90,17 @@ elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) > c.Tim
     captureData = dataBuffer(trigSampleIndex:lastSampleIndex, :);
     
     % Reset trigger flag, to allow for a new triggered data capture
+
+    %stop(s)
     trigActive = false;
     
     % Update captured data plot (one line for each acquisition channel)
     % captureData(:,1) is timstamp
-    % captureData(:,2:n) is data from AI channel(1:n)
-    % plot AI0
-    set(hGui.p2, 'XData', captureData(:, 1), 'YData', captureData(:, 2))
-    set(hGui.p3, 'XData', captureData(:, 1), 'YData', captureData(:, 5))%3:photosensor, 4:Trigger monitor, 5:RotaryEncoder
+    % 2: AI1, 3: AI2, 4:AI 3=photosensor, 5: AI4=Trigger monitor, 6: RotaryEncoder
+    set(hGui.p2, 'XData', captureData(:, 1), 'YData', captureData(:, get(hGui.plot,'value')+2))
+    %set(hGui.p3, 'XData', captureData(:, 1), 'YData', captureData(:, 5))
     
-    %when Rotary ON, plot Ang. Pos.
+    %when Rotary ON, plot Angular Position
     if get(hGui.RotCtr,'value')
         %decode rotary
         positionDataDeg = DecodeRot(captureData(:,6));
@@ -92,24 +109,41 @@ elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) > c.Tim
     
     disp(size(captureData));
     
+    %save data
+    RecData = [RecData; captureData];
     
-    % once data is captured and plotted, stop DAQ session
-    outputSingleScan(dio.TrigAI,0);%reset trigger signals at Low
-    stop(s)
 elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) < c.TimeSpan)
-    disp('Capturing data')
+    disp('Triggered')
+        outputSingleScan(dio.TrigAI,0);
 elseif ~captureRequested
     % State: "Capture not requested"
-    % Capture toggle button is not pressed, set trigger flag and update UI
     trigActive = false;
-    disp('Capture not requested')
 end
+
 
 %update plot
-drawnow;
+drawnow update;
 
 end
+%%
+function [trigDetected, trigMoment] = trigDetectNBA(latestData, trigConfig)
+%TRIGDETECT Detect if trigger condition is met in acquired data
+%   trigConfig.Channel = index of trigger channel in session channels
+%   trigConfig.Level   = signal trigger level (V)
 
+% Condition for signal trigger level
+trigCondition = latestData(:, 1+trigConfig.Channel) > trigConfig.Level;
+
+trigDetected = any(trigCondition);
+trigMoment = [];
+
+if trigDetected
+    % Find time moment when trigger condition has been met
+    trigTimeStamps = latestData(trigCondition, 1);
+    trigMoment = trigTimeStamps(1);
+end
+end
+%%
 function positionDataDeg = DecodeRot(CTRin)
 % Transform counter data from rotary encoder into angular position (deg).
 

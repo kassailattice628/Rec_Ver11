@@ -1,6 +1,5 @@
 function RotarySet(hObject, ~)
 % open plot window for Angular position from Rotary Encoder
-
 global FigRot
 switch get(hObject,'value')
     case 0 % close Rotary plot window
@@ -32,6 +31,7 @@ end
 
 function RotaryOff(~,~)
 global figUIobj
-set(figUIobj.RotCtr, 'value', 0 ,'string','Rotary OFF','BackGroundColor',[0.9400 0.9400 0.9400])%default Mac
-
+        if ishandle(figUIobj.RotCtr)
+            set(figUIobj.RotCtr, 'value', 0 ,'string','Rotary OFF','BackGroundColor',[0.9400 0.9400 0.9400]);
+        end
 end

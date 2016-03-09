@@ -1,4 +1,4 @@
-%%%%%%%%%%%%%%%%%%%%%
+  %%%%%%%%%%%%%%%%%%%%%
 %%%%%     None But Air_ Visual Stim Test on OSX     %%%%%%
 %%%%%%%%%%%%%%%%%%%%%
 % visual stimlus controller and recording elechtrical data

@@ -18,9 +18,9 @@ set(hGui.ONSCR,'Callback', {@OpenSCR, sobj});
 hGui.CLSCR = uicontrol('style','pushbutton','string','CloseScreen','position', [5 670 80 30],'Horizontalalignment','center');
 set(hGui.CLSCR, 'Callback',{@CloseSCR, sobj});
 
-hGui.stim=uicontrol('style','togglebutton','position',[110 705 100 30],'string','Stim-OFF','callback',@stimON,'Horizontalalignment','center');
+hGui.stim=uicontrol('style','togglebutton','position',[110 705 100 30],'string','Stim-OFF','callback',@ch_stimON,'Horizontalalignment','center');
 %main_loopingtest
-hGui.loop=uicontrol('style','togglebutton','position',[110 670 100 30],'string','Loop-OFF','callback',{@loopON,s, dio},'BackGroundColor','r');
+hGui.loop=uicontrol('style','togglebutton','position',[110 670 100 30],'string','Loop-OFF','callback',{@loopON, s, dio, hGui},'BackGroundColor','r');
 
 hGui.EXIT=uicontrol('string','EXIT','position',[345 705 65 30],'FontSize',12,'Horizontalalignment','center');
 set(hGui.EXIT, 'CallBack', {@quit_NBA, s});
@@ -251,7 +251,7 @@ hGui.CYmax = uicontrol('style','edit','position',[750 625 40 25],'string',recobj
 
 %%% pulse %%%
 hGui.pulse = uicontrol('style','togglebutton','position',[435 585 70 25],'string','Pulse OFF');
-set(hGui.pulse, 'Callback', @pulseset);
+set(hGui.pulse, 'Callback', {@ch_ButtonColor, 'g'});
 
 %Duration
 uicontrol('style','text','position',[510 610 60 15],'string','Duration','Horizontalalignment','left');
@@ -309,7 +309,7 @@ hGui.save=uicontrol('style','togglebutton','position', [655 550 70 30],'string',
 %%
 %Elech only
 hGui.EOf = uicontrol('style','togglebutton','position',[890 700 60 30],'string','E only','FontSize',12,'Horizontalalignment','center');
-set(hGui.EOf, 'Callback',@SwitchETrig);
+set(hGui.EOf, 'Callback',{@ch_ButtonColor,'g'});
 
 
 %%
@@ -360,15 +360,17 @@ global flag
 flag.start = 1;Screen('Close', sobj.wPtr);
 end
 %%
-function stimON(hObject, ~)
-switch get(hObject,'value');
-    case 0
-        set(hObject,'string','Stim-OFF','BackGroundColor',[0.9400 0.9400 0.9400]);
+function ch_stimON(hObject,~)
+switch get(hObject, 'value')
     case 1
-        set(hObject,'string','Stim-ON','BackGroundColor','y')
+        set(hObject, 'string', 'Stim-ON');
+    case 0
+        set(hObject, 'string', 'Stim-OFF');
 end
+ch_ButtonColor(hObject,[],'y');
+
 end
-%%
+
 %%
 function quit_NBA(~, ~, s)
 global sobj
@@ -412,7 +414,7 @@ function autosizing(hObject, ~, dist, hGui)
 global sobj
 
 if get(hObject, 'value')==1
-    set(hObject,'string','Auto FILL','BackGroundColor','g');
+    set(hObject,'string','Auto FILL');
     Rx = floor((sobj.ScreenSize(1)/sobj.divnum));
     Ry = floor((sobj.ScreenSize(2)/sobj.divnum));
     sobj.stimsz = [Rx,Ry];
@@ -420,10 +422,12 @@ if get(hObject, 'value')==1
     set(hGui.size,'string',[num2str(szdeg(1)), ' x ', num2str(szdeg(2))]);
     
 elseif get(hObject,'value')==0
-    set(hObject,'string','Auto OFF','BackGroundColor',[0.9400 0.9400 0.9400]);
+    set(hObject,'string','Auto OFF');
     sobj.stimsz = round(ones(1,2)*Deg2Pix(1,sobj.MonitorDist));% default ‚Í 1“x
     set(hGui.size,'string', 1);
 end
+
+ch_ButtonColor(hObject,[],'g')
 end
 
 %%
@@ -469,23 +473,15 @@ function TTL3(hObject, ~, hGui)
 global recobj
 switch get(hObject,'value')
     case 1
-        set(hObject,'string', 'TTL-ON','BackGroundColor','g');
+        set(hObject,'string', 'TTL-ON');
         set(hGui.delayTTL3,'string','0')
         recobj.delayTTL3 = 0;
     case 0
-        set(hObject,'string', 'TTL-OFF','BackGroundColor',[0.9400 0.9400 0.9400]);
+        set(hObject,'string', 'TTL-OFF');
 end
+
+ch_ButtonColor(hObject,[], 'g')
 end
-%%
-function pulseset(hObject, ~)
-switch get(hObject,'value')
-    case 0
-        set(hObject,'string','Pulse OFF','BackGroundColor',[0.9400 0.9400 0.9400]);
-    case 1
-        set(hObject,'string','Pulse ON','BackGroundColor','g')
-end
-end
-%%
 
 %%
 function ch_yaxis(hObject, ~, hGui)
@@ -500,39 +496,30 @@ switch get(hObject,'value')
         set(hGui.s2,'YlimMode','Manual');
         set(hGui.s2,'Ylim',[recobj.yrange(recobj.plot*2-1),recobj.yrange(recobj.plot*2)]);
 end
+ch_ButtonColor(hObject,[],'g')
 end
 
 %%
-function SwitchETrig(hObject, ~)
-global recobj
-recobj.EOf = get(hObject,'value');
-
-if recobj.EOf == 0
-    set(hObject,'BackGroundColor',[0.9400 0.9400 0.9400]);
-else
-    set(hObject,'BackGroundColor','g');
-end
-end
 
 %%
-function ch_save(hObject, ~)
+function ch_save(hObject,~)
 global recobj
 
 switch get(hObject,'value')
     case 1
-        set(hObject,'string','Saving','BackGroundColor','g');
+        set(hObject,'string','Saving')
         if isfield(recobj,'fname')==1 && ischar(recobj.fname)
         else
             SelectSaveFile;
         end
     case 0
-        set(hObject,'string','Unsave', 'BackGroundColor',[0.9400 0.9400 0.9400])
-        
         if recobj.fopenflag == 1
             fclose(recobj.fid);
             recobj.fopenflag = 0;
         end
 end
+
+ch_ButtonColor(hObject,[],'g');
 end
 %%
 function SelectSaveFile(~,~)
@@ -550,4 +537,17 @@ if recobj.fname ~= 0
 end
 end
 %%
+
+
+
+%%
+function ch_ButtonColor(hObject, ~, col)
+switch get(hObject, 'Value')
+    case 0% reset button color defaut
+        set(hObject, 'BackGroundColor',[0.9400 0.9400 0.9400])
+    case 1%
+        set(hObject, 'BackgroundColor',col)
+end
+end
+
 
