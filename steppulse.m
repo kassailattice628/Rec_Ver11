@@ -3,7 +3,7 @@ global recobj
 
 switch get(hObject,'value');
     case 0
-        set(hObject,'BackGroundColor',[0.701961 0.701961 0.701961]);
+        set(hObject,'BackGroundColor',[0.9400 0.9400 0.9400]);
         set(hGui.Vstart,'BackGroundColor','w')
         set(hGui.Vend,'BackGroundColor','w')
         set(hGui.Vstep,'BackGroundColor','w')

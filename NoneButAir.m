@@ -55,5 +55,5 @@ capture.bufferTimeSpan = max([capture.TimeSpan, callbackTimeSpan*2]);
 % Determine data buffer size
 capture.bufferSize =  round(capture.bufferTimeSpan * s.Rate);
 
-lh = addlistener(s, 'DataAvailable', @(src,event) dataCaptureNBA(src, event, capture, figUIobj, s, dio));
+lh = addlistener(s, 'DataAvailable', @(src,event) dataCaptureNBA(src, event, capture, figUIobj,s, dio));
 %%

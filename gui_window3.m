@@ -363,7 +363,7 @@ end
 function stimON(hObject, ~)
 switch get(hObject,'value');
     case 0
-        set(hObject,'string','Stim-OFF','BackGroundColor',[0.701961 0.701961 0.701961]);
+        set(hObject,'string','Stim-OFF','BackGroundColor',[0.9400 0.9400 0.9400]);
     case 1
         set(hObject,'string','Stim-ON','BackGroundColor','y')
 end
@@ -420,7 +420,7 @@ if get(hObject, 'value')==1
     set(hGui.size,'string',[num2str(szdeg(1)), ' x ', num2str(szdeg(2))]);
     
 elseif get(hObject,'value')==0
-    set(hObject,'string','Auto OFF','BackGroundColor',[0.701961 0.701961 0.701961]);
+    set(hObject,'string','Auto OFF','BackGroundColor',[0.9400 0.9400 0.9400]);
     sobj.stimsz = round(ones(1,2)*Deg2Pix(1,sobj.MonitorDist));% default ‚Í 1“x
     set(hGui.size,'string', 1);
 end
@@ -473,14 +473,14 @@ switch get(hObject,'value')
         set(hGui.delayTTL3,'string','0')
         recobj.delayTTL3 = 0;
     case 0
-        set(hObject,'string', 'TTL-OFF','BackGroundColor',[0.701961 0.701961 0.701961]);
+        set(hObject,'string', 'TTL-OFF','BackGroundColor',[0.9400 0.9400 0.9400]);
 end
 end
 %%
 function pulseset(hObject, ~)
 switch get(hObject,'value')
     case 0
-        set(hObject,'string','Pulse OFF','BackGroundColor',[0.701961 0.701961 0.701961]);
+        set(hObject,'string','Pulse OFF','BackGroundColor',[0.9400 0.9400 0.9400]);
     case 1
         set(hObject,'string','Pulse ON','BackGroundColor','g')
 end
@@ -508,7 +508,7 @@ global recobj
 recobj.EOf = get(hObject,'value');
 
 if recobj.EOf == 0
-    set(hObject,'BackGroundColor',[0.701961 0.701961 0.701961]);
+    set(hObject,'BackGroundColor',[0.9400 0.9400 0.9400]);
 else
     set(hObject,'BackGroundColor','g');
 end
@@ -520,13 +520,13 @@ global recobj
 
 switch get(hObject,'value')
     case 1
-        set(hObject,'string','Saving','BackGroundColor','g','Horizontalalignment','center');
+        set(hObject,'string','Saving','BackGroundColor','g');
         if isfield(recobj,'fname')==1 && ischar(recobj.fname)
         else
             SelectSaveFile;
         end
     case 0
-        set(hObject,'string','Unsave', 'BackGroundColor','w','Horizontalalignment','center')
+        set(hObject,'string','Unsave', 'BackGroundColor',[0.9400 0.9400 0.9400])
         
         if recobj.fopenflag == 1
             fclose(recobj.fid);

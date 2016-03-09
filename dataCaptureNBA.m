@@ -20,6 +20,7 @@ function dataCaptureNBA(src, event, c, hGui, s, dio)
 % data timestamp (trigMoment) are used as persistent variables.
 % Persistent variables retain their values between calls to the function.
 
+global FigRot
 persistent dataBuffer trigActive trigMoment
 disp('dataCapture called')
 
@@ -80,10 +81,19 @@ elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) > c.Tim
     % captureData(:,2:n) is data from AI channel(1:n)
     % plot AI0
     set(hGui.p2, 'XData', captureData(:, 1), 'YData', captureData(:, 2))
-    set(hGui.p3, 'XData', captureData(:, 1), 'YData', captureData(:, 5))
+    set(hGui.p3, 'XData', captureData(:, 1), 'YData', captureData(:, 5))%3:photosensor, 4:Trigger monitor, 5:RotaryEncoder
+    
+    %when Rotary ON, plot Ang. Pos.
+    if get(hGui.RotCtr,'value')
+        %decode rotary
+        positionDataDeg = DecodeRot(captureData(:,6));
+        set(FigRot.pRot, 'XData', captureData(:, 1), 'YData', positionDataDeg)%Decoded Angular position data
+    end
+    
     disp(size(captureData));
     
-    % once data is captured and plotted, stop the session
+    
+    % once data is captured and plotted, stop DAQ session
     outputSingleScan(dio.TrigAI,0);%reset trigger signals at Low
     stop(s)
 elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) < c.TimeSpan)
@@ -97,5 +107,15 @@ end
 
 %update plot
 drawnow;
+
+end
+
+function positionDataDeg = DecodeRot(CTRin)
+% Transform counter data from rotary encoder into angular position (deg).
+
+signedThreshold = 2^(32-1); %resolution 32 bit
+signedData = CTRin; % data from DAQ
+signedData(signedData > signedThreshold) = signedData(signedData > signedThreshold) - 2^32;
+positionDataDeg = signedData * 360/1000/4;
 
 end

@@ -39,6 +39,6 @@ sobj.duration = sobj.flipNum*sobj.m_int;% sec
 
 %%
 Screen('CloseAll');
-figUIobj = gui_window3(s, dio, sRot); %loop ‚Í ‚±‚Ì’†‚ÅQÆ‚µ‚Ä‚é main_looping
+figUIobj = gui_window3(s, dio); %loop ‚Í ‚±‚Ì’†‚ÅQÆ‚µ‚Ä‚é main_looping
 
 %check_duration2;
