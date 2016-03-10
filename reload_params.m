@@ -38,8 +38,8 @@ if get(figUIobj.auto_size,'value')==1
 end
 
 sobj.shiftDir = get(figUIobj.shiftDir,'value');
-sobj.shiftSpd2 = sobj.shiftSpd_list(get(figUIobj.shiftSpd,'value'));
-sobj.gratFreq2 = sobj.gratFreq_list(get(figUIobj.gratFreq, 'value'));
+sobj.shiftSpd = sobj.shiftSpd_list(get(figUIobj.shiftSpd,'value'));
+sobj.gratFreq = sobj.gratFreq_list(get(figUIobj.gratFreq, 'value'));
 sobj.ImageNum = re_write(figUIobj.ImageNum);
 
 %%%%% stim 2 %%%%%

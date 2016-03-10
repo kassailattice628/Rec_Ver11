@@ -19,7 +19,8 @@ FigLive=[];
 global floop
 global s
 global dio
-%Rotary
+%global lh
+%global capture
 
 %% parameter setting
 floop = 1;
@@ -29,7 +30,7 @@ parameter_setMac;
 recobj.cycleNum = 0 - recobj.prestim; %loop cycle number
 
 %% open Window PTB %%
-%PsychDefaultSetup(2);
+PsychDefaultSetup(2);
 
 [sobj.wPtr, RECT] = Screen('OpenWindow', sobj.ScrNum,sobj.bgcol);
 [sobj.ScrCen1terX, sobj.ScrCenterY]= RectCenter(RECT);% center positionof of stim monitor
@@ -41,7 +42,28 @@ end
 sobj.duration = sobj.flipNum*sobj.m_int;% sec
 
 %%
-Screen('CloseAll');
+%open GUI window
+sca;
 figUIobj = gui_window3(s, dio); %loop ÇÕ Ç±ÇÃíÜÇ≈éQè∆ÇµÇƒÇÈ main_looping
+%{
+%% DAQ capture settings
+% Specify triggered capture timespan, in seconds
+capture.TimeSpan = recobj.rect/1000;% sec
 
-%check_duration2;
+% Specify continuous data plot timespan
+capture.plotTimeSpan = 1; %sec
+
+% Determine the timespan corresponding to the block of samples supplied
+% to the DataAvailable event callback function.
+callbackTimeSpan = double(s.NotifyWhenDataAvailableExceeds)/s.Rate;
+
+% Determine required buffer timespan, seconds
+capture.bufferTimeSpan = max([capture.plotTimeSpan, capture.TimeSpan * 2, callbackTimeSpan * 2]);
+
+% Determine data buffer size
+capture.bufferSize =  round(capture.bufferTimeSpan * s.Rate);
+
+%% DAQ Event Listener used in AI rec  
+lh = addlistener(s, 'DataAvailable', @(src,event) dataCaptureNBA(src, event, capture, figUIobj,s, dio));
+%%
+%}

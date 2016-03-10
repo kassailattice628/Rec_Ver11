@@ -19,8 +19,6 @@ hGui.CLSCR = uicontrol('style','pushbutton','string','CloseScreen','position', [
 set(hGui.CLSCR, 'Callback',{@CloseSCR, sobj});
 
 hGui.stim=uicontrol('style','togglebutton','position',[110 705 100 30],'string','Stim-OFF','callback',@ch_stimON,'Horizontalalignment','center');
-%main_loopingtest
-hGui.loop=uicontrol('style','togglebutton','position',[110 670 100 30],'string','Loop-OFF','callback',{@loopON, s, dio, hGui},'BackGroundColor','r');
 
 hGui.EXIT=uicontrol('string','EXIT','position',[345 705 65 30],'FontSize',12,'Horizontalalignment','center');
 set(hGui.EXIT, 'CallBack', {@quit_NBA, s});
@@ -234,11 +232,11 @@ set(hGui.DAQrange,'callback',@ch_DaqRange);
 
 %%
 uicontrol('style','text','position',[610 650 80 15],'string','V range (mV)')
-hGui.VYmin = uicontrol('style','edit','position',[610 625 40 25],'string',recobj.yrange(1)','BackGroundColor','g');
-hGui.VYmax = uicontrol('style','edit','position',[655 625 40 25],'string',recobj.yrange(2)','BackGroundColor','g');
+hGui.VYmin = uicontrol('style','edit','position',[610 625 40 25],'string',-100,'BackGroundColor','g');
+hGui.VYmax = uicontrol('style','edit','position',[655 625 40 25],'string',30,'BackGroundColor','g');
 uicontrol('style','text','position',[705 650 80 15],'string','C range (nA)')
-hGui.CYmin = uicontrol('style','edit','position',[705 625 40 25],'string',recobj.yrange(3)','BackGroundColor','w');
-hGui.CYmax = uicontrol('style','edit','position',[750 625 40 25],'string',recobj.yrange(4)','BackGroundColor','w');
+hGui.CYmin = uicontrol('style','edit','position',[705 625 40 25],'string',-5,'BackGroundColor','w');
+hGui.CYmax = uicontrol('style','edit','position',[750 625 40 25],'string',3,'BackGroundColor','w');
 
 %%% pulse %%%
 hGui.pulse = uicontrol('style','togglebutton','position',[435 585 70 25],'string','Pulse OFF');
@@ -338,12 +336,20 @@ set(hGui.RotCtr,'Callback',@RotarySet);
 hGui.LivePlotOn = uicontrol('style','togglebutton','position',[300 50 85 30],'string','Live Plot','FontSize',12,'Horizontalalignment','center');
 set(hGui.LivePlotOn,'Callback',@LivePlotSet);
 
-end
+
 
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%% sub functions for callback %%%%%%%%%%%%%
+%%%%%%%%%%%   Loop Start Button   %%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%main_loopingtest
+hGui.loop=uicontrol('style','togglebutton','position',[110 670 100 30],'string','Loop-OFF','callback',{@loopON, s, dio, hGui},'BackGroundColor','r');
+
+end
+
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%% sub functions for callback %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % callback fucntions need at lest 2 parameters.
 % other input parameters are used after 2nd var.
 % function func_name(hObject, callbackdata, usr1, usr2, ...)
@@ -468,11 +474,13 @@ end
 %%
 function TTL3(hObject, ~, hGui)
 global recobj
+
 switch get(hObject,'value')
     case 1
         set(hObject,'string', 'TTL-ON');
         set(hGui.delayTTL3,'string','0')
-        recobj.delayTTL3 = 0;
+        recobj.delayTTL3 = 0;        
+        outputSingleScan(dio.TTL3,0); %reset trigger signals at Low
     case 0
         set(hObject,'string', 'TTL-OFF');
 end
@@ -593,7 +601,7 @@ if num_plots > 1
         end
     end
 end
-    
+
 hGui.plot = plot(0, zeros(1, num_plots));
 title(FigPlotInfo.title);
 xlabel('Time (s)');

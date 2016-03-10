@@ -2,40 +2,32 @@
 global sobj
 global recobj
 global dev
-%AIO
+
+% AIO
 global s
 global InCh
 %global OutCh
-%DIO
+% DIO
 global dio
-%Rotary
+% Rotary
 global sRot
-%captured data
+% captured data
 global RecData
-
-
 
 %% NBA version
 recobj.NBAver = 11.0; %Test Ver
 
-%% Recordings
+%% Recording Parameters: HEADER Information
 recobj.interval = 1; %loop interval(s);
 recobj.sampt = 200; %samplingtime(100us)
 recobj.sampf = 10^6/recobj.sampt; %samoling rate (Hz)
 recobj.rect = 2*1000; %recording time (1s<-1000ms)
 recobj.recp = recobj.sampf*recobj.rect/1000;
-recobj.rectaxis = (0:recobj.sampt/1000:(recobj.recp-1)/recobj.sampf*1000)';%time axis (ms)
 
-recobj.plot = 1; %V/I plot, 1: V plot, 2: I plot
-recobj.yaxis = 0;%0: fix y axis, 1: auto
-recobj.yrange = [-100, 30, -5, 3];%[Vmin, Vmax, Cmin, Cmax]
 recobj.prestim = 2; % recobj.prestim * recobj.rect (ms) blank loop
 recobj.fopenflag = 0;
 %
-recobj.dataall = zeros(recobj.recp,4);%4 AI channels
-
 %elec stim
-recobj.EOf = 0;
 recobj.OutData = zeros(recobj.recp,2); %矩形波データ
 recobj.pulseAmp = 0.1; %stim amp(nA)
 recobj.pulseDelay = 0.2; %sec
@@ -60,7 +52,7 @@ if sobj.ScrNum == 0
 else
     sNum = sobj.ScrNum;
 end
-%%
+
 %sobj.ScreenSize = [MP(sNum,3)-MP(sNum,1)+1, MP(sNum,4)-MP(sNum,2)+1];%monitor size of stim monitor
 sobj.ScreenSize = [MP(sNum,3),MP(sNum,4)];%for Windows8
 % monitor dependent prameter (DeLL 19-inch)
@@ -171,18 +163,6 @@ dio.TrigAIFV = daq.createSession(dev.Vendor.ID);
 addDigitalChannel(dio.TrigAIFV, dev.ID, 'port0/line0:1', 'OutputOnly');
 outputSingleScan(dio.TrigAIFV,[0,0]);%reset trigger signals at Low
 
-%{
-%P0.0:Trig NIDAQ -> connect to PFI0
-dio.TrigAI = daq.createSession(dev.Vendor.ID);
-addDigitalChannel(dio.TrigAI, dev.ID, 'port0/line0', 'OutputOnly');
-outputSingleScan(dio.TrigAI,0);%reset trigger signals at Low
-
-%P0.1:FV start Timing -> connect to Olympus FV PC
-dio.TrigFV = daq.createSession(dev.Vendor.ID);
-addDigitalChannel(dio.TrigFV, dev.ID, 'port0/line1', 'OutputOnly');
-outputSingleScan(dio.TrigFV,0);%reset trigger signals at Low
-%}
-
 %P0.2:Visual Stimulus On Timing
 dio.VSon = daq.createSession(dev.Vendor.ID);
 addDigitalChannel(dio.VSon, dev.ID, 'port0/line2', 'OutputOnly');
@@ -194,6 +174,8 @@ addDigitalChannel(dio.TTL3, dev.ID, 'port0/line3', 'OutputOnly');
 outputSingleScan(dio.TTL3,0); %reset trigger signals at Low
 
 %if other digital outputs will be needed, the code is here.
+
+
 
 %% for Rotary Encoder
 sRot = addCounterInputChannel(s, dev.ID, 'ctr0', 'Position');

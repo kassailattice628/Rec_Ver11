@@ -2,16 +2,16 @@
 global sobj
 global recobj
 global dev
-%AIO
-global s
-global InCh
-global OutCh
-global lh % DAQ listner handle
-%DIO
-global dio
-%Rotary
-global sRot
-
+% AIO
+%global s
+%global InCh
+%global OutCh
+% DIO
+%global dio
+% Rotary
+%global sRot
+% captured data
+global RecData
 
 %% NBA version
 recobj.NBAver = 11;%Mac Test Version
@@ -30,8 +30,6 @@ recobj.yrange = [-100, 30, -5, 3];%[Vmin, Vmax, Cmin, Cmax]
 recobj.prestim = 2; % recobj.prestim * recobj.rect (ms) blank loop
 recobj.fopenflag = 0;
 %
-recobj.dataall = zeros(recobj.recp,4);%4 AI channels
-
 %elec stim
 recobj.EOf = 0;
 recobj.OutData = zeros(recobj.recp,2); %pulse data
@@ -140,6 +138,7 @@ sobj.list_img = 1:sobj.ImageNum;
 
 %% Session Based DAQ 
 dev = [];
+RecData =[];
 
 %{
 dev = daq.getDevices;
@@ -149,7 +148,7 @@ s.Rate = recobj.sampf;
 s.DurationInSeconds = recobj.rect/1000;%sec, when AO channel is set, s.DurationInSeconds is replaced with 's.scansqued/s.rate'.
 s.NotifyWhenDataAvailableExceeds = recobj.recp;
 
-InCh = addAnalogInputChannel(s, dev.ID, 0:4, 'Voltage');%(1):Vm, (2):Im, (3):photo sensor, (4):Trigger pulse
+InCh = addAnalogInputChannel(s, dev.ID, 0:3, 'Voltage');%(1):Vm, (2):Im, (3):photo sensor, (4):Trigger pulse
 InCh(1).TerminalConfig = 'Differential';%default SingleEnded, -> DifferentialD
 InCh(2).TerminalConfig = 'Differential';
 InCh(3).TerminalConfig = 'Differential';
@@ -159,23 +158,16 @@ OutCh = addAnalogOutputChannel(s, dev.ID, 0:1,'Voltage');
 %(1):Curretn Pulse (C clamp)
 %(2):Voltage Pulse (V clamp)
 
-lh = addlistener(s, 'DataAvailable', @RecPlotData2);
-stop(s)
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% for digital Trigger
 
 %P0.0:Trig NIDAQ -> connect to PFI0
-dio.TrigAI = daq.createSession(dev.Vendor.ID);
-addDigitalChannel(dio.TrigAI, dev.ID, 'port0/line0', 'OutputOnly');
-outputSingleScan(dio.TrigAI,0);%reset trigger signals at Low
-
 %P0.1:FV start Timing -> connect to Olympus FV PC
-dio.TrigFV = daq.createSession(dev.Vendor.ID);
-addDigitalChannel(dio.TrigFV, dev.ID, 'port0/line1', 'OutputOnly');
-outputSingleScan(dio.TrigFV,0);%reset trigger signals at Low
+dio.TrigAIFV = daq.createSession(dev.Vendor.ID);
+addDigitalChannel(dio.TrigAIFV, dev.ID, 'port0/line0:1', 'OutputOnly');
+outputSingleScan(dio.TrigAIFV,[0,0]);%reset trigger signals at Low
 
-%P0.2:Visual Stimulus On Timing 
+%P0.2:Visual Stimulus On Timing
 dio.VSon = daq.createSession(dev.Vendor.ID);
 addDigitalChannel(dio.VSon, dev.ID, 'port0/line2', 'OutputOnly');
 outputSingleScan(dio.VSon,0); %reset trigger signals at Low
