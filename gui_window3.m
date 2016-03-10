@@ -232,8 +232,9 @@ set(hGui.DAQrange,'callback',@ch_DaqRange);
 
 %%
 uicontrol('style','text','position',[610 650 80 15],'string','V range (mV)')
-hGui.VYmin = uicontrol('style','edit','position',[610 625 40 25],'string',-100,'BackGroundColor','g');
-hGui.VYmax = uicontrol('style','edit','position',[655 625 40 25],'string',30,'BackGroundColor','g');
+hGui.VYmin = uicontrol('style','edit','position',[610 625 40 25],'string',-100,'BackGroundColor','w');
+hGui.VYmax = uicontrol('style','edit','position',[655 625 40 25],'string',30,'BackGroundColor','w');
+
 uicontrol('style','text','position',[705 650 80 15],'string','C range (nA)')
 hGui.CYmin = uicontrol('style','edit','position',[705 625 40 25],'string',-5,'BackGroundColor','w');
 hGui.CYmax = uicontrol('style','edit','position',[750 625 40 25],'string',3,'BackGroundColor','w');
@@ -285,11 +286,11 @@ hGui.stepf = uicontrol('style','togglebutton','position',[805 645 40 25],'string
 %% select plot channel %%
 uicontrol('style','text','position',[435 650 55 15],'string','Plot Type ','Horizontalalignment','left');
 hGui.plot=uicontrol('style','togglebutton','position',[435 625 90 30],'string','V-plot','ForegroundColor','white','BackGroundColor','b');
-set(hGui.plot,'callback',{@ch_plot, hGui});
+set(hGui.plot,'callback',@ch_plot);
 
 uicontrol('style','text','position',[530 650 55 15],'string','Y-axis','Horizontalalignment','left');
-hGui.yaxis=uicontrol('style','togglebutton','position',[530 625 75 30],'string',[{'Auto'},{'Fix'}]);
-set(hGui.yaxis,'callback',{@ch_yaxis, hGui});
+hGui.yaxis=uicontrol('style','togglebutton','position',[530 625 75 30],'value',0, 'string',[{'Auto'},{'Fix'}]);
+set(hGui.yaxis,'callback',@ch_yaxis);
 %% save %%
 uicontrol('string','File Name','position', [435 550 90 30],'Callback',@SelectSaveFile,'Horizontalalignment','center');
 hGui.savech=uicontrol('style','popupmenu','position', [530 555 120 20],'string',[{'ALL'},{'Header Only'},{'Header&Photo'}]);
@@ -489,17 +490,33 @@ ch_ButtonColor(hObject,[], 'g')
 end
 
 %%
-function ch_yaxis(hObject, ~, hGui)
-global recobj
-recobj.yaxis = get(hObject,'value');
+function ch_yaxis(hObject, ~)
+global figUIobj
 switch get(hObject,'value')
     case 0
         set(hObject, 'string', 'Auto');
-        set(hGui.s2,'YlimMode','Auto');
+        set(figUIobj.axes1,'YlimMode','Auto');
+        set(figUIobj.VYmax,'BackGroundColor','w')
+        set(figUIobj.VYmin,'BackGroundColor','w')
+        set(figUIobj.CYmax,'BackGroundColor','w')
+        set(figUIobj.CYmin,'BackGroundColor','w')
     case 1
         set(hObject, 'string', 'Fix');
-        set(hGui.s2,'YlimMode','Manual');
-        set(hGui.s2,'Ylim',[recobj.yrange(recobj.plot*2-1),recobj.yrange(recobj.plot*2)]);
+        set(figUIobj.axes1,'YlimMode','Manual');
+        switch get(figUIobj.plot,'value')
+            case 0 %Vplot
+                set(figUIobj.axes1,'Ylim',[str2double(get(figUIobj.VYmin,'string')),str2double(get(figUIobj.VYmax,'string'))]);
+                set(figUIobj.VYmax,'BackGroundColor','g')
+                set(figUIobj.VYmin,'BackGroundColor','g')
+                set(figUIobj.CYmax,'BackGroundColor','w')
+                set(figUIobj.CYmin,'BackGroundColor','w')
+            case 1 %Iplot
+                set(figUIobj.axes1,'Ylim',[str2double(get(figUIobj.CYmin,'string')),str2double(get(figUIobj.CYmax,'string'))]);
+                set(figUIobj.VYmax,'BackGroundColor','w')
+                set(figUIobj.VYmin,'BackGroundColor','w')
+                set(figUIobj.CYmax,'BackGroundColor','g')
+                set(figUIobj.CYmin,'BackGroundColor','g')
+        end
 end
 ch_ButtonColor(hObject,[],'g')
 end
@@ -618,7 +635,6 @@ end
 
 %%
 function ch_ButtonColor(hObject, ~, col)
-disp(get(hObject, 'Value'))
 switch get(hObject, 'Value')
     case 0% reset button color defaut
         set(hObject, 'BackGroundColor',[0.9400 0.9400 0.9400])

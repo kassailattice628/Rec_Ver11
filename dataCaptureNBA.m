@@ -41,7 +41,7 @@ end
 
 %% Update live data plot, Plot latest plotTimeSpan seconds of data in dataBuffer
 
-if get(hGui.LivePlotOn,'value')
+if get(hGui.LivePlotOn,'value')==1
     
     samplesToPlot = min([round(c.plotTimeSpan * src.Rate), size(dataBuffer,1)]);
     firstPoint = size(dataBuffer, 1) - samplesToPlot + 1;
@@ -102,6 +102,7 @@ elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) > c.Tim
     %disp(size(captureData));
     %save data
     RecData = [RecData; captureData];
+    assignin('base','RecData',RecData);
     
 elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) < c.TimeSpan)
     %disp('Triggered')

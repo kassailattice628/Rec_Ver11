@@ -32,7 +32,7 @@ set(figUIobj.stimDur,'string',['flips = ',num2str(floor(sobj.duration*1000)),' m
 sobj.delayPTBflip = re_write(figUIobj.delayPTBflip);
 sobj.delayPTB = sobj.delayPTBflip*sobj.m_int;
 set(figUIobj.delayPTB,'string',['flips = ',num2str(floor(sobj.delayPTB*1000)),' ms']);
-sobj.stimsz = stim_size(sobj.MonitorDist,figUIobj.size);
+sobj.stimsz = stim_size(sobj.MonitorDist,figUIobj.size, sobj.pixpitch);
 if get(figUIobj.auto_size,'value')==1
     set(figUIobj.auto_size,'value',0,'string','Auto OFF')
 end
@@ -53,7 +53,7 @@ sobj.delayPTBflip2 = re_write(figUIobj.delayPTBflip2);
 sobj.delayPTB2 = sobj.delayPTBflip2*sobj.m_int;
 set(figUIobj.delayPTB2, 'string',['flips = ',num2str(floor(sobj.delayPTB2*1000)),' ms']);
 
-sobj.stimsz2 = stim_size(sobj.MonitorDist,figUIobj.size2);
+sobj.stimsz2 = stim_size(sobj.MonitorDist,figUIobj.size2, sobj.pixpitch);
 
 %% Recording %%
 recobj.sampf = str2double(get(figUIobj.sampf,'string'))*1000;
@@ -91,6 +91,6 @@ function y = re_write(h)
 y = str2double(get(h,'string'));
 end
 
-function size = stim_size(dist,h)
-size = round(ones(1,2)*Deg2Pix(str2double(get(h,'string')), dist));
+function size = stim_size(dist,h,pixpitch)
+size = round(ones(1,2)*Deg2Pix(str2double(get(h,'string')), dist,pixpitch));
 end
