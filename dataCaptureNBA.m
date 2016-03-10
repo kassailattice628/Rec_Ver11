@@ -19,6 +19,7 @@ function dataCaptureNBA(src, event, c, hGui, ~, ~)
 % Persistent variables retain their values between calls to the function.
 
 global FigRot
+global FigLive
 global RecData
 
 persistent dataBuffer trigActive trigMoment
@@ -39,14 +40,21 @@ if (numSamplesToDiscard > 0)
 end
 
 %% Update live data plot, Plot latest plotTimeSpan seconds of data in dataBuffer
-samplesToPlot = min([round(c.plotTimeSpan * src.Rate), size(dataBuffer,1)]);
-firstPoint = size(dataBuffer, 1) - samplesToPlot + 1;
-% Update x-axis limits
-xlim(hGui.s3, [dataBuffer(firstPoint,1), dataBuffer(end,1)]);
-% Live plot has one line for each acquisition channel
 
-set(hGui.p3, 'XData', dataBuffer(firstPoint:end, 1), ...
-    'YData', dataBuffer(firstPoint:end, 5))
+if get(hGui.LivePlotOn,'value')
+    
+    samplesToPlot = min([round(c.plotTimeSpan * src.Rate), size(dataBuffer,1)]);
+    firstPoint = size(dataBuffer, 1) - samplesToPlot + 1;
+    % Update x-axis limits
+    xlim(FigLive.Axes, [dataBuffer(firstPoint,1), dataBuffer(end,1)]);
+    % Live plot has one line for each acquisition channel
+    for ii = 1:size(FigLive.button,2)
+        if get(FigLive.button{1,ii},'value')
+            set(FigLive.plot(ii), 'XData', dataBuffer(firstPoint:end, 1),'YData', dataBuffer(firstPoint:end, ii+1))
+        end
+    end
+end
+
 %%
 % If capture is requested, analyze latest acquired data until a trigger
 % condition is met. After enough data is acquired for a complete capture,
@@ -78,14 +86,14 @@ elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) > c.Tim
     % Update captured data plot (one line for each acquisition channel)
     % captureData(:,1) is timstamp
     % 2: AI1, 3: AI2, 4:AI 3=photosensor, 5: AI4=Trigger monitor, 6: RotaryEncoder
-    set(hGui.p2, 'XData', captureData(:, 1), 'YData', captureData(:, get(hGui.plot,'value')+2))
-    %set(hGui.p3, 'XData', captureData(:, 1), 'YData', captureData(:, 5))
+    set(hGui.plot1, 'XData', captureData(:, 1), 'YData', captureData(:, get(hGui.plot,'value')+2))
+    set(hGui.plot2, 'XData', captureData(:, 1), 'YData', captureData(:, 5))
     
     %when Rotary ON, plot Angular Position
     if get(hGui.RotCtr,'value')
         %decode rotary
         positionDataDeg = DecodeRot(captureData(:,6));
-        set(FigRot.pRot, 'XData', captureData(:, 1), 'YData', positionDataDeg)%Decoded Angular position data
+        set(FigRot.plot, 'XData', captureData(:, 1), 'YData', positionDataDeg)%Decoded Angular position data
     end
     %update plot
     drawnow update;

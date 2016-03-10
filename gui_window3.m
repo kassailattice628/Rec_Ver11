@@ -35,33 +35,24 @@ hGui.StimMonitor3=uicontrol('style','text','position',[230 715 100 20], 'string'
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%    Plot Window   %%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%uicontrol('style','frame','position',[390 30 600 610],'BackGroundColor','w');
-%time axis
-hGui.t = recobj.rectaxis/1000;
-
-% trace 1
-hGui.s2 = subplot('position', [0.46 0.35 0.52 0.35]);
-set(hGui.s2,'YlimMode','Auto');
-%hGui.y2 = recobj.dataall(:,1);
-%hGui.p2 = plot(hGui.t,hGui.y2, 'XdataSource','hGui.t','YDataSource', 'hGui.y2');
-hGui.p2 = plot(NaN, NaN(1,1));
-%set(hGui.p2, 'XData', NaN, 'YData', NaN);
-
-title('V-DATA');
+% trace 1, AI1 or AI2
+hGui.axes1 = subplot('position', [0.46 0.35 0.52 0.35]);
+set(hGui.axes1,'YlimMode','Auto');
+hGui.plot1 = plot(0, NaN(1,1));
 xlabel('Time (sec)');
 ylabel('mV');
+title('V-DATA');
+
 %hGui.flash2 = line('xdata',[0 0],'ydata',[0 0],'Color','r','LineWidth',1);
 %hGui.flash3 = line('xdata',[0 0],'ydata',[0 0],'Color','r','LineWidth',1);
 
-% trace 2
-hGui.s3 = subplot('position', [0.46 0.1 0.52 0.15]);
-set(hGui.s3,'YlimMode','Auto');
-hGui.y3 = recobj.dataall(:,3);
-%hGui.p3 = plot(hGui.t,hGui.y3,'XdataSource','hGui.t','YDataSource', 'hGui.y3');
-hGui.p3 = plot(NaN, NaN(1,1));
-title('Photo Sensor');
+% trace 3, AI3:Photo Sensor
+hGui.axes2 = subplot('position', [0.46 0.1 0.52 0.15]);
+set(hGui.axes2,'YlimMode','Auto');
+hGui.plot2 = plot(NaN, NaN(1,1));
 xlabel('Time (sec)');
 ylabel('mV');
+title('Photo Sensor');
 
 
 %%
@@ -333,13 +324,19 @@ set(hGui.TTL3, 'Callback',{@TTL3, hGui})
 
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%  Rotary Encoder   %%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%   Rotary Encoder   %%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Rotary Encoder ON/OFF
-hGui.RotCtr = uicontrol('style','togglebutton','position',[210 50 85 30],'string','Rotary OFF','FontSize',12,'Horizontalalignment','center');
+hGui.RotCtr = uicontrol('style','togglebutton','position',[210 50 85 30],'string','Rotor Plot','FontSize',12,'Horizontalalignment','center');
 set(hGui.RotCtr,'Callback',@RotarySet);
 
-
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%   Live Plot TTL   %%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Rotary Encoder ON/OFF
+hGui.LivePlotOn = uicontrol('style','togglebutton','position',[300 50 85 30],'string','Live Plot','FontSize',12,'Horizontalalignment','center');
+set(hGui.LivePlotOn,'Callback',@LivePlotSet);
 
 end
 
@@ -538,10 +535,82 @@ end
 end
 %%
 
+%% Plot Windows for Rotor and Live
+function RotarySet(hObject, ~)
+global FigRot
 
+FigPlotInfo.pos = [400, 500, 650, 200];
+FigPlotInfo.name = 'Rotory Encoder';
+FigPlotInfo.fignum = 2;
+FigPlotInfo.title = 'Rotary Encoder';
+FigPlotInfo.ylabel = 'Angle pos.(deg)';
+
+switch get(hObject, 'value')
+    case 1 % button ON: open Window
+        set(hObject,'BackGroundColor','g')
+        FigRot = OpenClosePlots(hObject, FigPlotInfo, 1);
+    case 0 % button OFF: close Window
+        set(hObject,'BackGroundColor',[0.9400 0.9400 0.9400]);
+        close(FigPlotInfo.fignum)
+end
+end
+%%
+function LivePlotSet(hObject, ~)
+% open Live Plot window
+global FigLive
+
+FigPlotInfo.pos = [400, 270, 650, 200];
+FigPlotInfo.name = 'Live Plots';
+FigPlotInfo.fignum = 3;
+FigPlotInfo.title = 'Live Plots';
+FigPlotInfo.ylabel = 'TTLs Monitor(V)';
+
+switch get(hObject, 'value')
+    case 1 % button ON: open Window
+        set(hObject,'BackGroundColor','g')
+        FigLive = OpenClosePlots(hObject, FigPlotInfo, 4);
+    case 0 % button OFF: close Window
+        set(hObject,'BackGroundColor',[0.9400 0.9400 0.9400]);
+        close(FigPlotInfo.fignum)
+end
+end
+%%
+function hGui = OpenClosePlots(handle, FigPlotInfo, num_plots)
+% open new plot fig
+
+hGui.f1 = figure(FigPlotInfo.fignum);
+set(hGui.f1,'Position',FigPlotInfo.pos, 'Name',FigPlotInfo.name,'Menubar','none', 'Resize','off');
+set(hGui.f1,'DeleteFcn', {@FigOff, handle});
+hGui.Axes = axes;
+
+if num_plots > 1
+    hGui.button = cell(1, num_plots);
+    for ii = 1:num_plots
+        hGui.button{1, ii} = uicontrol('style','togglebutton','string',['AI:',num2str(ii)],'position',[595 150-(35*(ii-1)) 50 30],'Horizontalalignment','center');
+        set(hGui.button{1, ii}, 'callback', {@ch_ButtonColor, 'g'});
+        if ii == 4
+            set(hGui.button{1,ii},'value',1, 'BackGroundColor','g')
+        end
+    end
+end
+    
+hGui.plot = plot(0, zeros(1, num_plots));
+title(FigPlotInfo.title);
+xlabel('Time (s)');
+ylabel(FigPlotInfo.ylabel);
+
+    function FigOff(~, ~, handle)
+        % close the fig
+        if ishandle(handle)
+            set(handle, 'value', 0 ,'BackGroundColor',[0.9400 0.9400 0.9400]);
+        end
+    end
+end
+%%
 
 %%
 function ch_ButtonColor(hObject, ~, col)
+disp(get(hObject, 'Value'))
 switch get(hObject, 'Value')
     case 0% reset button color defaut
         set(hObject, 'BackGroundColor',[0.9400 0.9400 0.9400])

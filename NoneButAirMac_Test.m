@@ -12,11 +12,14 @@ close all;
 global sobj
 global recobj
 global figUIobj
+global FigRot
+FigRot=[];
+global FigLive
+FigLive=[];
 global floop
 global s
 global dio
 %Rotary
-global sRot
 
 %% parameter setting
 floop = 1;
@@ -26,7 +29,7 @@ parameter_setMac;
 recobj.cycleNum = 0 - recobj.prestim; %loop cycle number
 
 %% open Window PTB %%
-PsychDefaultSetup(2);
+%PsychDefaultSetup(2);
 
 [sobj.wPtr, RECT] = Screen('OpenWindow', sobj.ScrNum,sobj.bgcol);
 [sobj.ScrCen1terX, sobj.ScrCenterY]= RectCenter(RECT);% center positionof of stim monitor

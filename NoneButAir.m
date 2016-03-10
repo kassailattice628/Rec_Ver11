@@ -1,6 +1,6 @@
-%%%%%%%%%%%%%%%%%%%%%
-%%%%%     None But Air     %%%%%%
-%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%% None But Air %%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%
 % visual stimlus controller and recording elechtrical data
 
 sca;% Screen Close ALL for PTB
@@ -12,6 +12,10 @@ daq.reset
 global sobj
 global recobj
 global figUIobj
+global FigRot
+FigRot=[];
+global FigLive
+FigLive=[];
 global floop
 global s
 global dio
@@ -53,12 +57,11 @@ capture.plotTimeSpan = 1; %sec
 callbackTimeSpan = double(s.NotifyWhenDataAvailableExceeds)/s.Rate;
 
 % Determine required buffer timespan, seconds
-%capture.bufferTimeSpan = max([capture.TimeSpan, callbackTimeSpan*2]);
-%capture.bufferTimeSpan=capture.TimeSpan*2;
-capture.bufferTimeSpan = max([capture.plotTimeSpan, capture.TimeSpan * 3, callbackTimeSpan * 3]);
+capture.bufferTimeSpan = max([capture.plotTimeSpan, capture.TimeSpan * 2, callbackTimeSpan * 2]);
 
 % Determine data buffer size
 capture.bufferSize =  round(capture.bufferTimeSpan * s.Rate);
 
+%% DAQ Event Listener used in AI rec  
 lh = addlistener(s, 'DataAvailable', @(src,event) dataCaptureNBA(src, event, capture, figUIobj,s, dio));
 %%
