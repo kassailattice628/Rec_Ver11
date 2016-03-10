@@ -1,12 +1,8 @@
-function NoneButAir11(ii)
+function NoneButAir11(mode)
 % %%%%%%%%%%%%%%%%%%%%%%%%
 % %%%% None But Air %%%%%%
 % %%%%%%%%%%%%%%%%%%%%%%%%
 % visual stimlus controller and recording elechtrical data
-%%
-sca;% Screen Close ALL for PTB
-%clear;
-close all;
 
 %%
 global sobj %save
@@ -36,18 +32,17 @@ recobj.cycleNum = 0 - recobj.prestim; %loop cycle number
 
 % monitor dependent prameter (DeLL 19-inch)
 pixpitch = 0.264;%(mm)
-sobj = sobj_ini(ii, pixpitch); %i=0:test, i=1:working
-
+sobj = sobj_ini(mode, pixpitch); %i=0:test, i=1:working
 
 %% Initialize DAQ params
-if ii == 1
+if mode == 1
     % Reset DAQ
     daq.reset
     % NI DAQ params
     [dev, s, InCh, dio, sRot, capture] = daq_ini;
 end
 %% open Window PTB %%
-PsychDefaultSetup(2);
+%PsychDefaultSetup(2);
 
 [sobj.wPtr, sobj.RECT] = Screen('OpenWindow', sobj.ScrNum,sobj.bgcol);
 [sobj.ScrCenterX, sobj.ScrCenterY]= RectCenter(sobj.RECT);% center positionof of stim monitor
@@ -59,13 +54,15 @@ end
 sobj.duration = sobj.flipNum*sobj.m_int;% sec
 
 %% open GUI window
-if ii == 2
+if mode == 2
     sca;
 end
 figUIobj = gui_window3(s, dio); %loop ÇÕ Ç±ÇÃíÜÇ≈éQè∆ÇµÇƒÇÈ main_looping
 
-%% DAQ Event Listener used in AI rec  
-lh = addlistener(s, 'DataAvailable', @(src,event) dataCaptureNBA(src, event, capture, figUIobj,s, dio));
+%% DAQ Event Listener used in AI rec
+if mode == 1
+    lh = addlistener(s, 'DataAvailable', @(src,event) dataCaptureNBA(src, event, capture, figUIobj,s, dio));
+end
 %%
 % open @base workspace
 assignin('base', 'sobj',sobj)
