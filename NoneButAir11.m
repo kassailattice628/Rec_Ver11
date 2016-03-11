@@ -14,14 +14,12 @@ global FigLive
 FigLive=[];
 global RecData %save
 RecData = [];
-global dev
 global s
 global InCh
 global dio
 global sRot
 global capture
 global lh
-
 
 %% Initialize recording params
 recobj = recobj_ini;
@@ -39,7 +37,7 @@ if mode == 1
     % Reset DAQ
     daq.reset
     % NI DAQ params
-    [dev, s, InCh, dio, sRot, capture] = daq_ini;
+    [~, s, InCh, dio, sRot, capture] = daq_ini;
 end
 %% open Window PTB %%
 %PsychDefaultSetup(2);
@@ -57,17 +55,21 @@ sobj.duration = sobj.flipNum*sobj.m_int;% sec
 if mode == 2
     sca;
 end
-figUIobj = gui_window3(s, dio); %loop ÇÕ Ç±ÇÃíÜÇ≈éQè∆ÇµÇƒÇÈ main_looping
+figUIobj = gui_window3; %loop ÇÕ Ç±ÇÃíÜÇ≈éQè∆ÇµÇƒÇÈ main_looping
 
 %% DAQ Event Listener used in AI rec
 if mode == 1
-    lh = addlistener(s, 'DataAvailable', @(src,event) dataCaptureNBA(src, event, capture, figUIobj,s, dio));
+    lh = addlistener(s, 'DataAvailable', @(src,event) dataCaptureNBA(src, event, capture, figUIobj));
 end
 %%
 % open @base workspace
+%{
 assignin('base', 'sobj',sobj)
 assignin('base', 'recobj',recobj)
 assignin('base', 'figUIobj',figUIobj)
 assignin('base', 'RecData', RecData)
 assignin('base', 'capture', capture)
 assignin('base', 'lh', lh)
+assignin('base', 's', s)
+assignin('base', 'dio', dio)
+%}

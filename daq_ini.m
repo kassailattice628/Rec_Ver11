@@ -1,6 +1,12 @@
 function [varargout] = daq_ini
+% initialize daq configurations
+
 global recobj
-global figUIobj
+global s
+global capture
+global InCh
+global dio
+global sRot
 
 dev = daq.getDevices;
 s = daq.createSession(dev.Vendor.ID);
@@ -46,14 +52,14 @@ sRot.EncoderType='X4'; %decode mode:X1, X2, X4, 'X4' is the most fine mode.
 capture.TimeSpan = recobj.rect/1000;% sec
 
 % Specify continuous data plot timespan
-capture.plotTimeSpan = 1; %sec
+capture.plotTimeSpan = 4; %sec
 
 % Determine the timespan corresponding to the block of samples supplied
 % to the DataAvailable event callback function.
 callbackTimeSpan = double(s.NotifyWhenDataAvailableExceeds)/s.Rate;
 
 % Determine required buffer timespan, seconds
-capture.bufferTimeSpan = max([capture.plotTimeSpan, capture.TimeSpan * 2, callbackTimeSpan * 2]);
+capture.bufferTimeSpan = max([capture.TimeSpan * 3, callbackTimeSpan * 3]);
 
 % Determine data buffer size
 capture.bufferSize =  round(capture.bufferTimeSpan * s.Rate);

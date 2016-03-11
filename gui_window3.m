@@ -1,4 +1,4 @@
-function hGui = gui_window3(s, dio)
+function hGui = gui_window3
 %gui_window3 creates a None But Air Graphical User Interface
 % hGui = gui_window3(s, sTrig) returns a structure of graphics components
 % handles (hGui) and create a GUI for PTB visual stimuli, data acquisition
@@ -6,6 +6,8 @@ function hGui = gui_window3(s, dio)
 
 global sobj
 global recobj
+global s
+
 
 %% %---------- Create GUI window ----------%
 %open GUI window
@@ -37,7 +39,7 @@ hGui.StimMonitor3=uicontrol('style','text','position',[230 715 100 20], 'string'
 %hGui.axes1 = subplot('position', [0.46 0.35 0.52 0.35]);
 %[10, 20, 1000, 750]
 hGui.axes1 = axes('Units', 'Pixels', 'Position',[455,255,515,255]);
-set(hGui.axes1, 'XLimMode', 'manual', 'YlimMode', 'Auto');
+set(hGui.axes1, 'XLimMode', 'manual','YlimMode', 'Auto');
 hGui.plot1 = plot(0, NaN(1,1));
 xlabel('Time (sec)');
 ylabel('mV');
@@ -48,8 +50,8 @@ title('V-DATA');
 
 % trace 3, AI3:Photo Sensor
 %hGui.axes2 = subplot('position', [0.46 0.1 0.52 0.15]);
-hGui.axes2 = axes('Units', 'Pixels', 'Position',[455,75,515,110], 'XLimMode','manual');
-set(hGui.axes2, 'XLimMode', 'manual', 'YlimMode', 'Auto');
+hGui.axes2 = axes('Units', 'Pixels', 'Position',[455,75,515,110]);
+set(hGui.axes1, 'XLimMode', 'manual','YlimMode', 'Auto');
 hGui.plot2 = plot(NaN, NaN(1,1));
 xlabel('Time (sec)');
 ylabel('mV');
@@ -347,8 +349,12 @@ set(hGui.LivePlotOn,'Callback',@LivePlotSet);
 %%%%%%%%%%%   Loop Start Button   %%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %main_loopingtest
-hGui.loop=uicontrol('style','togglebutton','position',[110 670 100 30],'string','Loop-OFF','callback',{@loopON, s, dio, hGui},'BackGroundColor','r');
+hGui.loop=uicontrol('style','togglebutton','position',[110 670 100 30],'string','Loop-OFF','callback',{@loopON, hGui},'BackGroundColor','r');
 
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% update figUIobj
+%assignin('base',save_name, hGui)
 end
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -478,6 +484,7 @@ end
 %%
 function TTL3(hObject, ~, hGui)
 global recobj
+global dio
 
 switch get(hObject,'value')
     case 1
@@ -524,43 +531,6 @@ end
 ch_ButtonColor(hObject,[],'g')
 end
 
-%%
-
-%%
-function ch_save(hObject,~)
-global recobj
-
-switch get(hObject,'value')
-    case 1
-        set(hObject,'string','Saving')
-        if isfield(recobj,'fname')==1 && ischar(recobj.fname)
-        else
-            SelectSaveFile;
-        end
-    case 0
-        if recobj.fopenflag == 1
-            fclose(recobj.fid);
-            recobj.fopenflag = 0;
-        end
-end
-
-ch_ButtonColor(hObject,[],'g');
-end
-%%
-function SelectSaveFile(~,~)
-global recobj
-
-if isfield(recobj,'dirname') == 0 % 1st time to define filename
-    [recobj.fname,recobj.dirname] = uiputfile('*.*');
-else %open the same folder when any foder was selected previously.
-    recobj.fname = uiputfile('*.*','Select File to Write',recobj.dirname);
-end
-
-pat = regexptranslate('wildcard', '.*');%delete extention
-if recobj.fname ~= 0
-    recobj.fname = regexprep(recobj.fname, pat,'');
-end
-end
 %%
 
 %% Plot Windows for Rotor and Live
@@ -646,4 +616,47 @@ switch get(hObject, 'Value')
 end
 end
 
+%%
+
+%%%%%%%%%%%%% save setting %%%%%%%%%%%%%%
+%%
+function ch_save(hObject,~)
+% change save mode, SAVE/UNSAVE
+
+global recobj
+
+switch get(hObject,'value')
+    case 1
+        set(hObject,'string','Saving')
+        if isfield(recobj,'fname')==1 && ischar(recobj.fname)
+        else
+            SelectSaveFile;
+        end
+    case 0
+        if recobj.fopenflag == 1
+            fclose(recobj.fid);
+            recobj.fopenflag = 0;
+        end
+end
+
+ch_ButtonColor(hObject,[],'g');
+end
+
+%%
+function SelectSaveFile(~, ~)
+global recobj
+if isfield(recobj,'dirname') == 0 % 1st time to define filename
+    [recobj.fname,recobj.dirname] = uiputfile('*.*');
+else %open the same folder when any foder was selected previously.
+    recobj.fname = uiputfile('*.*','Select File to Write',recobj.dirname);
+end
+
+pat = regexptranslate('wildcard', '.*');%delete extention
+if recobj.fname ~= 0
+    recobj.fname = regexprep(recobj.fname, pat,'');
+end
+
+%assignin('base','recobj', recobj)
+end
+%%
 

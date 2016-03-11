@@ -6,8 +6,8 @@ recobj.NBAver = '11.0.1';
 
 %% Recording Parameters: HEADER Information
 recobj.interval = 1; %loop interval(s);
-recobj.sampt = 200; %samplingtime(100us)
-recobj.sampf = 10^6/recobj.sampt; %samoling rate (Hz)
+%recobj.sampt = 200; %samplingtime(200us)
+recobj.sampf = 5000; %samoling rate (Hz)
 recobj.rect = 2*1000; %recording time (1s<-1000ms)
 recobj.recp = recobj.sampf*recobj.rect/1000;
 
@@ -33,7 +33,6 @@ recobj.gain = [1, 0.05]; %for Axoclamp2B Command V output, [ME1 cmd output(10*H 
 
 
 %% TTL3
-recobj.tTTL3=0;
 recobj.delayTTL3 = 0;
 recobj.durationTTL3 = 0;
 

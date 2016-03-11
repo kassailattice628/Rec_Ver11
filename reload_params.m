@@ -1,10 +1,13 @@
 function reload_params(~, ~)
 % reload all paraemter and settings if changes from GUI
 
-%%
 global figUIobj
 global sobj
 global recobj
+global s
+global capture
+global lh
+global dio
 
 %% visual stimulus settings %%
 % general %
@@ -24,7 +27,7 @@ recobj.cycleNum = 0- recobj.prestim;
 set(figUIobj.prestim,'string',['loops = > ',num2str(recobj.prestim * (recobj.rect/1000 + recobj.interval)),' sec'],'Horizontalalignment','left');
 
 %%%%% stim 1 %%%%%
-sobj.shape = sobj.shapelist{get(figUIobj.shape2, 'value'), 1};
+sobj.shape = sobj.shapelist{get(figUIobj.shape, 'value'), 1};
 sobj.stimlumi = re_write(figUIobj.stimlumi);
 sobj.flipNum = re_write(figUIobj.flipNum);
 sobj.duration = sobj.flipNum*sobj.m_int;
@@ -56,19 +59,12 @@ set(figUIobj.delayPTB2, 'string',['flips = ',num2str(floor(sobj.delayPTB2*1000))
 sobj.stimsz2 = stim_size(sobj.MonitorDist,figUIobj.size2, sobj.pixpitch);
 
 %% Recording %%
-recobj.sampf = str2double(get(figUIobj.sampf,'string'))*1000;
-recobj.rect = re_write(figUIobj.rect);
 recobj.interval = re_write(figUIobj.interval);
+recobj.sampf = str2double(get(figUIobj.sampf,'string'))*1000;
+%recobj.sampt = recobj.sampf/10^6;
+recobj.rect = re_write(figUIobj.rect);
+recobj.recp = recobj.sampf*recobj.rect/1000;
 
-recobj.delayTTL3 = re_write(figUIobj.delayTTL3);
-recobj.durationTTL3 = re_write(figUIobj.durationTTL3);
-
-recobj.plot = get(figUIobj.plot, 'value')+1;
-recobj.yaxis = get(figUIobj.yaxis,'value');
-recobj.yrange(1) = re_write(figUIobj.VYmin);
-recobj.yrange(2) = re_write(figUIobj.VYmax);
-recobj.yrange(3) = re_write(figUIobj.CYmin);
-recobj.yrange(4) = re_write(figUIobj.CYmax);
 recobj.pulseDuration = re_write(figUIobj.pulseDuration);
 recobj.pulseDelay = re_write(figUIobj.pulseDelay);
 recobj.pulseAmp = re_write(figUIobj.pulseAmp);
@@ -79,11 +75,43 @@ recobj.stepCV(1,3) = re_write(figUIobj.Cstep);
 recobj.stepCV(2,1) = re_write(figUIobj.Vstart);
 recobj.stepCV(2,2) = re_write(figUIobj.Vend);
 recobj.stepCV(2,3) = re_write(figUIobj.Vstep);
-recobj.stepAmp = recobj.stepCV(recobj.plot,1):recobj.stepCV(recobj.plot,3):recobj.stepCV(recobj.plot,2);
+plotnum = get(figUIobj.plot, 'value')+1;
+recobj.stepAmp = recobj.stepCV(plotnum,1):recobj.stepCV(plotnum,3):recobj.stepCV(plotnum,2);
 
-%% TTL
+% TTL
 recobj.durationTTL3 = re_write(figUIobj.durationTTL3);
 recobj.delayTTL3 = re_write(figUIobj.delayTTL3);
+
+%% DAQ 
+s.stop;
+s.Rate = recobj.sampf;
+%s.DurationInSeconds = recobj.rect/1000;%sec, when AO channel is set, s.DurationInSeconds is replaced with 's.scansqued/s.rate'.
+%% DAQ capture settings
+%% DAQ capture settings
+% Specify triggered capture timespan, in seconds
+capture.TimeSpan = recobj.rect/1000;% sec
+
+% Specify continuous data plot timespan
+capture.plotTimeSpan = 4; %sec
+
+% Determine the timespan corresponding to the block of samples supplied
+% to the DataAvailable event callback function.
+callbackTimeSpan = double(s.NotifyWhenDataAvailableExceeds)/s.Rate;
+
+% Determine required buffer timespan, seconds
+capture.bufferTimeSpan = max([capture.TimeSpan * 3, callbackTimeSpan * 3]);
+
+% Determine data buffer size
+capture.bufferSize =  round(capture.bufferTimeSpan * s.Rate);
+
+%% dio reset
+outputSingleScan(dio.TrigAIFV,[0,0])
+outputSingleScan(dio.VSon,0)
+outputSingleScan(dio.TTL3,0)
+%%
+delete(lh)
+lh = addlistener(s, 'DataAvailable', @(src,event) dataCaptureNBA(src, event, capture, figUIobj));
+%wait for Trigger
 
 end
 

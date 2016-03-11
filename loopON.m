@@ -1,26 +1,24 @@
-function loopON(hObject, ~, s, dio, hGui)
+function loopON(hObject, ~, hGui)
 % Loop start and stop
 
 global recobj
-global RecData
 global sobj
+global lh
+global s
+global dio
 
-
-reload_params;
-
-if get(hObject, 'value') % loop ON
-    RecData=[]; % Reset Capture Data
-    % set 1st counter
-    %recobj.cycleNum = recobj.cycleNum + 1;
+if get(hObject, 'value')==1 % loop ON
+    reload_params;
     
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     while get(hObject,'value') == 1
+        % set 1st counter
         recobj.cycleNum = recobj.cycleNum + 1;
         set(hObject,'string', 'Looping', 'BackGroundColor', 'g');
         % report the cycle number
         disp(['#: ',num2str(recobj.cycleNum)])
         % start loop (Trigger + Visual Stimulus)
-        MainLoop(s, dio, hGui, sobj)
+        MainLoop(dio, hGui, sobj)
         
         % loop interval
         
@@ -31,6 +29,7 @@ else %loop OFF
     
     % stop loop & data acquiring
     if s.IsRunning
+        delete(lh)
         stop(s)
     end
     % reset all triggers
@@ -44,14 +43,14 @@ end
 end
 
 %% Main Contentes in the Loop%%
-function MainLoop(s, dio, hGui, sobj)
+function MainLoop(dio, hGui, sobj)
 global recobj
+global s
 
 % start DAQ
 if s.IsRunning == false
     s.startBackground; %session start, listener ON, wait Trigger
 end
-
 try %error check
     switch get(hGui.stim, 'value')
         case 0 % Vis.Stim off
@@ -64,6 +63,7 @@ try %error check
             else
                 % Trig AI only
                 setDO(dio.TrigAIFV,[1,0],sobj);
+                outputSingleScan(dio.TrigAIFV,[0,0]);%
                 
                 if get(hGui.TTL3,'value')%TTL3 is ON
                     %wait TTL3 delay

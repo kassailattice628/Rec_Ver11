@@ -21,6 +21,7 @@ function dataCaptureNBA(src, event, c, hGui, ~, ~)
 global FigRot
 global FigLive
 global RecData
+global s
 
 persistent dataBuffer trigActive trigMoment
 
@@ -67,11 +68,11 @@ if captureRequested && (~trigActive)
     
     % Trigger Configuration
     trigConfig.Channel = 4; %Trigger monitor
-    trigConfig.Level = 3; %(V) Trigger threshold
+    trigConfig.Level = 2; %(V) Trigger threshold
     
     % Determine whether trigger condition is met in the latest acquired data
     [trigActive, trigMoment] = trigDetectNBA(latestData, trigConfig);
-    disp(trigMoment);
+    
 elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) > c.TimeSpan)
     % State: "Acquired enough data for a complete capture"
     % If triggered and if there is enough data in dataBuffer for triggered
@@ -86,29 +87,35 @@ elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) > c.Tim
     % Update captured data plot (one line for each acquisition channel)
     % captureData(:,1) is timstamp
     % 2: AI1, 3: AI2, 4:AI 3=photosensor, 5: AI4=Trigger monitor, 6: RotaryEncoder
-    set(hGui.axes1, 'XLim',[captureData(1,1), captureData(end:1)]);
+    
     set(hGui.plot1, 'XData', captureData(:, 1), 'YData', captureData(:, get(hGui.plot,'value')+2))
-    set(hGui.axes2, 'XLim',[captureData(1,1), captureData(end:1)]);
-    set(hGui.plot2, 'XData', captureData(:, 1), 'YData', captureData(:, 5))
+    set(hGui.axes1, 'XLim',[-inf,inf]);
+    
+    set(hGui.plot2, 'XData', captureData(:, 1), 'YData', captureData(:, 4))
+    set(hGui.axes2, 'XLim',[-inf,inf]);
     
     %when Rotary ON, plot Angular Position
     if get(hGui.RotCtr,'value')
         %decode rotary
         positionDataDeg = DecodeRot(captureData(:,6));
-        set(FigRot.Axes, 'XLim',[captureData(1,1), captureData(end:1)]);
+        set(FigRot.Axes, 'XLim',[-inf,inf]);
         set(FigRot.plot, 'XData', captureData(:, 1), 'YData', positionDataDeg)%Decoded Angular position data
     end
     %update plot
     drawnow update;
     
     trigActive = false;
-    %disp(size(captureData));
+    
+    disp(size(captureData));
+    disp(trigMoment)
+    disp(s.NotifyWhenDataAvailableExceeds)
     %save data
-    RecData = [RecData; captureData];
-    assignin('base','RecData',RecData);
+    RecData = [RecData;captureData];
+    %save @base workspace
+    assignin('base','buffer',dataBuffer);
     
 elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) < c.TimeSpan)
-    %disp('Triggered')
+    disp('data short ')
 elseif ~captureRequested
     % State: "Loop Out"
     trigActive = false;
