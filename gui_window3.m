@@ -34,8 +34,10 @@ hGui.StimMonitor3=uicontrol('style','text','position',[230 715 100 20], 'string'
 %%%%%%%%%%%%    Plot Window   %%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % trace 1, AI1 or AI2
-hGui.axes1 = subplot('position', [0.46 0.35 0.52 0.35]);
-set(hGui.axes1,'YlimMode','Auto');
+%hGui.axes1 = subplot('position', [0.46 0.35 0.52 0.35]);
+%[10, 20, 1000, 750]
+hGui.axes1 = axes('Units', 'Pixels', 'Position',[455,255,515,255]);
+set(hGui.axes1, 'XLimMode', 'manual', 'YlimMode', 'Auto');
 hGui.plot1 = plot(0, NaN(1,1));
 xlabel('Time (sec)');
 ylabel('mV');
@@ -45,8 +47,9 @@ title('V-DATA');
 %hGui.flash3 = line('xdata',[0 0],'ydata',[0 0],'Color','r','LineWidth',1);
 
 % trace 3, AI3:Photo Sensor
-hGui.axes2 = subplot('position', [0.46 0.1 0.52 0.15]);
-set(hGui.axes2,'YlimMode','Auto');
+%hGui.axes2 = subplot('position', [0.46 0.1 0.52 0.15]);
+hGui.axes2 = axes('Units', 'Pixels', 'Position',[455,75,515,110], 'XLimMode','manual');
+set(hGui.axes2, 'XLimMode', 'manual', 'YlimMode', 'Auto');
 hGui.plot2 = plot(NaN, NaN(1,1));
 xlabel('Time (sec)');
 ylabel('mV');

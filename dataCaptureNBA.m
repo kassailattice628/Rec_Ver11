@@ -86,13 +86,16 @@ elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) > c.Tim
     % Update captured data plot (one line for each acquisition channel)
     % captureData(:,1) is timstamp
     % 2: AI1, 3: AI2, 4:AI 3=photosensor, 5: AI4=Trigger monitor, 6: RotaryEncoder
+    set(hGui.axes1, 'XLim',[captureData(1,1), captureData(end:1)]);
     set(hGui.plot1, 'XData', captureData(:, 1), 'YData', captureData(:, get(hGui.plot,'value')+2))
+    set(hGui.axes2, 'XLim',[captureData(1,1), captureData(end:1)]);
     set(hGui.plot2, 'XData', captureData(:, 1), 'YData', captureData(:, 5))
     
     %when Rotary ON, plot Angular Position
     if get(hGui.RotCtr,'value')
         %decode rotary
         positionDataDeg = DecodeRot(captureData(:,6));
+        set(FigRot.Axes, 'XLim',[captureData(1,1), captureData(end:1)]);
         set(FigRot.plot, 'XData', captureData(:, 1), 'YData', positionDataDeg)%Decoded Angular position data
     end
     %update plot

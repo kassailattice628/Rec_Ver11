@@ -20,7 +20,6 @@ switch get(hObject,'value')
         %V-pulse
         set(figUIobj.ampunit,'string','mV');
         set(figUIobj.presetAmp,'string', '10 mV', 'value',0)
-        
 end
 
 %axis reset
