@@ -36,7 +36,7 @@ pixpitch = 0.264;%(mm)
 sobj = sobj_ini(mode, pixpitch); %i=0:test, i=1:working
 
 %% Initialize DAQ params
-if mode == 1
+if mode == 0
     % Reset DAQ
     daq.reset
     % NI DAQ params
@@ -55,24 +55,24 @@ end
 sobj.duration = sobj.flipNum*sobj.m_int;% sec
 
 %% open GUI window
-if mode == 2
+if mode == 1
     sca;
 end
 figUIobj = gui_window3; %loop ÇÕ Ç±ÇÃíÜÇ≈éQè∆ÇµÇƒÇÈ main_looping
 
 %% DAQ Event Listener used in AI rec
-if mode == 1
+if mode == 0
     lh = addlistener(s, 'DataAvailable', @(src,event) dataCaptureNBA(src, event, capture, figUIobj, RecData));
 end
-%%
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% variables check %
 % open @base workspace
-%{
-assignin('base', 'sobj',sobj)
-assignin('base', 'recobj',recobj)
-assignin('base', 'figUIobj',figUIobj)
-assignin('base', 'RecData', RecData)
-assignin('base', 'capture', capture)
-assignin('base', 'lh', lh)
-assignin('base', 's', s)
-assignin('base', 'dio', dio)
-%}
+
+%assignin('base', 'sobj',sobj)
+%assignin('base', 'recobj',recobj)
+%assignin('base', 'figUIobj',figUIobj)
+%assignin('base', 'RecData', RecData)
+%assignin('base', 'capture', capture)
+%assignin('base', 'lh', lh)
+%assignin('base', 's', s)
+%assignin('base', 'dio', dio)

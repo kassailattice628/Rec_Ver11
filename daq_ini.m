@@ -52,7 +52,7 @@ sRot.EncoderType='X4'; %decode mode:X1, X2, X4, 'X4' is the most fine mode.
 capture.TimeSpan = recobj.rect/1000;% sec
 
 % Specify continuous data plot timespan
-capture.plotTimeSpan = 4; %sec
+capture.plotTimeSpan = 2; %sec
 
 % Determine the timespan corresponding to the block of samples supplied
 % to the DataAvailable event callback function.

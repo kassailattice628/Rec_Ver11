@@ -82,37 +82,38 @@ recobj.stepAmp = recobj.stepCV(plotnum,1):recobj.stepCV(plotnum,3):recobj.stepCV
 recobj.durationTTL3 = re_write(figUIobj.durationTTL3);
 recobj.delayTTL3 = re_write(figUIobj.delayTTL3);
 
-%% DAQ 
-s.stop;
-s.Rate = recobj.sampf;
-%s.DurationInSeconds = recobj.rect/1000;%sec, when AO channel is set, s.DurationInSeconds is replaced with 's.scansqued/s.rate'.
-%% DAQ capture settings
-%% DAQ capture settings
-% Specify triggered capture timespan, in seconds
-capture.TimeSpan = recobj.rect/1000;% sec
-
-% Specify continuous data plot timespan
-capture.plotTimeSpan = 4; %sec
-
-% Determine the timespan corresponding to the block of samples supplied
-% to the DataAvailable event callback function.
-callbackTimeSpan = double(s.NotifyWhenDataAvailableExceeds)/s.Rate;
-
-% Determine required buffer timespan, seconds
-capture.bufferTimeSpan = max([capture.TimeSpan * 3, callbackTimeSpan * 3]);
-
-% Determine data buffer size
-capture.bufferSize =  round(capture.bufferTimeSpan * s.Rate);
-
-%% dio reset
-outputSingleScan(dio.TrigAIFV,[0,0])
-outputSingleScan(dio.VSon,0)
-outputSingleScan(dio.TTL3,0)
-%%
-delete(lh)% <-- important!!!
-lh = addlistener(s, 'DataAvailable', @(src,event) dataCaptureNBA(src, event, capture, figUIobj));
-%wait for Trigger
-
+%% DAQ
+if isstruct(s) % DAQ sessions are not defined in the TEST-mode
+    s.stop;
+    s.Rate = recobj.sampf;
+    %s.DurationInSeconds = recobj.rect/1000;%sec, when AO channel is set, s.DurationInSeconds is replaced with 's.scansqued/s.rate'.
+    
+    % data capture settings
+    % Specify triggered capture timespan, in seconds
+    capture.TimeSpan = recobj.rect/1000;% sec
+    
+    % Specify continuous data plot timespan
+    capture.plotTimeSpan = 2; %sec
+    
+    % Determine the timespan corresponding to the block of samples supplied
+    % to the DataAvailable event callback function.
+    callbackTimeSpan = double(s.NotifyWhenDataAvailableExceeds)/s.Rate;
+    
+    % Determine required buffer timespan, seconds
+    capture.bufferTimeSpan = max([capture.TimeSpan * 3, callbackTimeSpan * 3]);
+    
+    % Determine data buffer size
+    capture.bufferSize =  round(capture.bufferTimeSpan * s.Rate);
+    
+    %% dio reset
+    outputSingleScan(dio.TrigAIFV,[0,0])
+    outputSingleScan(dio.VSon,0)
+    outputSingleScan(dio.TTL3,0)
+    %%
+    delete(lh)% <-- important!!!
+    lh = addlistener(s, 'DataAvailable', @(src,event) dataCaptureNBA(src, event, capture, figUIobj));
+    %wait for Trigger
+end
 end
 
 function y = re_write(h)
