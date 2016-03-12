@@ -40,7 +40,7 @@ hGui.StimMonitor3=uicontrol('style','text','position',[230 715 100 20], 'string'
 %[10, 20, 1000, 750]
 hGui.axes1 = axes('Units', 'Pixels', 'Position',[455,255,515,255]);
 set(hGui.axes1, 'XLimMode', 'manual','YlimMode', 'Auto');
-hGui.plot1 = plot(0, NaN(1,1));
+hGui.plot1 = plot(0, NaN(1,1),'b');
 xlabel('Time (sec)');
 ylabel('mV');
 title('V-DATA');
@@ -353,8 +353,6 @@ hGui.loop=uicontrol('style','togglebutton','position',[110 670 100 30],'string',
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% update figUIobj
-%assignin('base',save_name, hGui)
 end
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

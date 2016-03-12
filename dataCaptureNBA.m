@@ -1,4 +1,4 @@
-function dataCaptureNBA(src, event, c, hGui, ~, ~)
+function dataCaptureNBA(src, event, c, hGui, RecData)
 %dataCapture Process DAQ acquired data when called by DataAvailable event.
 %  dataCapture (SRC, EVENT, C, HGUI) processes latest acquired data (EVENT.DATA)
 %  and timestamps (EVENT.TIMESTAMPS) from session (SRC), and, based on specified
@@ -20,7 +20,6 @@ function dataCaptureNBA(src, event, c, hGui, ~, ~)
 
 global FigRot
 global FigLive
-global RecData
 global s
 
 persistent dataBuffer trigActive trigMoment
@@ -109,10 +108,21 @@ elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) > c.Tim
     disp(size(captureData));
     disp(trigMoment)
     disp(s.NotifyWhenDataAvailableExceeds)
-    %save data
+    
+    %prep savedata
     RecData = [RecData;captureData];
-    %save @base workspace
-    assignin('base','buffer',dataBuffer);
+    %parameters are define in 'LoopON.m'
+    
+    
+    
+    %%%%%% save setting %%%%%%
+    if get(hGui.save, 'value') == 1 % Saving
+        %save @base workspace
+        assignin('base','buffer',dataBuffer);
+        assignin('base','RecData',RecData);
+        
+        %save(*****, RecData, figUIobj, recobj)
+    end
     
 elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) < c.TimeSpan)
     disp('data short ')

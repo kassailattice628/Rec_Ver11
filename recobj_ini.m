@@ -2,7 +2,7 @@ function recobj = recobj_ini(varargin)
 % initialize recobj
 
 %% version
-recobj.NBAver = '11.0.1';
+recobj.NBAver = '11.0.2';
 
 %% Recording Parameters: HEADER Information
 recobj.interval = 1; %loop interval(s);

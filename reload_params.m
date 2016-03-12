@@ -109,7 +109,7 @@ outputSingleScan(dio.TrigAIFV,[0,0])
 outputSingleScan(dio.VSon,0)
 outputSingleScan(dio.TTL3,0)
 %%
-delete(lh)
+delete(lh)% <-- important!!!
 lh = addlistener(s, 'DataAvailable', @(src,event) dataCaptureNBA(src, event, capture, figUIobj));
 %wait for Trigger
 
