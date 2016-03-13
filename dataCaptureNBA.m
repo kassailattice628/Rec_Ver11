@@ -18,6 +18,8 @@ function dataCaptureNBA(src, event, c, hGui, RecData)
 % data timestamp (trigMoment) are used as persistent variables.
 % Persistent variables retain their values between calls to the function.
 
+global FigAI12
+global FigPhoto
 global FigRot
 global FigLive
 global s
@@ -46,7 +48,7 @@ if get(hGui.LivePlotOn,'value')==1
     samplesToPlot = min([round(c.plotTimeSpan * src.Rate), size(dataBuffer,1)]);
     firstPoint = size(dataBuffer, 1) - samplesToPlot + 1;
     % Update x-axis limits
-    xlim(FigLive.Axes, [dataBuffer(firstPoint,1), dataBuffer(end,1)]);
+    xlim(FigLive.axes, [dataBuffer(firstPoint,1), dataBuffer(end,1)]);
     % Live plot has one line for each acquisition channel
     for ii = 1:size(FigLive.button,2)
         if get(FigLive.button{1,ii},'value')
@@ -86,18 +88,21 @@ elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) > c.Tim
     % Update captured data plot (one line for each acquisition channel)
     % captureData(:,1) is timstamp
     % 2: AI1, 3: AI2, 4:AI 3=photosensor, 5: AI4=Trigger monitor, 6: RotaryEncoder
+    if get(hGui.AI12Ctr, 'value')
+    set(FigAI12.plot, 'XData', captureData(:, 1), 'YData', captureData(:, get(hGui.plot,'value')+2))
+    set(FigAI12.axes, 'XLim',[-inf,inf]);
+    end
     
-    set(hGui.plot1, 'XData', captureData(:, 1), 'YData', captureData(:, get(hGui.plot,'value')+2))
-    set(hGui.axes1, 'XLim',[-inf,inf]);
-    
-    set(hGui.plot2, 'XData', captureData(:, 1), 'YData', captureData(:, 4))
-    set(hGui.axes2, 'XLim',[-inf,inf]);
+    if get(hGui.PhotoSensorCtr, 'value')
+    set(FigPhoto.plot, 'XData', captureData(:, 1), 'YData', captureData(:, 4))
+    set(FigPhoto.axes, 'XLim',[-inf,inf]);
+    end
     
     %when Rotary ON, plot Angular Position
     if get(hGui.RotCtr,'value')
         %decode rotary
         positionDataDeg = DecodeRot(captureData(:,6));
-        set(FigRot.Axes, 'XLim',[-inf,inf]);
+        set(FigRot.axes, 'XLim',[-inf,inf]);
         set(FigRot.plot, 'XData', captureData(:, 1), 'YData', positionDataDeg)%Decoded Angular position data
     end
     %update plot
@@ -118,8 +123,8 @@ elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) > c.Tim
     %%%%%% save setting %%%%%%
     if get(hGui.save, 'value') == 1 % Saving
         %save @base workspace
-        assignin('base','buffer',dataBuffer);
-        assignin('base','RecData',RecData);
+        %assignin('base','buffer',dataBuffer);
+        %assignin('base','RecData',RecData);
         
         %save(*****, RecData, figUIobj, recobj)
     end

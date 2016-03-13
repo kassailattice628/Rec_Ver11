@@ -8,12 +8,14 @@ global sobj
 global recobj
 global s
 
+global FigAI12
+global FigPhoto
+
 
 %% %---------- Create GUI window ----------%
 %open GUI window
-hGui.F1 = figure('Position',[10, 20, 1000, 750], 'Name','None But Air','Menubar','none', 'Resize', 'off');
-%set(hGui.F1, 'DeleteFcn', {@quit_NBA, s});
-
+hGui.fig = figure('Position',[10, 20, 1000, 750], 'Name','None But Air','Menubar','none', 'Resize', 'off');
+%set(hGui.fig, 'DeleteFcn', {@quit_NBA, s});
 %GUI components
 hGui.ONSCR = uicontrol('style','pushbutton','string','OpenScreen','position',[5 705 80 30],'Horizontalalignment','center');
 set(hGui.ONSCR,'Callback', {@OpenSCR, sobj});
@@ -32,6 +34,7 @@ hGui.StimMonitor2=uicontrol('style','text','position',[230 690 100 25], 'string'
 hGui.StimMonitor3=uicontrol('style','text','position',[230 715 100 20], 'string','','FontSize',12,'BackGroundColor','w');
 
 %%
+%{
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%    Plot Window   %%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -56,8 +59,7 @@ hGui.plot2 = plot(NaN, NaN(1,1));
 xlabel('Time (sec)');
 ylabel('mV');
 title('Photo Sensor');
-
-
+%}
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%  Visual stimuli1 %%%%%%%%%%%%%%%%%%
@@ -178,7 +180,6 @@ set(hGui.ImageNum, 'callback', @reload_params);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%  Visual stimuli2 %%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%uipanel('Title','Vis. Stim.2','FontSize',12,'Position',[0.205 0.013 0.195 0.87]);
 uipanel('Title','Vis. Stim.2','FontSize',12,'Position',[0.205 0.313 0.195 0.57]);
 
 uicontrol('style','text','position',[210 620 70 15],'string','Stim.Shape2','Horizontalalignment','left');
@@ -326,12 +327,32 @@ uicontrol('style','text','position',[325 140 20 15],'string','ms','Horizontalali
 hGui.TTL3=uicontrol('style','togglebutton','position',[210 185 65 30],'string','TTL-OFF','Horizontalalignment','left');
 set(hGui.TTL3, 'Callback',{@TTL3, hGui})
 
+
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%   AI1, AI2 plot    %%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Rotary Encoder ON/OFF
+hGui.AI12Ctr = uicontrol('style','togglebutton','position',[210 50 85 30],...
+    'string','AI1 / AI2','FontSize',12,'Horizontalalignment','center');
+set(hGui.AI12Ctr,'value', 1, 'Callback',@AI12Set);
+
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%    Photo Sensor    %%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%Photo Sensor ON/OFF
+hGui.PhotoSensorCtr = uicontrol('style','togglebutton','position',[300 50 85 30],...
+    'string','Photo Sensor','FontSize',12,'Horizontalalignment','center');
+set(hGui.PhotoSensorCtr, 'value', 1, 'Callback',@PhotoSencerSet);
+
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%   Rotary Encoder   %%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Rotary Encoder ON/OFF
-hGui.RotCtr = uicontrol('style','togglebutton','position',[210 50 85 30],'string','Rotor Plot','FontSize',12,'Horizontalalignment','center');
+hGui.RotCtr = uicontrol('style','togglebutton','position',[210 15 85 30],...
+    'string','Rotor Plot','FontSize',12,'Horizontalalignment','center');
 set(hGui.RotCtr,'Callback',@RotarySet);
 
 %%
@@ -339,10 +360,9 @@ set(hGui.RotCtr,'Callback',@RotarySet);
 %%%%%%%%%%%%   Live Plot TTL   %%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %Rotary Encoder ON/OFF
-hGui.LivePlotOn = uicontrol('style','togglebutton','position',[300 50 85 30],'string','Live Plot','FontSize',12,'Horizontalalignment','center');
+hGui.LivePlotOn = uicontrol('style','togglebutton','position',[300 15 85 30],...
+    'string','Live Plot','FontSize',12,'Horizontalalignment','center');
 set(hGui.LivePlotOn,'Callback',@LivePlotSet);
-
-
 
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -352,6 +372,31 @@ set(hGui.LivePlotOn,'Callback',@LivePlotSet);
 hGui.loop=uicontrol('style','togglebutton','position',[110 670 100 30],'string','Loop-OFF','callback',{@loopON, hGui},'BackGroundColor','r');
 
 
+
+%% open plot AI1/2
+%[10, 20, 1000, 750]
+FigAI12.fig = figure(2);
+set(FigAI12.fig, 'Units', 'Pixels', 'Position',[455,530,700,200],...
+    'Name', 'AI1 / AI2', 'Menubar','none', 'Resize','off',...
+    'DeleteFcn', {@FigOff, hGui.AI12Ctr});
+FigAI12.axes = axes('XLimMode', 'manual','YlimMode', 'Auto');
+FigAI12.plot = plot(0, NaN(1,1),'b');
+xlabel('Time (s)');
+ylabel('mV');
+title('V-DATA');
+%% open photosensor
+FigPhoto.fig = figure(3);
+set(FigPhoto.fig, 'Units', 'Pixels', 'Position',[455,400,700,110],...
+    'Name', 'Photo Sensor', 'Menubar','none', 'Resize','off',...
+    'DeleteFcn', {@FigOff, hGui.PhotoSensorCtr});
+FigPhoto.axes = axes('XLimMode', 'manual','YlimMode', 'Auto');
+FigPhoto.plot = plot(NaN, NaN(1,1));
+xlabel('Time (s)');
+ylabel('V');
+title('Photo Sensor');
+
+%%
+figure(hGui.fig);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % variables check %
 end
@@ -489,7 +534,7 @@ switch get(hObject,'value')
     case 1
         set(hObject,'string', 'TTL-ON');
         set(hGui.delayTTL3,'string','0')
-        recobj.delayTTL3 = 0;        
+        recobj.delayTTL3 = 0;
         outputSingleScan(dio.TTL3,0); %reset trigger signals at Low
     case 0
         set(hObject,'string', 'TTL-OFF');
@@ -532,13 +577,57 @@ end
 
 %%
 
-%% Plot Windows for Rotor and Live
+
+
+%% Plot Windows for AI1/AI2
+function AI12Set(hObject, ~)
+global FigAI12
+
+FigPlotInfo.pos = [455,530,700,200];
+FigPlotInfo.name = 'AI1 / AI2';%%%%%
+FigPlotInfo.fignum = 2;
+FigPlotInfo.title = 'V-DATA';%%%%%
+FigPlotInfo.ylabel = 'mV';%%%%%
+FigPlotInfo.col = 'b';
+
+
+switch get(hObject, 'value')
+    case 1 % button ON: open Window
+        set(hObject,'BackGroundColor','g')
+        FigAI12 = OpenClosePlots(hObject, FigPlotInfo, 1);
+    case 0 % button OFF: close Window
+        set(hObject,'BackGroundColor',[0.9400 0.9400 0.9400]);
+        close(FigPlotInfo.fignum)
+end
+end
+
+%% Plot Windows for PhotoSensor(AI3)
+function PhotoSencerSet(hObject, ~)
+global FigPhoto
+
+FigPlotInfo.pos = [455,400,700,110];
+FigPlotInfo.name = 'Photo Sensor';
+FigPlotInfo.fignum = 3;
+FigPlotInfo.title = 'Live Plots';%%%
+FigPlotInfo.ylabel = 'V';%%%
+
+switch get(hObject, 'value')
+    case 1 % button ON: open Window
+        set(hObject,'BackGroundColor','g')
+        FigPhoto = OpenClosePlots(hObject, FigPlotInfo, 1);
+    case 0 % button OFF: close Window
+        set(hObject,'BackGroundColor',[0.9400 0.9400 0.9400]);
+        close(FigPlotInfo.fignum)
+end
+end
+
+%%
 function RotarySet(hObject, ~)
 global FigRot
 
-FigPlotInfo.pos = [400, 500, 650, 200];
+FigPlotInfo.pos = [455, 230, 700, 150];
 FigPlotInfo.name = 'Rotory Encoder';
-FigPlotInfo.fignum = 2;
+FigPlotInfo.fignum = 4;
 FigPlotInfo.title = 'Rotary Encoder';
 FigPlotInfo.ylabel = 'Angle pos.(deg)';
 
@@ -556,9 +645,9 @@ function LivePlotSet(hObject, ~)
 % open Live Plot window
 global FigLive
 
-FigPlotInfo.pos = [400, 270, 650, 200];
+FigPlotInfo.pos = [455, 10, 700, 200];
 FigPlotInfo.name = 'Live Plots';
-FigPlotInfo.fignum = 3;
+FigPlotInfo.fignum = 5;
 FigPlotInfo.title = 'Live Plots';
 FigPlotInfo.ylabel = 'TTLs Monitor(V)';
 
@@ -571,14 +660,14 @@ switch get(hObject, 'value')
         close(FigPlotInfo.fignum)
 end
 end
+
 %%
 function hGui = OpenClosePlots(handle, FigPlotInfo, num_plots)
 % open new plot fig
-
-hGui.f1 = figure(FigPlotInfo.fignum);
-set(hGui.f1,'Position',FigPlotInfo.pos, 'Name',FigPlotInfo.name,'Menubar','none', 'Resize','off');
-set(hGui.f1,'DeleteFcn', {@FigOff, handle});
-hGui.Axes = axes;
+hGui.fig = figure(FigPlotInfo.fignum);
+set(hGui.fig, 'Position', FigPlotInfo.pos, 'Name', FigPlotInfo.name, 'Menubar','none', 'Resize','off');
+set(hGui.fig, 'DeleteFcn', {@FigOff, handle});
+hGui.axes = axes('Units', 'Pixels');%, 'Position', FigPlotInfo.pos);
 
 if num_plots > 1
     hGui.button = cell(1, num_plots);
@@ -591,17 +680,23 @@ if num_plots > 1
     end
 end
 
-hGui.plot = plot(0, zeros(1, num_plots));
+if isfield(FigPlotInfo,'col') % if line color is not defined
+    hGui.plot = plot(0, zeros(1, num_plots), FigPlotInfo.col);
+else
+    hGui.plot = plot(0, zeros(1, num_plots));
+end
+
 title(FigPlotInfo.title);
 xlabel('Time (s)');
 ylabel(FigPlotInfo.ylabel);
 
-    function FigOff(~, ~, handle)
-        % close the fig
-        if ishandle(handle)
-            set(handle, 'value', 0 ,'BackGroundColor',[0.9400 0.9400 0.9400]);
-        end
-    end
+end
+%%
+function FigOff(~, ~, handle)
+% close the fig
+if ishandle(handle)
+    set(handle, 'value', 0 ,'BackGroundColor',[0.9400 0.9400 0.9400]);
+end
 end
 %%
 
