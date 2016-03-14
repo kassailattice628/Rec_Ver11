@@ -11,7 +11,7 @@ end
 
 function start(hObject,~, h)
 if get(hObject,'value') == 1
-    NoneButAir11(get(h.SelectTest, 'value'));
+    NoneButAir11_03(get(h.SelectTest, 'value'));
     close(h.fig)
     clear h
     

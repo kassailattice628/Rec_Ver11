@@ -10,7 +10,7 @@ global s
 
 %% %---------- Create GUI window ----------%
 %open GUI window
-hGui.fig = figure('Position',[10, 20, 1000, 750], 'Name','None But Air11', 'NumberTitle', 'off', 'Menubar','none', 'Resize', 'off');
+hGui.fig = figure('Position',[10, 20, 750, 750], 'Name','None But Air11', 'NumberTitle', 'off', 'Menubar','none', 'Resize', 'off');
 
 %GUI components
 hGui.ONSCR = uicontrol('style','pushbutton','string','OpenScreen','position',[5 705 80 30],'Horizontalalignment','center');
@@ -20,9 +20,15 @@ set(hGui.CLSCR, 'Callback',{@CloseSCR, sobj});
 
 hGui.stim=uicontrol('style','togglebutton','position',[110 705 100 30],'string','Stim-OFF','callback',@ch_stimON,'Horizontalalignment','center');
 
-hGui.EXIT=uicontrol('style', 'pushbutton', 'string','EXIT','position',[345 705 65 30],'FontSize',12,'Horizontalalignment','center');
+hGui.EXIT=uicontrol('style', 'pushbutton', 'string','EXIT','position',[680 705 65 30],'FontSize',12,'Horizontalalignment','center');
 set(hGui.EXIT, 'CallBack', {@quit_NBA, s});
 
+%% save %%
+uicontrol('string','File Name','position', [345 705 80 30],'Callback',@SelectSaveFile,'Horizontalalignment','center');
+hGui.savech=uicontrol('style','popupmenu','position', [430 710 120 20],'string',[{'ALL'},{'Header Only'},{'Header&Photo'}]);
+hGui.save=uicontrol('style','togglebutton','position', [555 705 70 30],'string','Unsave','Callback',@ch_save);
+
+%% plot %%
 hGui.PlotWindowON=uicontrol('style', 'togglebutton', 'string','Plot ON','position',[345 670 65 30],...
     'value', 1, 'BackGroundColor', 'g', 'FontSize',12,'Horizontalalignment','center');
 set(hGui.PlotWindowON, 'CallBack', @open_plot);
@@ -153,7 +159,6 @@ set(hGui.ImageNum, 'callback', @reload_params);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%  Visual stimuli2 %%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%[10, 20, 1000, 750]
 uipanel('Title','Vis. Stim.2','FontSize',12,'Units','Pixels','Position',[205 240 195 420]);
 
 uicontrol('style','text','position',[210 620 70 15],'string','Stim.Shape2','Horizontalalignment','left');
@@ -189,100 +194,96 @@ set(hGui.matchS1S2, 'callback',{@match_stim2cond, hGui})
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%% Electrophysiology %%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+uipanel('Title', 'Rec Setting','FontSize',12,'Units', 'Pixels', 'Position',[405 10 340 650]);
 
-uipanel('Title', 'Rec Setting','FontSize',12,'Units', 'Pixels', 'Position',[405 10 270 650]);
 %%
-uicontrol('style','text','position',[435 695 60 15],'string','Samp.Freq','Horizontalalignment','left');
-hGui.sampf=uicontrol('style','edit','position',[435 670 50 25],'string',recobj.sampf/1000,'BackGroundColor','g');
+uicontrol('style','text','position',[410 625 60 15],'string','Samp.Freq','Horizontalalignment','left');
+hGui.sampf=uicontrol('style','edit','position',[410 600 50 25],'string',recobj.sampf/1000,'BackGroundColor','g');
 set(hGui.sampf,'callback', @reload_params);
-uicontrol('style','text','position',[490 670 25 15],'string','kHz','Horizontalalignment','left');
+uicontrol('style','text','position',[465 600 25 15],'string','kHz','Horizontalalignment','left');
 
-uicontrol('style','text','position',[515 695 60 15],'string','Rec.Time','Horizontalalignment','left');
-hGui.rect=uicontrol('style','edit','position',[515 670 50 25],'string',recobj.rect,'BackGroundColor','g');
+uicontrol('style','text','position',[495 625 50 15],'string','Rec.Time','Horizontalalignment','left');
+hGui.rect=uicontrol('style','edit','position',[495 600 50 25],'string',recobj.rect,'BackGroundColor','g');
 set(hGui.rect,'callback', @reload_params);
-uicontrol('style','text','position',[570 670 20 15],'string','ms','Horizontalalignment','left');
+uicontrol('style','text','position',[550 600 20 15],'string','ms','Horizontalalignment','left');
 
-uicontrol('style','text','position',[595 695 70 15],'string','Loop Interval','Horizontalalignment','left');
-hGui.interval=uicontrol('style','edit','position',[595 670 50 25],'string',recobj.interval,'BackGroundColor','g');
+uicontrol('style','text','position',[580 625 80 15],'string','Loop Interval','Horizontalalignment','left');
+hGui.interval=uicontrol('style','edit','position',[580 600 50 25],'string',recobj.interval,'BackGroundColor','g');
 set(hGui.rect,'callback', @reload_params);
-uicontrol('style','text','position',[650 670 25 15],'string','sec','Horizontalalignment','left');
-
-uicontrol('style','text','position',[680 695 80 15],'string','Daq Range (V)','Horizontalalignment','left');
-hGui.DAQrange=uicontrol('style','popupmenu','position',[675 670 120 25],'string',[{'x1:[-10,10]'},{'x10:[-1,1]'},{'x50:[-0.2,0.2]'},{'x100:[-0.1,0.1]'}],'value',1);
-set(hGui.DAQrange,'callback',@ch_DaqRange);
+uicontrol('style','text','position',[635 600 25 15],'string','sec','Horizontalalignment','left');
 
 %%
-uicontrol('style','text','position',[610 650 80 15],'string','V range (mV)')
-hGui.VYmin = uicontrol('style','edit','position',[610 625 40 25],'string',-100,'BackGroundColor','w');
-hGui.VYmax = uicontrol('style','edit','position',[655 625 40 25],'string',30,'BackGroundColor','w');
+uicontrol('style','text','position',[540 580 80 15],'string','V range (mV)')
+hGui.VYmin = uicontrol('style','edit','position',[540 555 40 25],'string',-100,'BackGroundColor','w');
+hGui.VYmax = uicontrol('style','edit','position',[590 555 40 25],'string',30,'BackGroundColor','w');
 
-uicontrol('style','text','position',[705 650 80 15],'string','C range (nA)')
-hGui.CYmin = uicontrol('style','edit','position',[705 625 40 25],'string',-5,'BackGroundColor','w');
-hGui.CYmax = uicontrol('style','edit','position',[750 625 40 25],'string',3,'BackGroundColor','w');
+uicontrol('style','text','position',[635 580 80 15],'string','C range (nA)')
+hGui.CYmin = uicontrol('style','edit','position',[635 555 40 25],'string',-5,'BackGroundColor','w');
+hGui.CYmax = uicontrol('style','edit','position',[680 555 40 25],'string',3,'BackGroundColor','w');
 
-%%% pulse %%%
-hGui.pulse = uicontrol('style','togglebutton','position',[435 585 70 25],'string','Pulse OFF');
+%% %%% pulse %%%
+hGui.pulse = uicontrol('style','togglebutton','position',[410 505 70 30],'string','Pulse OFF');
 set(hGui.pulse, 'Callback', {@ch_ButtonColor, 'g'});
 
 %Duration
-uicontrol('style','text','position',[510 610 60 15],'string','Duration','Horizontalalignment','left');
-hGui.pulseDuration = uicontrol('style','edit','position',[510 585 50 25],'string',recobj.pulseDuration,'BackGroundColor','w');
-uicontrol('style','text','position',[560 585 25 15],'string','sec','Horizontalalignment','left');
+uicontrol('style','text','position',[485 530 60 15],'string','Duration','Horizontalalignment','left');
+hGui.pulseDuration = uicontrol('style','edit','position',[485 505 40 25],'string',recobj.pulseDuration,'BackGroundColor','w');
+uicontrol('style','text','position',[525 505 25 15],'string','sec','Horizontalalignment','left');
 
 %Delay
-uicontrol('style','text','position',[590 610 60 15],'string','Delay','Horizontalalignment','left');
-hGui.pulseDelay = uicontrol('style','edit','position',[590 585 50 25],'string',recobj.pulseDelay,'BackGroundColor','w');
-uicontrol('style','text','position',[640 585 25 15],'string','sec','Horizontalalignment','left');
+uicontrol('style','text','position',[555 530 60 15],'string','Delay','Horizontalalignment','left');
+hGui.pulseDelay = uicontrol('style','edit','position',[555 505 40 25],'string',recobj.pulseDelay,'BackGroundColor','w');
+uicontrol('style','text','position',[595 505 25 15],'string','sec','Horizontalalignment','left');
 
 %Amplitude
-uicontrol('style','text','position',[670 610 90 15],'string','Amplitude','Horizontalalignment','left');
-hGui.pulseAmp = uicontrol('style','edit','position',[670 585 50 25],'string',recobj.pulseAmp,'BackGroundColor','w');
+uicontrol('style','text','position',[625 530 60 15],'string','Amp.','Horizontalalignment','left');
+hGui.pulseAmp = uicontrol('style','edit','position',[625 505 40 25],'string',recobj.pulseAmp,'BackGroundColor','w');
 set(hGui.pulseAmp,'callback',{@check_AOrange, hGui});
-hGui.ampunit = uicontrol('style','text','position',[720 585 25 15],'string','nA','Horizontalalignment','left');
+hGui.ampunit = uicontrol('style','text','position',[665 505 25 15],'string','nA','Horizontalalignment','left');
 
-%%% preset_Testpulse Amplitude%%%
-uicontrol('style','text','position',[740 610 90 15],'string','Preset','Horizontalalignment','left');
-hGui.presetAmp = uicontrol('style','togglebutton','position',[740 585 50 25],'string','10 mV');
+% preset_Testpulse Amplitude
+uicontrol('style','text','position',[695 530 40 15],'string','Preset','Horizontalalignment','left');
+hGui.presetAmp = uicontrol('style','togglebutton','position',[690 505 50 25],'string','10 mV');
 set(hGui.presetAmp,'Callback',@preset_pulseAmp);
-
+%%
 %Step
-uicontrol('style','text','position',[850 650 30 15],'string','start','Horizontalalignment','left');
-uicontrol('style','text','position',[885 650 30 15],'string','end','Horizontalalignment','left');
-uicontrol('style','text','position',[920 650 30 15],'string','step','Horizontalalignment','left');
+uicontrol('style','text','position',[450 485 30 15],'string','start','Horizontalalignment','left');
+uicontrol('style','text','position',[485 485 30 15],'string','end','Horizontalalignment','left');
+uicontrol('style','text','position',[520 485 30 15],'string','step','Horizontalalignment','left');
 
 %for Current Clamp
-uicontrol('style','text','position',[810 620 40 25],'string','C (nA)','Horizontalalignment','left');
-hGui.Cstart = uicontrol('style','edit','position',[850 625 30 25],'string',recobj.stepCV(1,1),'BackGroundColor','w');
-hGui.Cend = uicontrol('style','edit','position',[885 625 30 25],'string',recobj.stepCV(1,2),'BackGroundColor','w');
-hGui.Cstep = uicontrol('style','edit','position',[920 625 30 25],'string',recobj.stepCV(1,3),'BackGroundColor','w');
+uicontrol('style','text','position',[410 460 40 15],'string','C (nA)','Horizontalalignment','left');
+hGui.Cstart = uicontrol('style','edit','position',[450 460 30 25],'string',recobj.stepCV(1,1),'BackGroundColor','w');
+hGui.Cend = uicontrol('style','edit','position',[485 460 30 25],'string',recobj.stepCV(1,2),'BackGroundColor','w');
+hGui.Cstep = uicontrol('style','edit','position',[520 460 30 25],'string',recobj.stepCV(1,3),'BackGroundColor','w');
 
 %for Voltage Clamp
-uicontrol('style','text','position',[810 590 40 25],'string','V (mV)','Horizontalalignment','left');
-hGui.Vstart = uicontrol('style','edit','position',[850 595 30 25],'string',recobj.stepCV(2,1),'BackGroundColor','w');
-hGui.Vend = uicontrol('style','edit','position',[885 595 30 25],'string',recobj.stepCV(2,2),'BackGroundColor','w');
-hGui.Vstep = uicontrol('style','edit','position',[920 595 30 25],'string',recobj.stepCV(2,3),'BackGroundColor','w');
+uicontrol('style','text','position',[410 430 40 15],'string','V (mV)','Horizontalalignment','left');
+hGui.Vstart = uicontrol('style','edit','position',[450 430 30 25],'string',recobj.stepCV(2,1),'BackGroundColor','w');
+hGui.Vend = uicontrol('style','edit','position',[485 430 30 25],'string',recobj.stepCV(2,2),'BackGroundColor','w');
+hGui.Vstep = uicontrol('style','edit','position',[520 430 30 25],'string',recobj.stepCV(2,3),'BackGroundColor','w');
 
-hGui.stepf = uicontrol('style','togglebutton','position',[805 645 40 25],'string','step','Callback',{@steppulse, hGui});
-
+hGui.stepf = uicontrol('style','togglebutton','position',[555 455 40 30],'string','step','Callback',{@steppulse, hGui});
+%%
+uicontrol('style','text','position',[410 405 80 15],'string','Daq Range (V)','Horizontalalignment','left');
+hGui.DAQrange=uicontrol('style','popupmenu','position',[410 380 120 25],'string',[{'x1:[-10,10]'},{'x10:[-1,1]'},{'x50:[-0.2,0.2]'},{'x100:[-0.1,0.1]'}],'value',1);
+set(hGui.DAQrange,'callback',@ch_DaqRange);
+%%%%%%%
 %% select plot channel %%
-uicontrol('style','text','position',[435 650 55 15],'string','Plot Type ','Horizontalalignment','left');
-hGui.plot=uicontrol('style','togglebutton','position',[435 625 90 30],'string','V-plot','ForegroundColor','white','BackGroundColor','b');
+uicontrol('style','text','position',[410 580 55 15],'string','Plot Type ','Horizontalalignment','left');
+hGui.plot=uicontrol('style','togglebutton','position',[410 550 60 30],'string','V-plot','ForegroundColor','white','BackGroundColor','b');
 set(hGui.plot,'callback',@ch_plot);
 
-uicontrol('style','text','position',[530 650 55 15],'string','Y-axis','Horizontalalignment','left');
-hGui.yaxis=uicontrol('style','togglebutton','position',[530 625 75 30],'value',0, 'string',[{'Auto'},{'Fix'}]);
+uicontrol('style','text','position',[475 580 55 15],'string','Y-axis','Horizontalalignment','left');
+hGui.yaxis=uicontrol('style','togglebutton','position',[475 550 60 30],'value',0, 'string',[{'Auto'},{'Fix'}]);
 set(hGui.yaxis,'callback',@ch_yaxis);
-%% save %%
-uicontrol('string','File Name','position', [435 550 90 30],'Callback',@SelectSaveFile,'Horizontalalignment','center');
-hGui.savech=uicontrol('style','popupmenu','position', [530 555 120 20],'string',[{'ALL'},{'Header Only'},{'Header&Photo'}]);
-hGui.save=uicontrol('style','togglebutton','position', [655 550 70 30],'string','Unsave','Callback',@ch_save);
 
-%%
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%{
 %Elech only
 hGui.EOf = uicontrol('style','togglebutton','position',[890 700 60 30],'string','E only','FontSize',12,'Horizontalalignment','center');
 set(hGui.EOf, 'Callback',{@ch_ButtonColor,'g'});
-
-
+%}
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%   TTL out DIO3    %%%%%%%%%%%%%%%%%
@@ -303,6 +304,11 @@ uicontrol('style','text','position',[325 140 20 15],'string','ms','Horizontalali
 hGui.TTL3=uicontrol('style','togglebutton','position',[210 185 65 30],'string','TTL-OFF','Horizontalalignment','left');
 set(hGui.TTL3, 'Callback',{@TTL3, hGui})
 %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%   Loop Start Button   %%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%main_loopingtest
+hGui.loop=uicontrol('style','togglebutton','position',[110 670 100 30],'string','Loop-OFF','callback',{@loopON, hGui},'BackGroundColor','r');
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % variables check %
@@ -340,6 +346,7 @@ function quit_NBA(~, ~, s)
 global sobj
 global dev
 delete(s)
+
 if isempty(dev)
 else
     daq.reset;
@@ -365,6 +372,7 @@ if get(hObject,'value')
 else
     if isfield(plotUIobj,'fig')
         close(plotUIobj.fig)
+        clear plotUIobj
     end
 end
 ch_ButtonColor(hObject,[],'g')
