@@ -6,7 +6,9 @@ function hGui = gui_window4
 
 global sobj
 global recobj
+global plotUIobj
 global s
+
 
 %% %---------- Create GUI window ----------%
 %open GUI window
@@ -311,7 +313,8 @@ set(hGui.TTL3, 'Callback',{@TTL3, hGui})
 hGui.loop=uicontrol('style','togglebutton','position',[110 670 100 30],'string','Loop-OFF','callback',{@loopON, hGui},'BackGroundColor','r');
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% variables check %
+% open plot window
+%plotUIobj = plot_window;
 end
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

@@ -68,10 +68,10 @@ end
 
 %%
 function close_Plot(~, ~)
-global FigUIobj
+global figUIobj
 
-if isstruct(FigUIobj)
-    set(FigUIobj.PlotWindowON, 'value', 0, 'BackGroundColor', [0.9400 0.9400 0.9400]);
+if isstruct(figUIobj)
+    set(figUIobj.PlotWindowON, 'value', 0, 'BackGroundColor', [0.9400 0.9400 0.9400]);
 end
 end
 

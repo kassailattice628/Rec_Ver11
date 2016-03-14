@@ -9,7 +9,6 @@ global sobj %save
 global recobj %save
 global figUIobj %save
 global plotUIobj
-
 global RecData %save
 RecData = [];
 global s
