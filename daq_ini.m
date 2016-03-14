@@ -4,9 +4,8 @@ function [varargout] = daq_ini
 global recobj
 global s
 global capture
-global InCh
 global dio
-global sRot
+
 
 dev = daq.getDevices;
 s = daq.createSession(dev.Vendor.ID);
@@ -66,9 +65,6 @@ capture.bufferSize =  round(capture.bufferTimeSpan * s.Rate);
 
 
 %%
-varargout{1,1} = dev;
-varargout{1,2} = s;
-varargout{1,3} = InCh;
-varargout{1,4} = dio;
-varargout{1,5} = sRot;
-varargout{1,6} = capture;
+varargout{1,1} = s;
+varargout{1,2} = dio;
+varargout{1,3} = capture;

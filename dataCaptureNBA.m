@@ -19,9 +19,6 @@ function dataCaptureNBA(src, event, c, hGui, RecData, plotVI)
 % Persistent variables retain their values between calls to the function.
 
 global plotUIobj
-global recobj
-global sobj
-
 global s
 
 persistent dataBuffer trigActive trigMoment
