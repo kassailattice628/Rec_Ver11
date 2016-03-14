@@ -1,7 +1,6 @@
 function sobj = sobj_ini(i,pixpitch)
 % initialize sobj (PTB parameters)
 
-%%
 %scrsz=get(0,'ScreenSize');
 MP = get(0,'MonitorPosition');%position matrix for malti monitors
 screens = Screen('Screens');
@@ -24,7 +23,7 @@ sobj.stimsz = round(ones(1,2)*Deg2Pix(1,sobj.MonitorDist, pixpitch));% default: 
 sobj.shapelist = [{'FillRect'};{'FillOval'}];
 sobj.shape = 'FillOval'; % default Oval
 sobj.pattern = 'Uni'; %uniform or Grating
-%sobj.filter = 1;%1: None, 2: Gabor patch
+%sobj.filter = 1; % 1: None, 2: Gabor patch
 sobj.div_zoom = 5;
 sobj.flipNum = 75;
 sobj.divnum = 2;

@@ -6,7 +6,6 @@ function hGui = gui_window4
 
 global sobj
 global recobj
-global plotUIobj
 global s
 
 
@@ -145,7 +144,7 @@ uicontrol('style','text','position',[90 115 20 15],'string','Hz','Horizontalalig
 uicontrol('style','text','position',[10 90 75 15],'string','Spatial Freq','Horizontalalignment','left');
 hGui.gratFreq=uicontrol('style','popupmenu','position',[10 65 100 25],'string',[{'0.01'},{'0.02'},{'0.04'},{'0.08'},{'0.16'},{'0.32'}],'value',4,'BackGroundColor','w');
 set(hGui.gratFreq, 'callback', @reload_params);
-uicontrol('style','text','position',[110 70 50 15],'string','cycle/deg','Horizontalalignment','left');
+uicontrol('style','text','position',[110 70 60 15],'string','cycle/deg','Horizontalalignment','left');
 
 uicontrol('style','text','position',[10 45 70 15],'string','Monior Dist.','Horizontalalignment','left');
 hGui.MonitorDist=uicontrol('style','edit','position',[10 20 50 25],'string',sobj.MonitorDist,'BackGroundColor','g');
@@ -224,9 +223,6 @@ hGui.CYmin = uicontrol('style','edit','position',[635 555 40 25],'string',-5,'Ba
 hGui.CYmax = uicontrol('style','edit','position',[680 555 40 25],'string',3,'BackGroundColor','w');
 
 %% %%% pulse %%%
-hGui.pulse = uicontrol('style','togglebutton','position',[410 505 70 30],'string','Pulse OFF');
-set(hGui.pulse, 'Callback', {@ch_ButtonColor, 'g'});
-
 %Duration
 uicontrol('style','text','position',[485 530 60 15],'string','Duration','Horizontalalignment','left');
 hGui.pulseDuration = uicontrol('style','edit','position',[485 505 40 25],'string',recobj.pulseDuration,'BackGroundColor','w');
@@ -265,7 +261,8 @@ hGui.Vstart = uicontrol('style','edit','position',[450 430 30 25],'string',recob
 hGui.Vend = uicontrol('style','edit','position',[485 430 30 25],'string',recobj.stepCV(2,2),'BackGroundColor','w');
 hGui.Vstep = uicontrol('style','edit','position',[520 430 30 25],'string',recobj.stepCV(2,3),'BackGroundColor','w');
 
-hGui.stepf = uicontrol('style','togglebutton','position',[555 455 40 30],'string','step','Callback',{@steppulse, hGui});
+hGui.stepf = uicontrol('style','togglebutton','position',[555 455 40 30],'string','step','Callback',@set_pulse);
+hGui.pulse = uicontrol('style','togglebutton','position',[410 505 70 30],'string','Pulse ON', 'Callback', @set_pulse);
 %%
 uicontrol('style','text','position',[410 405 80 15],'string','Daq Range (V)','Horizontalalignment','left');
 hGui.DAQrange=uicontrol('style','popupmenu','position',[410 380 120 25],'string',[{'x1:[-10,10]'},{'x10:[-1,1]'},{'x50:[-0.2,0.2]'},{'x100:[-0.1,0.1]'}],'value',1);
@@ -348,16 +345,23 @@ end
 function quit_NBA(~, ~, s)
 global sobj
 global dev
+global plotUIobj
 delete(s)
 
 if isempty(dev)
 else
     daq.reset;
 end
+
 if sobj.ScrNum ~= 0
     Screen('Close', sobj.wPtr);
 end
 %clear windows, variables
+
+if isfield(plotUIobj,'fig')
+    close(plotUIobj.fig)
+end
+
 sca;
 clear;
 close all;
@@ -481,26 +485,28 @@ end
 %%
 function ch_yaxis(hObject, ~)
 global figUIobj
+global plotUIobj
+
 switch get(hObject,'value')
     case 0
         set(hObject, 'string', 'Auto');
-        set(figUIobj.axes1,'YlimMode','Auto');
+        set(plotUIobj.axes1,'YlimMode','Auto');
         set(figUIobj.VYmax,'BackGroundColor','w')
         set(figUIobj.VYmin,'BackGroundColor','w')
         set(figUIobj.CYmax,'BackGroundColor','w')
         set(figUIobj.CYmin,'BackGroundColor','w')
     case 1
         set(hObject, 'string', 'Fix');
-        set(figUIobj.axes1,'YlimMode','Manual');
+        set(plotUIobj.axes1,'YlimMode','Manual');
         switch get(figUIobj.plot,'value')
             case 0 %Vplot
-                set(figUIobj.axes1,'Ylim',[str2double(get(figUIobj.VYmin,'string')),str2double(get(figUIobj.VYmax,'string'))]);
+                set(plotUIobj.axes1,'Ylim',[str2double(get(figUIobj.VYmin,'string')),str2double(get(figUIobj.VYmax,'string'))]);
                 set(figUIobj.VYmax,'BackGroundColor','g')
                 set(figUIobj.VYmin,'BackGroundColor','g')
                 set(figUIobj.CYmax,'BackGroundColor','w')
                 set(figUIobj.CYmin,'BackGroundColor','w')
             case 1 %Iplot
-                set(figUIobj.axes1,'Ylim',[str2double(get(figUIobj.CYmin,'string')),str2double(get(figUIobj.CYmax,'string'))]);
+                set(plotUIobj.axes1,'Ylim',[str2double(get(figUIobj.CYmin,'string')),str2double(get(figUIobj.CYmax,'string'))]);
                 set(figUIobj.VYmax,'BackGroundColor','w')
                 set(figUIobj.VYmin,'BackGroundColor','w')
                 set(figUIobj.CYmax,'BackGroundColor','g')
@@ -509,16 +515,6 @@ switch get(hObject,'value')
 end
 ch_ButtonColor(hObject,[],'g')
 end
-
-%%
-%%
-function FigOff(~, ~, handle)
-% close the fig
-if ishandle(handle)
-    set(handle, 'value', 0 ,'BackGroundColor',[0.9400 0.9400 0.9400]);
-end
-end
-%%
 
 %%
 function ch_ButtonColor(hObject, ~, col)
@@ -534,29 +530,6 @@ end
 
 %%%%%%%%%%%%% save setting %%%%%%%%%%%%%%
 %%
-function ch_save(hObject,~)
-% change save mode, SAVE/UNSAVE
-
-global recobj
-
-switch get(hObject,'value')
-    case 1
-        set(hObject,'string','Saving')
-        if isfield(recobj,'fname')==1 && ischar(recobj.fname)
-        else
-            SelectSaveFile;
-        end
-    case 0
-        if recobj.fopenflag == 1
-            fclose(recobj.fid);
-            recobj.fopenflag = 0;
-        end
-end
-
-ch_ButtonColor(hObject,[],'g');
-end
-
-%%
 function SelectSaveFile(~, ~)
 global recobj
 if isfield(recobj,'dirname') == 0 % 1st time to define filename
@@ -570,7 +543,28 @@ if recobj.fname ~= 0
     recobj.fname = regexprep(recobj.fname, pat,'');
 end
 
-%assignin('base','recobj', recobj)
 end
-%%
 
+%%
+function ch_save(hObject,~)
+% change save mode, SAVE/UNSAVE
+
+global recobj
+
+switch get(hObject,'value')
+    case 1 %saving
+        set(hObject,'string','Saving')
+        if isfield(recobj,'fname')==1 && ischar(recobj.fname)
+        else
+            SelectSaveFile;
+        end
+    case 0 %unsave
+        set(hObject, 'string', 'Unsave')
+        if recobj.fopenflag == 1
+            fclose(recobj.fid);
+            recobj.fopenflag = 0;
+        end
+end
+
+ch_ButtonColor(hObject,[],'g');
+end

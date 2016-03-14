@@ -6,15 +6,13 @@ h.SelectTest = uicontrol('style','togglebutton','position',[10 155 100 40],'stri
 set(h.SelectTest, 'Callback', {@ch_ButtonColor, 'g'});
 h.Start=uicontrol('style','pushbutton','string','Open NBA','position',[10 100 100 50],'FontSize',12,'Horizontalalignment','center');
 set(h.Start,'Callback', {@start, h});
-
 end
 
 function start(hObject,~, h)
 if get(hObject,'value') == 1
     NoneButAir11_03(get(h.SelectTest, 'value'));
     close(h.fig)
-    clear h
-    
+    clear h    
 end
 end
 

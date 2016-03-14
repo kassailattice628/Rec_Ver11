@@ -31,8 +31,10 @@ recobj.stepAmp = 0:0.1:0.5;%Cstep
 % 1V in ->  20 mV(=0.02V) out
 recobj.gain = [1, 0.05]; %for Axoclamp2B Command V output, [ME1 cmd output(10*H nA/V), VC cmd output(20 mV/V)]; %
 
+%% Visual Stim ON 
 
 %% TTL3
+recobj.TTL3on = 0;
 recobj.delayTTL3 = 0;
 recobj.durationTTL3 = 0;
 

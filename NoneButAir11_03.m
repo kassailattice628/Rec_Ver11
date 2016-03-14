@@ -60,7 +60,7 @@ plotUIobj = plot_window;
 
 %% DAQ Event Listener used in AI rec
 if mode == 0
-    lh = addlistener(s, 'DataAvailable', @(src,event) dataCaptureNBA(src, event, capture, figUIobj, RecData));
+    lh = addlistener(s, 'DataAvailable', @(src,event) dataCaptureNBA(src, event, capture, figUIobj, RecData, get(figUIobj.plot,'value')));
 end
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % variables check %

@@ -1,13 +1,15 @@
 function reload_params(~, ~)
 % reload all paraemter and settings if changes from GUI
-
 global figUIobj
+global plotUIobj
 global sobj
 global recobj
 global s
 global capture
 global lh
 global dio
+
+global RecData
 
 %% visual stimulus settings %%
 % general %
@@ -104,22 +106,40 @@ if isstruct(s) % DAQ sessions are not defined in the TEST-mode
     
     % Determine data buffer size
     capture.bufferSize =  round(capture.bufferTimeSpan * s.Rate);
-    
+end
+
+if isstruct(dio)
     %% dio reset
     outputSingleScan(dio.TrigAIFV,[0,0])
     outputSingleScan(dio.VSon,0)
     outputSingleScan(dio.TTL3,0)
-    %%
-    delete(lh)% <-- important!!!
-    lh = addlistener(s, 'DataAvailable', @(src,event) dataCaptureNBA(src, event, capture, figUIobj));
-    %wait for Trigger
 end
+%%
+if isstruct(lh)
+    delete(lh)% <-- important!!!
+    RecData=[];
+    lh = addlistener(s, 'DataAvailable', @(src,event) dataCaptureNBA(src, event, capture, figUIobj, RecData, get(figUIobj.plot, 'value')));
 end
 
+%% plot
+switch get(figUIobj.plot, 'value')
+    case 0
+        col = 'b';
+    case 1
+        col = 'r';
+end
+set(plotUIobj.plot1, 'Color', col);
+end
+
+
+
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% sub functions %%
+%%
 function y = re_write(h)
 y = str2double(get(h,'string'));
 end
-
+%%
 function size = stim_size(dist,h,pixpitch)
 size = round(ones(1,2)*Deg2Pix(str2double(get(h,'string')), dist,pixpitch));
 end

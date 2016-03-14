@@ -1,4 +1,4 @@
-function dataCaptureNBA(src, event, c, hGui, RecData)
+function dataCaptureNBA(src, event, c, hGui, RecData, plotVI)
 %dataCapture Process DAQ acquired data when called by DataAvailable event.
 %  dataCapture (SRC, EVENT, C, HGUI) processes latest acquired data (EVENT.DATA)
 %  and timestamps (EVENT.TIMESTAMPS) from session (SRC), and, based on specified
@@ -19,6 +19,9 @@ function dataCaptureNBA(src, event, c, hGui, RecData)
 % Persistent variables retain their values between calls to the function.
 
 global plotUIobj
+global recobj
+global sobj
+
 global s
 
 persistent dataBuffer trigActive trigMoment
@@ -40,20 +43,16 @@ end
 
 %% Update live data plot, Plot latest plotTimeSpan seconds of data in dataBuffer
 
-if get(hGui.LivePlotOn,'value')==1
-    
-    samplesToPlot = min([round(c.plotTimeSpan * src.Rate), size(dataBuffer,1)]);
-    firstPoint = size(dataBuffer, 1) - samplesToPlot + 1;
-    % Update x-axis limits
-    xlim(plotUIobj.axes4, [dataBuffer(firstPoint,1), dataBuffer(end,1)]);
-    % Live plot has one line for each acquisition channel
-    for ii = 1:size(plotUIobj.button4,2)
-        if get(plotUIobj.button4{1,ii},'value')
-            set(plotUIobj.plot(ii), 'XData', dataBuffer(firstPoint:end, 1),'YData', dataBuffer(firstPoint:end, ii+1))
-        end
+samplesToPlot = min([round(c.plotTimeSpan * src.Rate), size(dataBuffer,1)]);
+firstPoint = size(dataBuffer, 1) - samplesToPlot + 1;
+% Update x-axis limits
+xlim(plotUIobj.axes4, [dataBuffer(firstPoint,1), dataBuffer(end,1)]);
+% Live plot has one line for each acquisition channel
+for ii = 1:size(plotUIobj.button4, 2)
+    if get(plotUIobj.button4{1,ii},'value')
+        set(plotUIobj.plot4(ii), 'XData', dataBuffer(firstPoint:end, 1),'YData', dataBuffer(firstPoint:end, ii+1))
     end
 end
-
 %%
 % If capture is requested, analyze latest acquired data until a trigger
 % condition is met. After enough data is acquired for a complete capture,
@@ -85,14 +84,15 @@ elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) > c.Tim
     % Update captured data plot (one line for each acquisition channel)
     % captureData(:,1) is timstamp
     % 2: AI1, 3: AI2, 4:AI 3=photosensor, 5: AI4=Trigger monitor, 6: RotaryEncoder
+    % plotVI = get(figUIobj.plot, 'value'): 0=V plot, 1=I plot
     if get(plotUIobj.button1, 'value')
-    set(plotUIobj.plot1, 'XData', captureData(:, 1), 'YData', captureData(:, get(hGui.plot,'value')+2))
-    set(plotUIobj.axes1, 'XLim',[-inf,inf]);
+        set(plotUIobj.plot1, 'XData', captureData(:, 1), 'YData', captureData(:,plotVI+2), col)
+        set(plotUIobj.axes1, 'XLim',[-inf,inf]);
     end
     
     if get(plotUIobj.button2, 'value')
-    set(plotUIobj.plot2, 'XData', captureData(:, 1), 'YData', captureData(:, 4))
-    set(plotUIobj.axes2, 'XLim',[-inf,inf]);
+        set(plotUIobj.plot2, 'XData', captureData(:, 1), 'YData', captureData(:, 4))
+        set(plotUIobj.axes2, 'XLim',[-inf,inf]);
     end
     
     %when Rotary ON, plot Angular Position
@@ -114,20 +114,13 @@ elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) > c.Tim
     %prep savedata
     RecData = [RecData;captureData];
     %parameters are define in 'LoopON.m'
-    
-    
-    
     %%%%%% save setting %%%%%%
     if get(hGui.save, 'value') == 1 % Saving
-        %save @base workspace
-        %assignin('base','buffer',dataBuffer);
-        %assignin('base','RecData',RecData);
-        
-        %save(*****, RecData, figUIobj, recobj)
+        save('data.mat', 'RecData', 'sobj', 'recobj')
     end
     
 elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) < c.TimeSpan)
-    disp('data short ')
+    %disp('data short ')
 elseif ~captureRequested
     % State: "Loop Out"
     trigActive = false;
