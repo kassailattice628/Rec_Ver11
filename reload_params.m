@@ -9,7 +9,8 @@ global capture
 global lh
 global dio
 
-global RecData
+global DataSave
+global ParamsSave
 
 %% visual stimulus settings %%
 % general %
@@ -77,6 +78,7 @@ recobj.stepCV(1,3) = re_write(figUIobj.Cstep);
 recobj.stepCV(2,1) = re_write(figUIobj.Vstart);
 recobj.stepCV(2,2) = re_write(figUIobj.Vend);
 recobj.stepCV(2,3) = re_write(figUIobj.Vstep);
+
 plotnum = get(figUIobj.plot, 'value')+1;
 recobj.stepAmp = recobj.stepCV(plotnum,1):recobj.stepCV(plotnum,3):recobj.stepCV(plotnum,2);
 
@@ -115,12 +117,14 @@ if isstruct(dio)
     outputSingleScan(dio.TTL3,0)
 end
 %%
-if isstruct(lh)
+%if isstruct(lh)
     delete(lh)% <-- important!!!
-    RecData=[];
-    lh = addlistener(s, 'DataAvailable', @(src,event) dataCaptureNBA(src, event, capture, figUIobj, RecData, get(figUIobj.plot, 'value')));
-end
-
+    DataSave =[];
+    ParamsSave =[];
+    disp('load lh')
+    lh = addlistener(s, 'DataAvailable', @(src,event) dataCaptureNBA(src, event, capture, figUIobj, get(figUIobj.plot,'value')));
+%end
+disp('reload')
 %% plot
 switch get(figUIobj.plot, 'value')
     case 0

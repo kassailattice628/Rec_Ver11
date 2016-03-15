@@ -9,16 +9,11 @@ global sobj %save
 global recobj %save
 global figUIobj %save
 global plotUIobj
-global RecData %save
-RecData = [];
 global s
 global dev
 global dio
 global capture
 global lh
-
-global save_params % cell
-save_params = save_ini;
 
 %% Initialize recording params
 recobj = recobj_ini;
@@ -59,7 +54,7 @@ plotUIobj = plot_window;
 
 %% DAQ Event Listener used in AI rec
 if mode == 0
-    lh = addlistener(s, 'DataAvailable', @(src,event) dataCaptureNBA(src, event, capture, figUIobj, RecData, get(figUIobj.plot,'value')));
+    lh = addlistener(s, 'DataAvailable', @(src,event) dataCaptureNBA(src, event, capture, figUIobj, get(figUIobj.plot,'value')));
 end
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % variables check %

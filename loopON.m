@@ -3,9 +3,11 @@ function loopON(hObject, ~, hGui)
 
 global recobj
 global sobj
-global lh
 global s
 global dio
+global DataSave %save
+global ParamsSave %save
+global lh
 
 if get(hObject, 'value')==1 % loop ON
     reload_params;
@@ -19,18 +21,20 @@ if get(hObject, 'value')==1 % loop ON
         disp(['#: ',num2str(recobj.cycleNum)])
         % start loop (Trigger + Visual Stimulus)
         MainLoop(dio, hGui, sobj)
-        
         % loop interval
-        
         pause(recobj.interval+recobj.rect/1000);
     end
 else %loop OFF
     set(hObject,'string', 'Loop-Off', 'BackGroundColor', 'r');
-    
+    if get(hGui.save, 'value')
+        save([recobj.dirname,recobj.fname], 'DataSave', 'ParamsSave', 'recobj', 'sobj'); 
+        recobj.savecount = recobj.savecount + 1;
+    end
     % stop loop & data acquiring
     if s.IsRunning
-        delete(lh)
         stop(s)
+        delete(lh)
+        disp('delete lh')
     end
     % reset all triggers
     %RestTriggers

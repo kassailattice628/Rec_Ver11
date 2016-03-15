@@ -8,7 +8,6 @@ global sobj
 global recobj
 global s
 
-
 %% %---------- Create GUI window ----------%
 %open GUI window
 hGui.fig = figure('Position',[10, 20, 750, 750], 'Name','None But Air11', 'NumberTitle', 'off', 'Menubar','none', 'Resize', 'off');
@@ -26,8 +25,8 @@ set(hGui.EXIT, 'CallBack', {@quit_NBA, s});
 
 %% save %%
 uicontrol('string','File Name','position', [345 705 80 30],'Callback',@SelectSaveFile,'Horizontalalignment','center');
-hGui.savech=uicontrol('style','popupmenu','position', [430 710 120 20],'string',[{'ALL'},{'Header Only'},{'Header&Photo'}]);
-hGui.save=uicontrol('style','togglebutton','position', [555 705 70 30],'string','Unsave','Callback',@ch_save);
+hGui.save=uicontrol('style','togglebutton','position', [430 705 70 30],'string','Unsave','Callback',@ch_save);
+%hGui.savech=uicontrol('style','popupmenu','position', [430 710 120 20],'string',[{'ALL'},{'Header Only'},{'Header&Photo'}]);
 
 %% plot %%
 hGui.PlotWindowON=uicontrol('style', 'togglebutton', 'string','Plot ON','position',[345 670 65 30],...
@@ -251,18 +250,18 @@ uicontrol('style','text','position',[520 485 30 15],'string','step','Horizontala
 
 %for Current Clamp
 uicontrol('style','text','position',[410 460 40 15],'string','C (nA)','Horizontalalignment','left');
-hGui.Cstart = uicontrol('style','edit','position',[450 460 30 25],'string',recobj.stepCV(1,1),'BackGroundColor','w');
-hGui.Cend = uicontrol('style','edit','position',[485 460 30 25],'string',recobj.stepCV(1,2),'BackGroundColor','w');
-hGui.Cstep = uicontrol('style','edit','position',[520 460 30 25],'string',recobj.stepCV(1,3),'BackGroundColor','w');
+hGui.Cstart = uicontrol('style','edit','position',[450 460 30 25],'string',recobj.stepCV(1,1),'callback', @reload_params,'BackGroundColor','w');
+hGui.Cend = uicontrol('style','edit','position',[485 460 30 25],'string',recobj.stepCV(1,2),'callback', @reload_params,'BackGroundColor','w');
+hGui.Cstep = uicontrol('style','edit','position',[520 460 30 25],'string',recobj.stepCV(1,3),'callback', @reload_params,'BackGroundColor','w');
 
 %for Voltage Clamp
 uicontrol('style','text','position',[410 430 40 15],'string','V (mV)','Horizontalalignment','left');
-hGui.Vstart = uicontrol('style','edit','position',[450 430 30 25],'string',recobj.stepCV(2,1),'BackGroundColor','w');
-hGui.Vend = uicontrol('style','edit','position',[485 430 30 25],'string',recobj.stepCV(2,2),'BackGroundColor','w');
-hGui.Vstep = uicontrol('style','edit','position',[520 430 30 25],'string',recobj.stepCV(2,3),'BackGroundColor','w');
+hGui.Vstart = uicontrol('style','edit','position',[450 430 30 25],'string',recobj.stepCV(2,1), 'callback', @reload_params, 'BackGroundColor','w');
+hGui.Vend = uicontrol('style','edit','position',[485 430 30 25],'string',recobj.stepCV(2,2), 'callback', @reload_params, 'BackGroundColor','w');
+hGui.Vstep = uicontrol('style','edit','position',[520 430 30 25],'string',recobj.stepCV(2,3), 'callback', @reload_params, 'BackGroundColor','w');
 
-hGui.stepf = uicontrol('style','togglebutton','position',[555 455 40 30],'string','step','Callback',@set_pulse);
-hGui.pulse = uicontrol('style','togglebutton','position',[410 505 70 30],'string','Pulse ON', 'Callback', @set_pulse);
+hGui.stepf = uicontrol('style','togglebutton','position',[555 455 40 30],'string','step','callback',@set_pulse);
+hGui.pulse = uicontrol('style','togglebutton','position',[410 505 70 30],'string','Pulse ON', 'callback', @set_pulse);
 %%
 uicontrol('style','text','position',[410 405 80 15],'string','Daq Range (V)','Horizontalalignment','left');
 hGui.DAQrange=uicontrol('style','popupmenu','position',[410 380 120 25],'string',[{'x1:[-10,10]'},{'x10:[-1,1]'},{'x50:[-0.2,0.2]'},{'x100:[-0.1,0.1]'}],'value',1);
@@ -534,23 +533,27 @@ end
 %%
 function SelectSaveFile(~, ~)
 global recobj
+
 if isfield(recobj,'dirname') == 0 % 1st time to define filename
-    [recobj.fname,recobj.dirname] = uiputfile('*.*');
+    [recobj.fname, recobj.dirname] = uiputfile('*.*');
+    disp (recobj.dirname);
+    [~, fname, ext] = fileparts([recobj.dirname, recobj.fname]);
+    recobj.savefilename  = [recobj.dirname, fname, recobj.savecount, ext];
 else %open the same folder when any foder was selected previously.
-    recobj.fname = uiputfile('*.*','Select File to Write',recobj.dirname);
+    if recobj.dirname == 0
+        recobj.dirname = pwd;
+    else 
+    [recobj.fname, recobj.dirname] = uiputfile('*.mat','Select File to Write',recobj.dirname);
+    [~, fname, ext] = fileparts([recobj.dirname, recobj.fname]);
+    recobj.savefilename  = [recobj.dirname, fname, recobj.savecount, ext];
+    end
 end
-
-pat = regexptranslate('wildcard', '.*');%delete extention
-if recobj.fname ~= 0
-    recobj.fname = regexprep(recobj.fname, pat,'');
-end
-
+%chekc savefilename
+disp (recobj.savefilename);
 end
 
 %%
 function ch_save(hObject,~)
-% change save mode, SAVE/UNSAVE
-
 global recobj
 
 switch get(hObject,'value')
@@ -562,10 +565,6 @@ switch get(hObject,'value')
         end
     case 0 %unsave
         set(hObject, 'string', 'Unsave')
-        if recobj.fopenflag == 1
-            fclose(recobj.fid);
-            recobj.fopenflag = 0;
-        end
 end
 
 ch_ButtonColor(hObject,[],'g');

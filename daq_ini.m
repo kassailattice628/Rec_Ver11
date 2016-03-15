@@ -6,6 +6,7 @@ global s
 global capture
 global dio
 global dev
+global InCh
 
 dev = daq.getDevices;
 s = daq.createSession(dev.Vendor.ID);
