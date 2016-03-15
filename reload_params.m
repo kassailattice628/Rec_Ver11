@@ -128,13 +128,16 @@ if Testmode == 0
     disp('reload s, dio')
 end
 %% plot
-switch get(figUIobj.plot, 'value')
+if isfield(plotUIobj, 'plot')
+switch get(figUIobj.plot, 'value') %V-plot or I-plot
     case 0
         col = 'b';
     case 1
         col = 'r';
 end
 set(plotUIobj.plot1, 'Color', col);
+end
+disp(isfield(plotUIobj,'fig'))
 end
 
 

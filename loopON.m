@@ -22,11 +22,11 @@ if get(hObject, 'value')==1 % loop ON
         % start loop (Trigger + Visual Stimulus)
         MainLoop(dio, hGui, sobj, Testmode)
         
-        
         %%%%%%%%%%%%%% loop interval %%%%%%%%%%%%%%%%
         pause(recobj.interval+recobj.rect/1000);
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     end
+    
 else %loop OFF
     set(hObject,'string', 'Loop-Off', 'BackGroundColor', 'r');
     if get(hGui.save, 'value')
@@ -34,14 +34,14 @@ else %loop OFF
         recobj.savecount = recobj.savecount + 1;
     end
     % stop loop & data acquiring
-    if s.IsRunning
+    if Testmode==0 && s.IsRunning
         stop(s)
         delete(lh)
         disp('delete lh')
     end
     
     %reset all triggers
-    ResetTrigger(Testmode);
+    ResetTTLall(Testmode, dio);
     
     % Reset Cycle Counter %
     recobj.cycleNum = 0- recobj.prestim;
@@ -53,7 +53,6 @@ end
 
 %% Main Contentes in the Loop%%
 function MainLoop(dio, hGui, sobj, Testmode)
-global recobj
 global s
 
 % start DAQ
@@ -68,15 +67,9 @@ try %error check
     switch get(hGui.stim, 'value')
         case 0 % Vis.Stim off
             % start timer and start FV
-            if recobj.cycleNum == -recobj.prestim +1
-                Trigger(Testmode)
-                disp('Recording Start')
-            else
-                % Trig AI only %%% start timer
-                outputSingleScan(dio.TrigAIFV,[1,0]);% start timer(recobj.STARTLoop)
-            end
-            %report # of cycles
-            outputSingleScan(dio.TrigAIFV,[0,0]);%
+            Trigger(Testmode, dio)
+            disp('Recording Start')
+            
             
             %%%%%%%%%%%%%%%%%%%% Visual Stimulus ON %%%%%%%%%%%%%%%%%%%%
         case 1 %
@@ -90,9 +83,8 @@ end
 end
 
 %%
-function Trigger(Testmode)
+function Trigger(Testmode, dio)
 global recobj
-global dio
 
 if Testmode == 0 %Test mode off
     if recobj.cycleNum == -recobj.prestim +1
@@ -105,11 +97,21 @@ if Testmode == 0 %Test mode off
         outputSingleScan(dio.TrigAIFV, [1,0]);
         disp('Trig')
     end
+    outputSingleScan(dio.TrigAIFV,[0,0]);%
+    
+elseif Testmode == 1 %Test mode on
+    if recobj.cycleNum == -recobj.prestim +1
+        %start timer & Trigger AI & FV
+        recobj.STARTloop = tic;
+    else
+        recobj.tRec = toc(recobj.STARTloop);
+        disp(recobj.tRec)
+    end
+    
 end
 end
 %%
-function ResetTrigger(Testmode)
-global dio
+function ResetTTLall(Testmode, dio)
 
 if Testmode == 0; %Test mode off
     outputSingleScan(dio.TrigAIFV,[0,0]);

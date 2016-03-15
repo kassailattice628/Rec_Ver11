@@ -1,11 +1,11 @@
-function hGui = plot_window
+function hGui = plot_window(figUIobj)
 %plot_window creates plot window for  None But Air
 % plotUIobj = plot_window
 
 %% %---------- Create plot window ----------%
 %open plot window
 hGui.fig = figure('Position',[680, 20, 600, 750], 'Name','Plot Window NBA11', 'NumberTitle', 'off', 'Menubar','none', 'Resize', 'off');
-set(hGui.fig, 'DeleteFcn', @close_Plot);
+set(hGui.fig, 'DeleteFcn', {@close_Plot, figUIobj});
 %% Axes, Plot
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%   AI1, AI2 plot    %%%%%%%%%%%%%%%%
@@ -64,14 +64,12 @@ ylabel('Liveplot (V)');
 end
 
 %%
-function close_Plot(~, ~)
-global figUIobj
+function close_Plot(~, ~, figUIobj)
 global plotUIobj
-
+plotUIobj = rmfield(plotUIobj, 'fig');
 if isstruct(figUIobj)
     set(figUIobj.PlotWindowON, 'value', 0, 'BackGroundColor', [0.9400 0.9400 0.9400]);
 end
-plotUIobj = rmfield(plotUIobj, 'fig');
 end
 
 %%

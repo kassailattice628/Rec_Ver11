@@ -32,7 +32,7 @@ if Testmode == 0
     daq.reset
     % NI DAQ params
     [s, dio, capture, dev] = daq_ini;
-    disp(s)
+    %disp(s)
 end
 %% open Window PTB %%
 %PsychDefaultSetup(2);
@@ -51,7 +51,7 @@ if Testmode == 1
     sca;
 end
 figUIobj = gui_window4(Testmode);
-plotUIobj = plot_window;
+plotUIobj = plot_window(figUIobj);
 
 %% DAQ Event Listener used in AI rec
 if Testmode == 0

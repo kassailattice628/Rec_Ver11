@@ -31,7 +31,7 @@ hGui.save=uicontrol('style','togglebutton','position', [430 705 70 30],'string',
 %% plot %%
 hGui.PlotWindowON=uicontrol('style', 'togglebutton', 'string','Plot ON','position',[345 670 65 30],...
     'value', 1, 'BackGroundColor', 'g', 'FontSize',12,'Horizontalalignment','center');
-set(hGui.PlotWindowON, 'CallBack', @open_plot);
+set(hGui.PlotWindowON, 'CallBack', {@open_plot, hGui});
 %%
 %stim state monitor% %%
 hGui.StimMonitor1=uicontrol('style','text','position',[230 670 100 20], 'string','','FontSize',12,'BackGroundColor','w');
@@ -355,8 +355,8 @@ end
 if sobj.ScrNum ~= 0
     Screen('Close', sobj.wPtr);
 end
-%clear windows, variables
 
+%clear windows, variables
 if isstruct(plotUIobj)
     if isfield(plotUIobj, 'fig')
         close(plotUIobj.fig)
@@ -364,17 +364,17 @@ if isstruct(plotUIobj)
 end
 
 sca;
-close all;
+close all hidden;
 clear;
 end
 
 %%
-function open_plot(hObject, ~)
+function open_plot(hObject, ~, hGui)
 global plotUIobj
 
 if get(hObject,'value')
     if isstruct(plotUIobj)
-        plotUIobj = plot_window;
+        plotUIobj = plot_window(hGui);
         disp('open')
     end
 else
