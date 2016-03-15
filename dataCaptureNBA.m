@@ -64,7 +64,7 @@ if captureRequested && (~trigActive)
     % State: "Looking for trigger event"
     % Trigger Configuration
     trigConfig.Channel = 4; %Trigger monitor
-    trigConfig.Level = 3; %(V) Trigger threshold
+    trigConfig.Level = 2; %(V) Trigger threshold
     
     % Determine whether trigger condition is met in the latest acquired data
     [trigActive, trigMoment] = trigDetectNBA(latestData, trigConfig);
@@ -120,7 +120,7 @@ elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) > c.Tim
     end
     
 elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) < c.TimeSpan)
-    %disp('data short ')
+    disp('data short ')
 elseif ~captureRequested
     % State: "Loop Out"
     trigActive = false;

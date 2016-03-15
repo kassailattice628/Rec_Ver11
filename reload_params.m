@@ -1,4 +1,4 @@
-function reload_params(~, ~)
+function reload_params(~, ~, Testmode)
 % reload all paraemter and settings if changes from GUI
 global figUIobj
 global plotUIobj
@@ -87,8 +87,13 @@ recobj.durationTTL3 = re_write(figUIobj.durationTTL3);
 recobj.delayTTL3 = re_write(figUIobj.delayTTL3);
 
 %% DAQ
-if isstruct(s) % DAQ sessions are not defined in the TEST-mode
-    s.stop;
+if Testmode == 0
+    % DAQ sessions are not defined in the TEST-mode
+    if s.IsRunning
+        s.stop;
+        disp('stop s')
+    end
+    
     s.Rate = recobj.sampf;
     %s.DurationInSeconds = recobj.rect/1000;%sec, when AO channel is set, s.DurationInSeconds is replaced with 's.scansqued/s.rate'.
     
@@ -108,23 +113,20 @@ if isstruct(s) % DAQ sessions are not defined in the TEST-mode
     
     % Determine data buffer size
     capture.bufferSize =  round(capture.bufferTimeSpan * s.Rate);
-end
-
-if isstruct(dio)
+    
+    delete(lh)% <-- important!!!
+    DataSave =[];
+    ParamsSave =[];
+    lh = addlistener(s, 'DataAvailable', @(src,event) dataCaptureNBA(src, event, capture, figUIobj, get(figUIobj.plot,'value')));
+    
+    
+    %% reset Triggers
     %% dio reset
     outputSingleScan(dio.TrigAIFV,[0,0])
     outputSingleScan(dio.VSon,0)
     outputSingleScan(dio.TTL3,0)
+    disp('reload s, dio')
 end
-%%
-%if isstruct(lh)
-    delete(lh)% <-- important!!!
-    DataSave =[];
-    ParamsSave =[];
-    disp('load lh')
-    lh = addlistener(s, 'DataAvailable', @(src,event) dataCaptureNBA(src, event, capture, figUIobj, get(figUIobj.plot,'value')));
-%end
-disp('reload')
 %% plot
 switch get(figUIobj.plot, 'value')
     case 0

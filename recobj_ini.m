@@ -37,6 +37,7 @@ recobj.delayTTL3 = 0;
 recobj.durationTTL3 = 0;
 
 %%
+recobj.STARTloop=0;
 recobj.tRec=0;
 
 %%Savefile_conter

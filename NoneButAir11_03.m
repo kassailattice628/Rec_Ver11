@@ -1,4 +1,4 @@
-function NoneButAir11_03(mode)
+function NoneButAir11_03(Testmode)
 % %%%%%%%%%%%%%%%%%%%%%%%%
 % %%%% None But Air %%%%%%
 % %%%%%%%%%%%%%%%%%%%%%%%%
@@ -24,14 +24,15 @@ recobj.cycleNum = 0 - recobj.prestim; %loop cycle number
 
 % monitor dependent prameter (DeLL 19-inch)
 pixpitch = 0.264;%(mm)
-sobj = sobj_ini(mode, pixpitch); %i=0:test, i=1:working
+sobj = sobj_ini(Testmode, pixpitch); %i=0:test, i=1:working
 
 %% Initialize DAQ params
-if mode == 0
+if Testmode == 0
     % Reset DAQ
     daq.reset
     % NI DAQ params
     [s, dio, capture, dev] = daq_ini;
+    disp(s)
 end
 %% open Window PTB %%
 %PsychDefaultSetup(2);
@@ -46,14 +47,14 @@ end
 sobj.duration = sobj.flipNum*sobj.m_int;% sec
 
 %% open GUI window
-if mode == 1
+if Testmode == 1
     sca;
 end
-figUIobj = gui_window4;
+figUIobj = gui_window4(Testmode);
 plotUIobj = plot_window;
 
 %% DAQ Event Listener used in AI rec
-if mode == 0
+if Testmode == 0
     lh = addlistener(s, 'DataAvailable', @(src,event) dataCaptureNBA(src, event, capture, figUIobj, get(figUIobj.plot,'value')));
 end
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
