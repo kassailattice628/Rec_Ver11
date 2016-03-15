@@ -5,7 +5,7 @@ global recobj
 global s
 global capture
 global dio
-
+global dev
 
 dev = daq.getDevices;
 s = daq.createSession(dev.Vendor.ID);
@@ -68,3 +68,4 @@ capture.bufferSize =  round(capture.bufferTimeSpan * s.Rate);
 varargout{1,1} = s;
 varargout{1,2} = dio;
 varargout{1,3} = capture;
+varargout{1,4} = dev;

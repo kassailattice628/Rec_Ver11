@@ -12,6 +12,7 @@ global plotUIobj
 global RecData %save
 RecData = [];
 global s
+global dev
 global dio
 global capture
 global lh
@@ -35,7 +36,7 @@ if mode == 0
     % Reset DAQ
     daq.reset
     % NI DAQ params
-    [s, dio, capture] = daq_ini;
+    [s, dio, capture, dev] = daq_ini;
 end
 %% open Window PTB %%
 %PsychDefaultSetup(2);

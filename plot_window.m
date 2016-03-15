@@ -66,10 +66,12 @@ end
 %%
 function close_Plot(~, ~)
 global figUIobj
+global plotUIobj
 
 if isstruct(figUIobj)
     set(figUIobj.PlotWindowON, 'value', 0, 'BackGroundColor', [0.9400 0.9400 0.9400]);
 end
+plotUIobj = rmfield(plotUIobj, 'fig');
 end
 
 %%

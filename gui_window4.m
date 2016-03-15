@@ -358,8 +358,10 @@ if sobj.ScrNum ~= 0
 end
 %clear windows, variables
 
-if isfield(plotUIobj,'fig')
-    close(plotUIobj.fig)
+if isstruct(plotUIobj)
+    if isfield(plotUIobj, 'fig')
+        close(plotUIobj.fig)
+    end
 end
 
 sca;
@@ -373,8 +375,8 @@ global plotUIobj
 
 if get(hObject,'value')
     if isstruct(plotUIobj)
-    plotUIobj = plot_window;
-    disp('open')
+        plotUIobj = plot_window;
+        disp('open')
     end
 else
     if isfield(plotUIobj,'fig')
