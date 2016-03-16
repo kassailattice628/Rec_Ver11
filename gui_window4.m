@@ -326,7 +326,8 @@ end
 %%
 function CloseSCR(~, ~, sobj)
 global flag
-flag.start = 1;Screen('Close', sobj.wPtr);
+flag.start = 1;
+Screen('Close', sobj.wPtr);
 end
 %%
 function ch_stimON(hObject,~)

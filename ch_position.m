@@ -14,7 +14,7 @@ stimset_x = zeros(1,sobj.divnum^2);
 stimset_y = stimset_x;
 
 if fmode ==1 %random position
-    set(figUIobj.fixpos,'BackGroundColor','w');
+    
     %randamize
     stimset_rand = randperm(sobj.divnum^2);
     sobj.poslist = stimset_rand;
@@ -26,7 +26,7 @@ if fmode ==1 %random position
     sobj.Y = stimset_y;
     
 elseif  fmode ==2 %fixed position
-    set(figUIobj.fixpos,'BackGroundColor','g');
+    
     %%%% position error %%%%
     if sobj.fixpos > sobj.divnum^2
         errordlg(['Fixed Pos. must be lower than the ' num2str(sobj.divnum) '^2 (= ' num2str(sobj.divnum^2) '). !!']);
@@ -41,7 +41,6 @@ elseif  fmode ==2 %fixed position
     
     
 elseif fmode==3% oredered
-    set(figUIobj.fixpos, 'BackGroundColor','w');
     sobj.poslist = stimset;
     for m = 1:length(stimset)
         [stimset_x(m),stimset_y(m)] = find(stimset_mat== stimset(m));

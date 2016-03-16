@@ -5,7 +5,7 @@ function save = get_save_params(recobj, sobj)
 save.cycleNum = recobj.cycleNum;
 save.RecStartTime = recobj.tRec;
 save.divnum = sobj.divnum;
-%{
+
 %stim1
 save.stim1position = sobj.position;
 save.stim1size1 = sobj.stimsz(1);

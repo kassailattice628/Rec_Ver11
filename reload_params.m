@@ -8,7 +8,6 @@ global s
 global capture
 global lh
 global dio
-
 global DataSave
 global ParamsSave
 
@@ -30,6 +29,8 @@ recobj.cycleNum = 0- recobj.prestim;
 set(figUIobj.prestim,'string',['loops = > ',num2str(recobj.prestim * (recobj.rect/1000 + recobj.interval)),' sec'],'Horizontalalignment','left');
 
 %%%%% stim 1 %%%%%
+modelist = {'Random', 'Fix_Rep', 'Ordered'};
+sobj.mode = modelist{get(figUIobj.mode,'value')};
 sobj.shape = sobj.shapelist{get(figUIobj.shape, 'value'), 1};
 sobj.stimlumi = re_write(figUIobj.stimlumi);
 sobj.flipNum = re_write(figUIobj.flipNum);
@@ -115,29 +116,34 @@ if Testmode == 0
     capture.bufferSize =  round(capture.bufferTimeSpan * s.Rate);
     
     delete(lh)% <-- important!!!
-    DataSave =[];
-    ParamsSave =[];
+    DataSave =[]; %reset save data
+    ParamsSave =[]; % reset save parameters
     lh = addlistener(s, 'DataAvailable', @(src,event) dataCaptureNBA(src, event, capture, figUIobj, get(figUIobj.plot,'value')));
     
-    
-    %% reset Triggers
-    %% dio reset
+    % dio reset
     outputSingleScan(dio.TrigAIFV,[0,0])
     outputSingleScan(dio.VSon,0)
     outputSingleScan(dio.TTL3,0)
-    disp('reload s, dio')
+    disp('reset s, dio, EventListener')
 end
-%% plot
+%% figures
+switch sobj.mode
+    case {'Random', 'Ordered'}
+        set(figUIobj.fixpos,'BackGroundColor','w');
+    case {'Fix_Rep'}
+        set(figUIobj.fixpos,'BackGroundColor','g');
+end
+
+
 if isfield(plotUIobj, 'plot')
-switch get(figUIobj.plot, 'value') %V-plot or I-plot
-    case 0
-        col = 'b';
-    case 1
-        col = 'r';
+    switch get(figUIobj.plot, 'value') %V-plot or I-plot
+        case 0
+            col = 'b';
+        case 1
+            col = 'r';
+    end
+    set(plotUIobj.plot1, 'Color', col);
 end
-set(plotUIobj.plot1, 'Color', col);
-end
-disp(isfield(plotUIobj,'fig'))
 end
 
 
