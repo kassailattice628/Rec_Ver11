@@ -47,6 +47,7 @@ sRot = addCounterInputChannel(s, dev.ID, 'ctr0', 'Position');
 sRot.EncoderType='X4'; %decode mode:X1, X2, X4, 'X4' is the most fine mode.
 
 
+
 %% DAQ capture settings
 % Specify triggered capture timespan, in seconds
 capture.TimeSpan = recobj.rect/1000;% sec

@@ -47,7 +47,7 @@ hGui.button3 = uicontrol('style','togglebutton','string', 'ON', 'position',[555 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%   Live Plot TTL   %%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-hGui.axes4 = axes('Units','Pixels', 'Position',[50,30,500,100], 'XLimMode', 'manual','YlimMode', 'Auto');
+hGui.axes4 = axes('Units','Pixels', 'Position',[50,50,500,100], 'XLimMode', 'manual','YlimMode', 'Auto');
 num_plots = 4;
 
 hGui.button4 = cell(1, num_plots);

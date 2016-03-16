@@ -19,7 +19,7 @@ save.stim1PTBOffTime = sobj.tPTBoff;
 
 save.zoom_dist = sobj.zoom_dist;
 %save.zoom_angle = sobj.zoom_angle;
-save.Image_index = sobj.Img_i;
+%Ssave.Image_index = sobj.Img_i;
 
 %stim2
 save.stim2size1 = sobj.stimsz2(1);

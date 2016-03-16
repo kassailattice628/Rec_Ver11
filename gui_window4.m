@@ -306,7 +306,7 @@ set(hGui.TTL3, 'Callback',{@TTL3, hGui})
 %%%%%%%%%%%   Loop Start Button   %%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %main_loopingtest
-hGui.loop=uicontrol('style','togglebutton','position',[110 670 100 30],'string','Loop-OFF','callback',{@loopON, hGui, Testmode},'BackGroundColor','r');
+hGui.loop=uicontrol('style','togglebutton','position',[110 670 100 30],'string','Loop-OFF','callback',{@func_loop, hGui, Testmode},'BackGroundColor','r');
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % open plot window
@@ -354,7 +354,7 @@ else
 end
 
 if sobj.ScrNum ~= 0
-    Screen('Close', sobj.wPtr);
+    sca;
 end
 
 %clear windows, variables
@@ -364,9 +364,7 @@ if isstruct(plotUIobj)
     end
 end
 
-sca;
-close all hidden;
-clear;
+%func_quitNBA;
 end
 
 %%
@@ -537,20 +535,13 @@ global recobj
 
 if isfield(recobj,'dirname') == 0 % 1st time to define filename
     [recobj.fname, recobj.dirname] = uiputfile('*.*');
-    disp (recobj.dirname);
-    [~, fname, ext] = fileparts([recobj.dirname, recobj.fname]);
-    recobj.savefilename  = [recobj.dirname, fname, recobj.savecount, ext];
 else %open the same folder when any foder was selected previously.
     if recobj.dirname == 0
         recobj.dirname = pwd;
-    else 
-    [recobj.fname, recobj.dirname] = uiputfile('*.mat','Select File to Write',recobj.dirname);
-    [~, fname, ext] = fileparts([recobj.dirname, recobj.fname]);
-    recobj.savefilename  = [recobj.dirname, fname, recobj.savecount, ext];
+    else
+        [recobj.fname, recobj.dirname] = uiputfile('*.mat','Select File to Write',recobj.dirname);
     end
 end
-%chekc savefilename
-disp (recobj.savefilename);
 end
 
 %%
@@ -564,6 +555,9 @@ switch get(hObject,'value')
         else
             SelectSaveFile;
         end
+        [~, fname, ext] = fileparts([recobj.dirname, recobj.fname]);
+        recobj.savefilename  = [recobj.dirname, fname, num2str(recobj.savecount), ext];
+        disp(['filename ::', recobj.savefilename]);
     case 0 %unsave
         set(hObject, 'string', 'Unsave')
 end

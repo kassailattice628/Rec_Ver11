@@ -1,4 +1,4 @@
-function sobj = sobj_ini(i,pixpitch)
+function sobj = sobj_ini(Testmode,pixpitch)
 % initialize sobj (PTB parameters)
 
 %scrsz=get(0,'ScreenSize');
@@ -11,9 +11,9 @@ else
     sNum = sobj.ScrNum;
 end
 
-if i == 2 %Test Mac
+if Testmode == 1 %Test Mac
     sobj.ScreenSize = [MP(sNum,3)-MP(sNum,1)+1, MP(sNum,4)-MP(sNum,2)+1];%monitor size of stim monitor
-elseif i == 1
+elseif Testmode == 0
     sobj.ScreenSize = [MP(sNum,3),MP(sNum,4)];%for Windows8
 end
 

@@ -1,4 +1,4 @@
-function loopON(hObject, ~, hGui, Testmode)
+function func_loop(hObject, ~, hGui, Testmode)
 % Loop start and stop
 
 global recobj
@@ -47,8 +47,11 @@ else %loop OFF
     
     %%%%%% Save Data %%%%%%%%
     if get(hGui.save, 'value')
-        save([recobj.dirname,recobj.fname], 'DataSave', 'ParamsSave', 'recobj', 'sobj');
+        save(recobj.savefilename, 'DataSave', 'ParamsSave', 'recobj', 'sobj');
+        disp(['data saved as ::' recobj.savefilename])
         recobj.savecount = recobj.savecount + 1;
+        
+        set(hGui.save, 'value', 0, 'string', 'Unsave', 'BackGroundColor',[0.9400 0.9400 0.9400])
     end
     %reset all triggers
     ResetTTLall(Testmode, dio);
@@ -80,8 +83,6 @@ try %error check
         case 0 % Vis.Stim off
             % start timer and start FV
             Trigger(Testmode, dio)
-            disp('Recording Start')
-            
             %%%%%%%%%%%%%%%%%%%% Visual Stimulus ON %%%%%%%%%%%%%%%%%%%%
         case 1 %
             VisStim(Testmode, dio);
@@ -100,15 +101,15 @@ global recobj
 global sobj
 
 if Testmode == 0 %Test mode off
+    %start timer & Trigger AI & FV
+    Screen('FillRect', sobj.wPtr, sobj.bgcol); %presenting background
+    [sobj.vbl_1,sobj.OnsetTime_1, sobj.FlipTimeStamp_1] = Screen(sobj.wPtr, 'Flip');
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % timer start, digital out
     if recobj.cycleNum == -recobj.prestim +1
-        %start timer & Trigger AI & FV
-        Screen('FillRect', sobj.wPtr, sobj.bgcol);
-        [sobj.vbl_1,sobj.OnsetTime_1, sobj.FlipTimeStamp_1] = Screen(sobj.wPtr, 'Flip');
         recobj.STARTloop = tic;
-        outputSingleScan(dio.TrigAIFV, [1,1]);
-        disp('Trig')
+        outputSingleScan(dio.TrigAIFV, [1,1]); %Start AI
+        disp('1st Trig')
     else
         recobj.tRec = toc(recobj.STARTloop);
         outputSingleScan(dio.TrigAIFV, [1,0]);
@@ -119,12 +120,12 @@ if Testmode == 0 %Test mode off
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     %in the Test mode, digital out is not used
 elseif Testmode == 1 %Test mode on
+    %start timer & Trigger AI & FV
+    Screen('FillRect', sobj.wPtr, sobj.bgcol);
+    [sobj.vbl_1,sobj.OnsetTime_1, sobj.FlipTimeStamp_1] = Screen(sobj.wPtr, 'Flip');
     if recobj.cycleNum == -recobj.prestim +1
-        %start timer & Trigger AI & FV
-        Screen('FillRect', sobj.wPtr, sobj.bgcol);
-        [sobj.vbl_1,sobj.OnsetTime_1, sobj.FlipTimeStamp_1] = Screen(sobj.wPtr, 'Flip');
         recobj.STARTloop = tic;
-        disp('Trig_test')
+        disp('1st Trig_test')
     else
         recobj.tRec = toc(recobj.STARTloop);
         disp('Trig_test')
@@ -191,7 +192,6 @@ if recobj.cycleNum > 0 %Stimulus ON
         case 'Image'
     end
 else %prestimulus
-    disp('prestim')
     Trigger(Testmode, dio)
     %Uni_stim_BG(i, sobj, bgcol);
 end
@@ -276,7 +276,7 @@ end
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %{
-    function Uni_stim_BG(i_pos, col, Testmode, dio)
+function Uni_stim_BG(i_pos, col, Testmode, dio)
         sobj.dirNum = 0;
         disp(['AITrig; ',sobj.pattern, ': #', num2str(recobj.cycleNum)]);
         %stim_OFF
@@ -312,10 +312,11 @@ end
         
         %stim_OFF
         Screen('FillRect', sobj.wPtr, sobj.bgcol);
+        disp('before off:')
         [sobj.vbl_3, sobj.OnsetTime_3, sobj.FlipTimeStamp_3] = Screen(sobj.wPtr, 'Flip', sobj.vbl_2+sobj.duration); %%% sobj.duration ŽžŠÔŒo‰ßŒã monitor stim off
         sobj.sFlipTimeStamp_3=toc(recobj.STARTloop);
         stim_monitor_reset;
-        
+        disp('stim off')
     end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

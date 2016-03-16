@@ -48,7 +48,8 @@ sobj.duration = sobj.flipNum*sobj.m_int;% sec
 
 %% open GUI window
 if Testmode == 1
-    sca;
+    %sca;
+    Screen('Close', sobj.wPtr);
 end
 figUIobj = gui_window4(Testmode);
 plotUIobj = plot_window(figUIobj);

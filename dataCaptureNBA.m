@@ -18,7 +18,6 @@ function dataCaptureNBA(src, event, c, hGui, plotVI)
 % data timestamp (trigMoment) are used as persistent variables.
 % Persistent variables retain their values between calls to the function.
 global plotUIobj
-global s
 global recobj
 global sobj
 global DataSave
@@ -43,9 +42,13 @@ if (numSamplesToDiscard > 0)
 end
 
 %% Update live data plot, Plot latest plotTimeSpan seconds of data in dataBuffer
+if get(plotUIobj.button4{1,1},'value') || ...
+        get(plotUIobj.button4{1,2},'value') || ...
+        get(plotUIobj.button4{1,3},'value') || ...
+        get(plotUIobj.button4{1,4},'value')
+        
 samplesToPlot = min([round(c.plotTimeSpan * src.Rate), size(dataBuffer,1)]);
 firstPoint = size(dataBuffer, 1) - samplesToPlot + 1;
-
 % Update x-axis limits
 set(plotUIobj.axes4, 'XLim', [dataBuffer(firstPoint,1), dataBuffer(end,1)]);
 % Live plot has one line for each acquisition channel
@@ -53,6 +56,8 @@ for ii = 1:size(plotUIobj.button4, 2)
     if get(plotUIobj.button4{1,ii},'value')
         set(plotUIobj.plot4(ii), 'XData', dataBuffer(firstPoint:end, 1),'YData', dataBuffer(firstPoint:end, ii+1))
     end
+end
+
 end
 %%
 % If capture is requested, analyze latest acquired data until a trigger
@@ -107,20 +112,20 @@ elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) > c.Tim
     
     trigActive = false;
     
-    disp(size(captureData));
-    disp(trigMoment)
-    disp(s.NotifyWhenDataAvailableExceeds)
+    %disp(size(captureData));
+    %disp(trigMoment)
+    %disp(s.NotifyWhenDataAvailableExceeds)
     
 
     %parameters are define in 'LoopON.m'
     %%%%%% save setting %%%%%%
     if get(hGui.save, 'value') == 1 % Saving
-        DataSave = [DataSave; captureData];
+        DataSave(:,:,trigCount) = captureData;
         ParamsSave{1,trigCount} = get_save_params(recobj,sobj);
     end
     
 elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) < c.TimeSpan)
-    disp('data short ')
+    %disp('data short ')
 elseif ~captureRequested
     % State: "Loop Out"
     trigActive = false;
