@@ -13,22 +13,25 @@ global lh
 if get(hObject, 'value')==1 % loop ON
     reload_params([], [], Testmode);
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    if Testmode == 1
+    if Testmode == 1 && get(hGui.stim,'value')
         %open screen
         [sobj.wPtr, ~] = Screen('OpenWindow', sobj.ScrNum, sobj.bgcol);
     end
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     while get(hObject,'value') == 1
-        if Testmode == 1 && recobj.cycleNum == 10;
+        
+        if Testmode == 1 && recobj.cycleNum == 5;
             set(hObject, 'value', 0);
             Screen('Close', sobj.wPtr);
             break;
         end
+        
         % set 1st counter
         recobj.cycleNum = recobj.cycleNum + 1;
         set(hObject,'string', 'Looping', 'BackGroundColor', 'g');
         % report the cycle number
         disp(['Loop#: ',num2str(recobj.cycleNum)])
+        
         % start loop (Trigger + Visual Stimulus)
         MainLoop(dio, hGui, Testmode)
         
@@ -50,42 +53,47 @@ else %loop OFF
         save(recobj.savefilename, 'DataSave', 'ParamsSave', 'recobj', 'sobj');
         disp(['data saved as ::' recobj.savefilename])
         recobj.savecount = recobj.savecount + 1;
-        
         set(hGui.save, 'value', 0, 'string', 'Unsave', 'BackGroundColor',[0.9400 0.9400 0.9400])
     end
+    %%%%%%%%%%%%%%%%%%%%%%%%%
+    
     %reset all triggers
     ResetTTLall(Testmode, dio);
-    
     % Reset Cycle Counter %
     recobj.cycleNum = 0- recobj.prestim;
-    
     disp(['Loop-Out:', num2str(recobj.cycleNum)]);
     recobj = rmfield(recobj,'STARTloop');
 end
 end
 
+%% subfunctions %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% Main Contentes in the Loop%%
 function MainLoop(dio, hGui, Testmode)
+% Main structure%
+
 global s
 
-% start DAQ
+% ready to start DAQ
 if Testmode == 0
     if s.IsRunning
     else
-        s.startBackground; %session start, listener ON, wait Trigger
+        s.startBackground; %session start, listener ON, *** Waiting Analog Trigger (AI3)
     end
 end
 
 try %error check
     switch get(hGui.stim, 'value')
-        case 0 % Vis.Stim off
+%%%%%%%%%%%%%%%%%%%% Visual Stimulus OFF %%%%%%%%%%%%%%%%%%%%
+        case 0
             % start timer and start FV
             Trigger(Testmode, dio)
-            %%%%%%%%%%%%%%%%%%%% Visual Stimulus ON %%%%%%%%%%%%%%%%%%%%
-        case 1 %
+%%%%%%%%%%%%%%%%%%%% Visual Stimulus ON %%%%%%%%%%%%%%%%%%%%%
+        case 1
+            % start timer, start FV and start Stim
             VisStim(Testmode, dio);
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     end
 catch ME1
     %PTB error
@@ -99,6 +107,7 @@ end
 function Trigger(Testmode, dio)
 global recobj
 global sobj
+global figUIobj
 
 if Testmode == 0 %Test mode off
     %start timer & Trigger AI & FV
@@ -115,14 +124,18 @@ if Testmode == 0 %Test mode off
         outputSingleScan(dio.TrigAIFV, [1,0]);
         disp('Trig')
     end
+    %reset Trigger level
     outputSingleScan(dio.TrigAIFV,[0,0]);
     
-    %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    %in the Test mode, digital out is not used
+    
 elseif Testmode == 1 %Test mode on
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    %in the Test mode, dio is not used
     %start timer & Trigger AI & FV
-    Screen('FillRect', sobj.wPtr, sobj.bgcol);
-    [sobj.vbl_1,sobj.OnsetTime_1, sobj.FlipTimeStamp_1] = Screen(sobj.wPtr, 'Flip');
+    if get(figUIobj.stim,'value')
+        Screen('FillRect', sobj.wPtr, sobj.bgcol);
+        [sobj.vbl_1,sobj.OnsetTime_1, sobj.FlipTimeStamp_1] = Screen(sobj.wPtr, 'Flip');
+    end
     if recobj.cycleNum == -recobj.prestim +1
         recobj.STARTloop = tic;
         disp('1st Trig_test')
@@ -133,6 +146,7 @@ elseif Testmode == 1 %Test mode on
 end
 end
 %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function ResetTTLall(Testmode, dio)
 
 if Testmode == 0; %Test mode off
@@ -142,6 +156,7 @@ if Testmode == 0; %Test mode off
 end
 end
 %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %{
 function tRec = TimeTrigger(Testmode, session, condition)
 global recobj
@@ -156,6 +171,8 @@ end
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function VisStim(Testmode, dio)
+% define stimulus properties, start timer, recording, stimulus presentation
+
 global figUIobj
 global recobj
 global sobj
@@ -185,12 +202,19 @@ if recobj.cycleNum > 0 %Stimulus ON
         case 'Uni'
             Uni_stim(i_pos, sobj.stimcol, Testmode, dio);
         case 'BW'
+            Concentric_pos_stim(i_pos, sobj.stimcol, Testmode, dio)
         case {'Sin', 'Rect', 'Gabor'}
         case {'Size_rand'}
         case 'Zoom'
         case '2stim'
         case 'Image'
     end
+    
+    
+    
+    
+    
+    
 else %prestimulus
     Trigger(Testmode, dio)
     %Uni_stim_BG(i, sobj, bgcol);
@@ -199,9 +223,10 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % nestrd functions %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     function set_stim_position
+        % define position as the number of divided matrix = i_pos
+        % 1:left top -> sobj.div_num^2: right bottom
         if recobj.cycleNum <= 0 %prestimulus
             i_pos = 1;
             sobj.position = 0;
@@ -228,7 +253,8 @@ end
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     function ch_position
-        %
+        % Stimulus position
+        
         sizeX = sobj.ScreenSize(1)/sobj.divnum;
         sizeY = sobj.ScreenSize(2)/sobj.divnum;
         
@@ -275,6 +301,123 @@ end
     end
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    function Pos_cord = set_concentric_position(i_pos)
+        % Set stimulus position on concentric circles
+        % center: center pos [x, y]
+        % dir: sobj.shiftDir（1:8, 9=Ord8, 10=Rand8, 11=Rand16);
+        % dist: distance form the center_stim, degree
+        
+        %%%%% center of cencentric circles%%%%%%
+        %[left, top, right, bottom]
+        %stimulus
+        x1 = sobj.pos(1,sobj.Y(i_pos))-sobj.stimsz(1)/2;
+        y1 = sobj.pos(2,sobj.X(i_pos))-sobj.stimsz(2)/2;
+        x2 = sobj.pos(1,sobj.Y(i_pos))+sobj.stimsz(1)/2;
+        y2 = sobj.pos(2,sobj.X(i_pos))+sobj.stimsz(2)/2;
+        sobj.position_cord = [x1,y1,x2,y2];
+        
+        
+        %%%%% stim position on cncentric circles %%%%%%
+        %reset randmize
+        list = sobj.concentric_mat;
+        i_list = RandCycle2(recobj.cycleNum,length(list));
+        
+        if sobj.shiftDir == 9 %order8
+            sobj.list_order = 1:size(list,2);
+        end
+        
+        %%%%%%%%%% distance from center
+        i_dist = list(1,sobj.list_order(i_list));
+        if i_dist== 0
+            sobj.zoom_dist = 0;
+        else
+            sobj.zoom_dist = sobj.zoom_dist_deg(i_dist);
+        end
+        
+        %%%%%%%%%% angle direction
+        i_ang = list(2,sobj.list_order(i_list));
+        if dir < 9 %angle fixed or orderd 8
+            i_ang = sobj.shiftDir;
+            angle_list = linspace(0, 315,8);
+        elseif dir == 11 %random 16
+            angle_list = linspace(0,337.5,16);
+        else %random 8
+            angle_list = linspace(0, 315,8);
+        end
+        
+        if i_ang == 0
+            sobj.zoom_ang = 0;
+        else
+            sobj.zoom_ang = angle_list(i_ang);
+        end
+        
+        %%%%%%%%%% white or black %%%%%%%%%%%%%%
+        %Fine mapping のときは B/W の刺激を Gray background でだす．%%
+        if strcmp(sobj.pattern,'BW')
+            i_col = list(3,sobj.list_order(i_list));%randomize した order の 1 or 2 を output
+            if i_col == 1
+                sobj.stimlumi = 255;
+                sobj.stimcol = 255;
+            elseif i_col == 2
+                sobj.stimlumi = 0;
+                sobj.stimcol = 0;
+            end
+        end
+        
+        % transform angle direction from 8 or 16 into radian.
+        if sobj.zoom_dist  == 0 % center only
+            %output
+            Pos_cord = sobj.position_cord;
+        else
+            theta = (i_ang-1)*pi/4; %angle
+            sobj.dist_pix = Deg2Pix(sobj.zoom_dist, 300); % マウスの目の 300 mm 前にdisplay
+            [X, Y] = pol2cart(theta,sobj.dist_pix);
+            %中心補正(monitor の left top が[0,0]右方向，下方向なので，X方向は+, Y方向は-）
+            X = sobj.pos(1,sobj.Y(1))+X;
+            Y = sobj.pos(2,sobj.X(1))-Y;
+            sobj.stim2_center = [X,Y];
+            %%%
+            switch sobj.pattern
+                case {'2stim'}
+                    sx_half = sobj.stimsz2(1)/2;
+                    sy_half = sobj.stimsz2(2)/2;
+                case {'BW','Zoom'}
+                    sx_half = sobj.stimsz(1)/2;
+                    sy_half = sobj.stimsz(2)/2;
+            end
+            %output
+            Pos_cord = round([X- sx_half, Y-sy_half, X+sx_half, Y+sy_half]);
+        end
+    end
+
+%%
+    function amari = RandCycle2(cyclenum,n_cycle)
+        %サイクル数を割り算して，余を出力．amari == 1 のときに，ランダマイズ
+        %cyclenum: 現在のサイクル数
+        %n_cycle: サイクル一周分の数
+        %ランダム化したベクトルを sobj.list_order に入れる
+        
+        global sobj
+        amari = rem(cyclenum, n_cycle);
+        
+        if amari == 1% randomize
+            %1 cycle 分はランダムベクトルを保存
+            sobj.list_order = randperm(n_cycle);
+        end
+        if amari == 0;
+            amari = n_cycle;
+        end
+        
+    end
+
+
+
+
+
+
+
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %{
 function Uni_stim_BG(i_pos, col, Testmode, dio)
         sobj.dirNum = 0;
@@ -291,8 +434,7 @@ function Uni_stim_BG(i_pos, col, Testmode, dio)
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     function Uni_stim(i_pos, col, Testmode, dio)
-        sobj.dirNum = 0;
-        %[left, top, right, bottom]準備
+        %[left, top, right, bottom]
         x1 = sobj.pos(1,sobj.Y(i_pos))-sobj.stimsz(1)/2;
         y1 = sobj.pos(2,sobj.X(i_pos))-sobj.stimsz(2)/2;
         x2 = sobj.pos(1,sobj.Y(i_pos))+sobj.stimsz(1)/2;
@@ -300,34 +442,85 @@ function Uni_stim_BG(i_pos, col, Testmode, dio)
         sobj.position_cord = [x1,y1,x2,y2];
         
         Trigger(Testmode, dio)
+        %Prep Stim
         Screen(sobj.shape, sobj.wPtr, col, sobj.position_cord);
-        %PhotoSensor (left, up)     Timing Checker
-        if recobj.cycleNum > 0
-            Screen('FillRect', sobj.wPtr, 255, [0 0 40 40]);
-        end
+        
+        Stim_Presentation;
+    end
+
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    function Concentric_pos_stim(i_pos, col, Testmode, dio)
+        % stim position (and luminace for BW fine mapping)
+        sobj.position_cord2 = set_concentric_position(i_pos,sobj.shiftDir);
+        sobj.position_cord = sobj.position_cord2;
+        
+        Trigger(Testmode, dio)
+        %Prep Stim
+        Screen(sobj.shape, sobj.wPtr, col, sobj.position_cord2);
+        
+        Stim_Presentation;
+    end
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+    function Stim_Presentation
+        
+        %Prepare signal for Photo Sensor (Left, UP in the monitor)
+        %as the timing cheker.
+        Screen('FillRect', sobj.wPtr, 255, [0 0 40 40]);
+        
         [sobj.vbl_2, sobj.OnsetTime_2, sobj.FlipTimeStamp_2] = Screen(sobj.wPtr, 'Flip', sobj.vbl_1+sobj.delayPTB);% put some delay for PTB
         sobj.sFlipTimeStamp_2=toc(recobj.STARTloop);
         stim_monitor;
         disp(['AITrig; ',sobj.pattern, ': #', num2str(recobj.cycleNum)]);
         
-        %stim_OFF
+        
+        % Prep Stim OFF
         Screen('FillRect', sobj.wPtr, sobj.bgcol);
-        disp('before off:')
-        [sobj.vbl_3, sobj.OnsetTime_3, sobj.FlipTimeStamp_3] = Screen(sobj.wPtr, 'Flip', sobj.vbl_2+sobj.duration); %%% sobj.duration 時間経過後 monitor stim off
-        sobj.sFlipTimeStamp_3=toc(recobj.STARTloop);
+        % After sobj.duration, flib BG color
+        [sobj.vbl_3, sobj.OnsetTime_3, sobj.FlipTimeStamp_3] = Screen(sobj.wPtr, 'Flip', sobj.vbl_2+sobj.duration);
+        sobj.sFlipTimeStamp_3 = toc(recobj.STARTloop);
+        %GUI stim indicater
         stim_monitor_reset;
-        disp('stim off')
+        
     end
+
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % end if VisStim
 end
 
 
+
+
+
+
+
+
+
+
+
+
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % sub functions %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+%%
 function stim_monitor
 global figUIobj
 global sobj

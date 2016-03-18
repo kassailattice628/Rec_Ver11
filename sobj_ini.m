@@ -66,7 +66,7 @@ sobj.gratFreq_list = [0.01;0.02;0.04;0.08;0.16;0.32];
 
 sobj.shiftDir = 1;%1~8:direction, 9: 8 random directions, 10: 4 random directions
 sobj.angle = 0;%savedata—p
-sobj.angle_deg = linspace(0, 315,8);
+sobj.angle8_deg = linspace(0, 315,8);
 sobj.angle16_deg = linspace(0,337.5,16);
 
 sobj.dist = 15; %distance(degree) for 2nd stimulus for lateral inhibition

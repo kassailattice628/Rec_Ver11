@@ -28,9 +28,14 @@ recobj.prestim = re_write(figUIobj.prestimN);
 recobj.cycleNum = 0- recobj.prestim;
 set(figUIobj.prestim,'string',['loops = > ',num2str(recobj.prestim * (recobj.rect/1000 + recobj.interval)),' sec'],'Horizontalalignment','left');
 
-%%%%% stim 1 %%%%%
-modelist = {'Random', 'Fix_Rep', 'Ordered'};
+%% %%% stim 1 %%%%%
+modelist = get(figUIobj.mode,'string'); % {'Random', 'Fix_Rep', 'Ordered'};
 sobj.mode = modelist{get(figUIobj.mode,'value')};
+
+pattern_list = get(figUIobj.pattern,'string');
+%[{'Uni'},{'BW'},{'Sin'},{'Rect'},{'Gabor'},{'Sz_r'},{'Zoom'},{'2Stim'},{'Images'}]
+sobj.pattern = pattern_list{get(figUIobj.pattern,'value'),1};
+
 sobj.shape = sobj.shapelist{get(figUIobj.shape, 'value'), 1};
 sobj.stimlumi = re_write(figUIobj.stimlumi);
 sobj.flipNum = re_write(figUIobj.flipNum);
@@ -49,7 +54,35 @@ sobj.shiftSpd = sobj.shiftSpd_list(get(figUIobj.shiftSpd,'value'));
 sobj.gratFreq = sobj.gratFreq_list(get(figUIobj.gratFreq, 'value'));
 sobj.ImageNum = re_write(figUIobj.ImageNum);
 
-%%%%% stim 2 %%%%%
+%% chekc_concentric_position (Max distance = sobj.dist, number of division = sobj.div_zoom)
+sobj.concentric_dist_deg_list = sobj.dist/sobj.div_zoom:(sobj.dist/sobj.div_zoom):sobj.dist;
+% when angle is fixed
+if get(figUIobj.shiftDir, 'value') < 9
+    prep_mat = [[0,1:sobj.div_zoom]; [0, get(figUIobj.shiftDir, 'value')*ones(1, sobj.div_zoom)]]; 
+else
+    if get(figUIobj.shiftDir, 'value') < 11
+        % when angle is random or ordered
+        num_directions = 8;
+    else
+        num_directions = 16;
+    end
+    % 8 or 16 directions and center (: +1)
+    prep_mat = zeros(2,sobj.div_zoom*num_directions + 1);
+    for i_div = 1:sobj.div_zoom
+        prep_mat(1,num_directions*(i_div-1)+2:num_directions*i_div+1) = i_div*ones(1,num_directions);
+    end
+    prep_mat(2,:) = [0,repmat(1:num_directions, 1,sobj.div_zoom)];
+end
+
+%for BW:Black/White concentric mapping (position + color)
+%1st: distance, 2nd: direction, 3rd: 1=white, 2=black
+sobj.concentric_mat = ones(3, size(prep_mat, 2)*2);
+sobj.concentric_mat(1:2, :) = repmat(prep_mat,1,2);
+sobj.concentric_mat(3, 1+size(sobj.concentric_mat, 2)/2:end) = 2;
+
+%%
+
+%% %%% stim 2 %%%%%
 sobj.shape2 = sobj.shapelist{get(figUIobj.shape2, 'value'), 1};
 sobj.stimlumi2 = re_write(figUIobj.stimlumi2);
 sobj.flipNum2 = re_write(figUIobj.flipNum2);
@@ -127,14 +160,6 @@ if Testmode == 0
     disp('reset s, dio, EventListener')
 end
 %% figures
-switch sobj.mode
-    case {'Random', 'Ordered'}
-        set(figUIobj.fixpos,'BackGroundColor','w');
-    case {'Fix_Rep'}
-        set(figUIobj.fixpos,'BackGroundColor','g');
-end
-
-
 if isfield(plotUIobj, 'plot')
     switch get(figUIobj.plot, 'value') %V-plot or I-plot
         case 0
