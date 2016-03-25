@@ -1,3 +1,4 @@
+
 function reload_params(~, ~, Testmode)
 % reload all paraemter and settings if changes from GUI
 global figUIobj
@@ -21,8 +22,12 @@ sobj.bgcol = re_write(figUIobj.bgcol);
 sobj.divnum = re_write(figUIobj.divnum);
 set(figUIobj.divnumN, 'string', ['(=> ' num2str(sobj.divnum) ' x ' num2str(sobj.divnum) ' Matrix)']);
 
+sobj.center_pos_list = get_stim_center_mat;
+
 sobj.fixpos = re_write(figUIobj.fixpos);
 set(figUIobj.fixposN,'string',['(<= ' num2str(sobj.divnum) ' x ' num2str(sobj.divnum) ' Matrix)']);
+disp(sobj.center_pos_list)
+disp(repmat(sobj.center_pos_list(sobj.fixpos), 1, 2));
 
 recobj.prestim = re_write(figUIobj.prestimN);
 recobj.cycleNum = 0- recobj.prestim;
@@ -37,13 +42,20 @@ pattern_list = get(figUIobj.pattern,'string');
 sobj.pattern = pattern_list{get(figUIobj.pattern,'value'),1};
 
 sobj.shape = sobj.shapelist{get(figUIobj.shape, 'value'), 1};
+
 sobj.stimlumi = re_write(figUIobj.stimlumi);
+sobj.stimlumi_list = linspace(sobj.bgcol, sobj.stimlumi, 5)';
+
 sobj.flipNum = re_write(figUIobj.flipNum);
 sobj.duration = sobj.flipNum*sobj.m_int;
 set(figUIobj.stimDur,'string',['flips = ',num2str(floor(sobj.duration*1000)),' ms']);
 sobj.delayPTBflip = re_write(figUIobj.delayPTBflip);
 sobj.delayPTB = sobj.delayPTBflip*sobj.m_int;
 set(figUIobj.delayPTB,'string',['flips = ',num2str(floor(sobj.delayPTB*1000)),' ms']);
+
+stimsz_deg_list = [0.5; 1; 3; 5; 10];
+sobj.size_pix_list = repmat(round(Deg2Pix(stimsz_deg_list, sobj.MonitorDist, sobj.pixpitch)),1,2);
+
 sobj.stimsz = stim_size(sobj.MonitorDist,figUIobj.size, sobj.pixpitch);
 if get(figUIobj.auto_size,'value')==1
     set(figUIobj.auto_size,'value',0,'string','Auto OFF')
@@ -58,7 +70,7 @@ sobj.ImageNum = re_write(figUIobj.ImageNum);
 sobj.concentric_dist_deg_list = sobj.dist/sobj.div_zoom:(sobj.dist/sobj.div_zoom):sobj.dist;
 % when angle is fixed
 if get(figUIobj.shiftDir, 'value') < 9
-    prep_mat = [[0,1:sobj.div_zoom]; [0, get(figUIobj.shiftDir, 'value')*ones(1, sobj.div_zoom)]]; 
+    prep_mat = [[0,1:sobj.div_zoom]; [0, get(figUIobj.shiftDir, 'value')*ones(1, sobj.div_zoom)]];
 else
     if get(figUIobj.shiftDir, 'value') < 11
         % when angle is random or ordered
@@ -169,6 +181,18 @@ if isfield(plotUIobj, 'plot')
     end
     set(plotUIobj.plot1, 'Color', col);
 end
+
+
+%% check vars
+%{
+disp(sobj.ScreenSize(1))
+disp(sobj.ScreenSize(2))
+
+disp(sobj.ScreenSize(1)/sobj.divnum)
+disp(sobj.ScreenSize(2)/sobj.divnum)
+%}
+
+
 end
 
 
@@ -179,7 +203,31 @@ end
 function y = re_write(h)
 y = str2double(get(h,'string'));
 end
+
+%%
+function centerXY_list= get_stim_center_mat
+global sobj
+sizeX = sobj.ScreenSize(1)/sobj.divnum;
+sizeY = sobj.ScreenSize(2)/sobj.divnum;
+center_div = floor([sizeX/2:sizeX:(sobj.ScreenSize(1)-sizeX/2);...
+    sizeY/2:sizeY:(sobj.ScreenSize(2)-sizeY/2)]);
+
+centerXY_list = zeros(sobj.divnum^2,2);
+
+for m = 1:sobj.divnum
+    centerXY_list(sobj.divnum*(m-1)+1:sobj.divnum*m,1) = center_div(1,m);
+    centerXY_list((1:sobj.divnum:sobj.divnum^2)+(m-1),2) = center_div(2,m);
+end
+
+end
+
+%%
+
+
 %%
 function size = stim_size(dist,h,pixpitch)
 size = round(ones(1,2)*Deg2Pix(str2double(get(h,'string')), dist,pixpitch));
 end
+
+
+

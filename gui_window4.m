@@ -50,7 +50,7 @@ hGui.mode=uicontrol('style','popupmenu','position',[10 600 90 20],'string',[{'Ra
 set(hGui.mode, 'callback', @set_fig_pos);
 
 uicontrol('style','text','position',[105 620 70 15],'string','Stim.Pattern','Horizontalalignment','left');
-hGui.pattern=uicontrol('style','popupmenu','position',[105 600 90 20],'string',[{'Uni'},{'BW'},{'Sin'},{'Rect'},{'Gabor'},{'Sz_r'},{'Zoom'},{'2Stim'},{'Images'}]);
+hGui.pattern=uicontrol('style','popupmenu','position',[105 600 90 20],'string',[{'Uni'},{'BW'},{'Sin'},{'Rect'},{'Gabor'},{'Size_rand'},{'Zoom'},{'2Stim'},{'Images'}]);
 set(hGui.pattern, 'callback', @set_pattern);
 
 %% New stimulus patterns will be added this list and, change stim_pattern and "visual stimulus.m".
@@ -108,7 +108,7 @@ hGui.delayPTB = uicontrol('style','text','position',[45 405 75 15],'string',['fl
 uicontrol('style','text','position',[10 380 70 15],'string','Set Blank','Horizontalalignment','left');
 hGui.prestimN=uicontrol('style','edit','position',[10 355 30 25],'string',recobj.prestim,'BackGroundColor','w');
 set(hGui.prestimN, 'callback', {@reload_params, Testmode});
-hGui.prestim=uicontrol('style','text','position',[45 355 85 15],'string',['loops = > ',num2str(recobj.prestim * (recobj.rect/1000 + recobj.interval)),' sec'],'Horizontalalignment','left');
+hGui.prestim=uicontrol('style','text','position',[45 355 100 15],'string',['loops = > ',num2str(recobj.prestim * (recobj.rect/1000 + recobj.interval)),' sec'],'Horizontalalignment','left');
 
 %%% Size %%%%
 uicontrol('style','text','position',[10 330 105 15],'string','Stim.Size (Diamiter)','Horizontalalignment','left');
@@ -119,6 +119,8 @@ uicontrol('style','text','position',[65 305 30 15],'string','deg','Horizontalali
 hGui.auto_size=uicontrol('style','togglebutton','position',[105 300 70 30],'string','Auto OFF','Horizontalalignment','center');
 set(hGui.auto_size, 'callback', {@autosizing, sobj.MonitorDist, hGui});
 
+
+%%% Center/Position %%%
 uicontrol('style','text','position',[10 280 70 15],'string','Monitor Div.','Horizontalalignment','left');
 hGui.divnum=uicontrol('style','edit','position',[10 255 50 25],'string',sobj.divnum,'BackGroundColor','w');
 set(hGui.divnum, 'callback', {@reload_params, Testmode});
