@@ -50,7 +50,7 @@ hGui.mode=uicontrol('style','popupmenu','position',[10 600 90 20],'string',[{'Ra
 set(hGui.mode, 'callback', @set_fig_pos);
 
 uicontrol('style','text','position',[105 620 70 15],'string','Stim.Pattern','Horizontalalignment','left');
-hGui.pattern=uicontrol('style','popupmenu','position',[105 600 90 20],'string',[{'Uni'},{'BW'},{'Sin'},{'Rect'},{'Gabor'},{'Size_rand'},{'Zoom'},{'2Stim'},{'Images'}]);
+hGui.pattern=uicontrol('style','popupmenu','position',[105 600 90 20],'string',[{'Uni'},{'Size_rand'},{'1P_Conc'},{'2P_Conc'},{'B/W'},{'Sin'},{'Rect'},{'Gabor'},{'Images'}]);
 set(hGui.pattern, 'callback', @set_pattern);
 
 %% New stimulus patterns will be added this list and, change stim_pattern and "visual stimulus.m".
@@ -97,14 +97,14 @@ hGui.stimRGB = uicontrol('style','popupmenu','position',[120,455,70,25], 'string
 set(hGui.stimRGB, 'callback', @check_stimRGB);
 
 
-%%% DelayPTB
+%%% Delay Frames
 uicontrol('style','text','position',[10 430 75 15],'string','PTB delay flip ','Horizontalalignment','left');
 hGui.delayPTBflip = uicontrol('style','edit','position',[10 405 30 25],'string',sobj.delayPTBflip,'BackGroundColor','w');
 set(hGui.delayPTBflip,'callback', {@reload_params, Testmode});
 sobj.delayPTB = sobj.delayPTBflip*sobj.m_int;
 hGui.delayPTB = uicontrol('style','text','position',[45 405 75 15],'string',['flips = ',num2str(floor(sobj.delayPTB*1000)),' ms'],'Horizontalalignment','left');
 
-%%%%
+%%% Blank Frames
 uicontrol('style','text','position',[10 380 70 15],'string','Set Blank','Horizontalalignment','left');
 hGui.prestimN=uicontrol('style','edit','position',[10 355 30 25],'string',recobj.prestim,'BackGroundColor','w');
 set(hGui.prestimN, 'callback', {@reload_params, Testmode});
@@ -124,12 +124,12 @@ set(hGui.auto_size, 'callback', {@autosizing, sobj.MonitorDist, hGui});
 uicontrol('style','text','position',[10 280 70 15],'string','Monitor Div.','Horizontalalignment','left');
 hGui.divnum=uicontrol('style','edit','position',[10 255 50 25],'string',sobj.divnum,'BackGroundColor','w');
 set(hGui.divnum, 'callback', {@reload_params, Testmode});
-hGui.divnumN = uicontrol('style','text','position',[65 255 100 15],'string',['(=> ' num2str(sobj.divnum) ' x ' num2str(sobj.divnum) ' Matrix)'],'Horizontalalignment','left');
+hGui.divnumN = uicontrol('style','text','position',[65 255 130 15],'string',['(=> ' num2str(sobj.divnum) ' x ' num2str(sobj.divnum) ' Matrix)'],'Horizontalalignment','left');
 
 uicontrol('style','text','position',[10 230 70 15],'string','Fixed Pos.','Horizontalalignment','left');
 hGui.fixpos=uicontrol('style','edit','position',[10 205 50 25],'string',sobj.fixpos,'BackGroundColor','w');
 set(hGui.fixpos,'callback', {@reload_params, Testmode});
-hGui.fixposN = uicontrol('style','text','position',[65 205 100 15],'string',['(<= ' num2str(sobj.divnum) ' x ' num2str(sobj.divnum) ' Matrix)'],'Horizontalalignment','left');
+hGui.fixposN = uicontrol('style','text','position',[65 205 130 15],'string',['(<= ' num2str(sobj.divnum) ' x ' num2str(sobj.divnum) ' Matrix)'],'Horizontalalignment','left');
 
 %%% Rotation Direction %%
 uicontrol('style','text','position',[10 180 130 15],'string','Direction (Grating, Poler)','Horizontalalignment','left');

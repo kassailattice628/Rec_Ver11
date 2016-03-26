@@ -1,4 +1,3 @@
-
 function reload_params(~, ~, Testmode)
 % reload all paraemter and settings if changes from GUI
 global figUIobj
@@ -11,7 +10,6 @@ global lh
 global dio
 global DataSave
 global ParamsSave
-
 %% visual stimulus settings %%
 % general %
 sobj.MonitorDist = re_write(figUIobj.MonitorDist);
@@ -26,8 +24,6 @@ sobj.center_pos_list = get_stim_center_mat;
 
 sobj.fixpos = re_write(figUIobj.fixpos);
 set(figUIobj.fixposN,'string',['(<= ' num2str(sobj.divnum) ' x ' num2str(sobj.divnum) ' Matrix)']);
-disp(sobj.center_pos_list)
-disp(repmat(sobj.center_pos_list(sobj.fixpos), 1, 2));
 
 recobj.prestim = re_write(figUIobj.prestimN);
 recobj.cycleNum = 0- recobj.prestim;
@@ -56,7 +52,7 @@ set(figUIobj.delayPTB,'string',['flips = ',num2str(floor(sobj.delayPTB*1000)),' 
 stimsz_deg_list = [0.5; 1; 3; 5; 10];
 sobj.size_pix_list = repmat(round(Deg2Pix(stimsz_deg_list, sobj.MonitorDist, sobj.pixpitch)),1,2);
 
-sobj.stimsz = stim_size(sobj.MonitorDist,figUIobj.size, sobj.pixpitch);
+sobj.stimsz = stim_size(sobj.MonitorDist, figUIobj.size, sobj.pixpitch);
 if get(figUIobj.auto_size,'value')==1
     set(figUIobj.auto_size,'value',0,'string','Auto OFF')
 end
@@ -68,9 +64,16 @@ sobj.ImageNum = re_write(figUIobj.ImageNum);
 
 %% chekc_concentric_position (Max distance = sobj.dist, number of division = sobj.div_zoom)
 sobj.concentric_dist_deg_list = sobj.dist/sobj.div_zoom:(sobj.dist/sobj.div_zoom):sobj.dist;
-% when angle is fixed
+conc_dist_pix_list = Deg2Pix(sobj.concentric_dist_deg_list, sobj.MonitorDist, sobj.pixpitch);
+
 if get(figUIobj.shiftDir, 'value') < 9
+    % when angle is fixed
     prep_mat = [[0,1:sobj.div_zoom]; [0, get(figUIobj.shiftDir, 'value')*ones(1, sobj.div_zoom)]];
+    deg_list = linspace(0, 315, 8);
+    sobj.concentric_angle_deg_list = deg_list(get(figUIobj.shiftDir, 'value'));
+    conc_angle_rad_list = linspace(0, 2*pi- 2*pi/8, 8);
+    num_directions = get(figUIobj.shiftDir, 'value');
+
 else
     if get(figUIobj.shiftDir, 'value') < 11
         % when angle is random or ordered
@@ -84,13 +87,21 @@ else
         prep_mat(1,num_directions*(i_div-1)+2:num_directions*i_div+1) = i_div*ones(1,num_directions);
     end
     prep_mat(2,:) = [0,repmat(1:num_directions, 1,sobj.div_zoom)];
+    sobj.concentric_angle_deg_list = 0: 360/num_directions: 360-360/num_directions;
+    conc_angle_rad_list = 0: 2*pi/num_directions: 2*pi-2*pi/num_directions;
 end
-
-%for BW:Black/White concentric mapping (position + color)
+%% for BW:Black/White concentric mapping (position + color)
 %1st: distance, 2nd: direction, 3rd: 1=white, 2=black
-sobj.concentric_mat = ones(3, size(prep_mat, 2)*2);
-sobj.concentric_mat(1:2, :) = repmat(prep_mat,1,2);
-sobj.concentric_mat(3, 1+size(sobj.concentric_mat, 2)/2:end) = 2;
+sobj.concentric_mat = ones(size(prep_mat,2)*2, 3);
+sobj.concentric_mat(:, 1:2) = repmat(prep_mat', 2, 1);
+sobj.concentric_mat(1+size(sobj.concentric_mat,1)/2:end, 3) = 2;
+for n = 1:sobj.div_zoom
+    %distance in pixel length
+    sobj.concentric_mat(sobj.concentric_mat(:,1)==n, 1) = conc_dist_pix_list(n);
+end
+for n = 1:num_directions
+    sobj.concentric_mat(sobj.concentric_mat(:,2)==n, 2) = conc_angle_rad_list(n);
+end
 
 %%
 
@@ -184,13 +195,6 @@ end
 
 
 %% check vars
-%{
-disp(sobj.ScreenSize(1))
-disp(sobj.ScreenSize(2))
-
-disp(sobj.ScreenSize(1)/sobj.divnum)
-disp(sobj.ScreenSize(2)/sobj.divnum)
-%}
 
 
 end
@@ -218,15 +222,14 @@ for m = 1:sobj.divnum
     centerXY_list(sobj.divnum*(m-1)+1:sobj.divnum*m,1) = center_div(1,m);
     centerXY_list((1:sobj.divnum:sobj.divnum^2)+(m-1),2) = center_div(2,m);
 end
-
 end
 
 %%
 
 
 %%
-function size = stim_size(dist,h,pixpitch)
-size = round(ones(1,2)*Deg2Pix(str2double(get(h,'string')), dist,pixpitch));
+function size = stim_size(dist , h, pixpitch)
+size = round(ones(1,2)*Deg2Pix(str2double(get(h,'string')), dist, pixpitch));
 end
 
 
