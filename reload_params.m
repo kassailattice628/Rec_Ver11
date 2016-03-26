@@ -16,6 +16,9 @@ sobj.MonitorDist = re_write(figUIobj.MonitorDist);
 sobj.div_zoom = re_write(figUIobj.div_zoom);
 sobj.dist = re_write(figUIobj.dist);
 sobj.bgcol = re_write(figUIobj.bgcol);
+if strcmp(sobj.pattern, 'B/W')
+    sobj.bgcol = 127;
+end
 
 sobj.divnum = re_write(figUIobj.divnum);
 set(figUIobj.divnumN, 'string', ['(=> ' num2str(sobj.divnum) ' x ' num2str(sobj.divnum) ' Matrix)']);

@@ -21,7 +21,7 @@ if get(hObject, 'value')==1 % loop ON
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     while get(hObject,'value') == 1
         
-        if Testmode == 1 && recobj.cycleNum == 10;
+        if Testmode == 1 && recobj.cycleNum == 3
             sca;
             set(hObject, 'value', 0);
             break;
@@ -121,11 +121,11 @@ Screen('FillRect', sobj.wPtr, sobj.bgcol); %presenting background
 if recobj.cycleNum == -recobj.prestim +1
     recobj.STARTloop = tic;
     generate_trigger([1,1]); %Start AI
-    disp('1st Trig')
+    disp('Start AI & Imaging')
 else
     recobj.tRec = toc(recobj.STARTloop);
     generate_trigger([1,0]);
-    disp('Trig')
+    disp('Trig AI')
 end
 %reset Trigger level
 generate_trigger([0,0]);
@@ -171,48 +171,52 @@ if recobj.cycleNum <= 0
 elseif recobj.cycleNum > 0
     Trigger(Testmode, dio)
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % prep stimulation
-    disp(sobj.pattern)
-    
     % Set stim params
-    switch sobj.pattern
-        case 'Uni'
-            Uni_stim(2);
-            
-        case 'Size_rand'
-            Uni_stim(1);
-            
-        case '1P_Conc'
-            Conc_1P;
-        case '2P_Conc'
-            Conc_2P;
-            
-        case {'B/W'}
-            
-        case {'Sin', 'Rect', 'Gabor'}
-        case 'Images'
+    if strcmp(sobj.pattern, '2P_Conc')
+        Conc_2P
+    else
+        switch sobj.pattern
+            case 'Uni'
+                Uni_stim(2);
+                
+            case 'Size_rand'
+                Uni_stim(1);
+                
+            case '1P_Conc'
+                Conc_1P;
+                
+            case {'B/W'}
+                Uni_BW
+                
+            case {'Sin', 'Rect', 'Gabor'}
+            case 'Images'
+                
+                
+            case '2P_Conc'
+                Conc_2P;
+        end
+        
+        %AddPhoto Sensor (Left, UP in the monitor) for the stimulus timing check
+        Screen('FillRect', sobj.wPtr, 255, [0 0 40 40]);
+        
+        % Flip and rap timer
+        [sobj.vbl_2, sobj.OnsetTime_2, sobj.FlipTimeStamp_2] = ...
+            Screen('Flip', sobj.wPtr, sobj.vbl_1+sobj.delayPTB);% put some delay for PTB
+        
+        sobj.sFlipTimeStamp_2=toc(recobj.STARTloop);
+        disp(['AITrig; ',sobj.pattern, ': #', num2str(recobj.cycleNum)]);
+        stim_monitor;
+        
+        % Prep Stim OFF
+        Screen('FillRect', sobj.wPtr, sobj.bgcol);
+        % After sobj.duration, flib BG color
+        [sobj.vbl_3, sobj.OnsetTime_3, sobj.FlipTimeStamp_3] = ...
+            Screen('Flip', sobj.wPtr, sobj.vbl_2+sobj.duration);
+        sobj.sFlipTimeStamp_3 = toc(recobj.STARTloop);
+        
+        %GUI stim indicater
+        stim_monitor_reset;
     end
-    
-    %AddPhoto Sensor (Left, UP in the monitor) for the stimulus timing check
-    Screen('FillRect', sobj.wPtr, 255, [0 0 40 40]);
-    
-    % Flip and rap timer
-    [sobj.vbl_2, sobj.OnsetTime_2, sobj.FlipTimeStamp_2] = ...
-        Screen('Flip', sobj.wPtr, sobj.vbl_1+sobj.delayPTB);% put some delay for PTB
-    
-    sobj.sFlipTimeStamp_2=toc(recobj.STARTloop);
-    disp(['AITrig; ',sobj.pattern, ': #', num2str(recobj.cycleNum)]);
-    stim_monitor;
-    
-    % Prep Stim OFF
-    Screen('FillRect', sobj.wPtr, sobj.bgcol);
-    % After sobj.duration, flib BG color
-    [sobj.vbl_3, sobj.OnsetTime_3, sobj.FlipTimeStamp_3] = ...
-        Screen('Flip', sobj.wPtr, sobj.vbl_2+sobj.duration);
-    sobj.sFlipTimeStamp_3 = toc(recobj.STARTloop);
-    
-    %GUI stim indicater
-    stim_monitor_reset;
 end
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -227,9 +231,10 @@ end
         % Set stim size
         stim_size = get_condition(2, sobj.size_pix_list, recobj.cycleNum,...
             length(sobj.size_pix_list), flag_size_random, sobj.stimsz);
-        
+        maxDiameter = max(stim_size) * 1.01;
         % define stim position using center and size
-        Rect = set_Rect(stim_center, stim_size);
+        Rect = CenterRectOnPointd([0,0,stim_size],stim_center(1), stim_center(2));
+        
         
         % Set Luminance
         switch get(figUIobj.lumi,'value')
@@ -242,7 +247,7 @@ end
             length(sobj.stimlumi_list), flag_lumi_random, sobj.stimlumi);
         
         %PrepScreen Screen
-        Screen(sobj.shape, sobj.wPtr, lumi, Rect);
+        Screen(sobj.shape, sobj.wPtr, lumi, Rect, maxDiameter);
     end
 %%
     function Conc_1P
@@ -254,6 +259,7 @@ end
         end
         conc_pos_mat = get_condition(4, sobj.concentric_mat(1:end/2,:), recobj.cycleNum,...
             size(sobj.concentric_mat,1)/2, flag_random_dir);
+        
         %conc_pos_mat(1,i): distance(pix)
         %conc_pos_mat(2,i): angle(rad)
         [concX, concY] = pol2cart(conc_pos_mat(2),conc_pos_mat(1));
@@ -267,14 +273,13 @@ end
         % if conc_pos_mat is defined, changes stim_cneter position
         stim_center = [stim_center(1) + concX, stim_center(2) - concY];
         
-        
-        
         % Set stim size
         stim_size = get_condition(2, sobj.size_pix_list, recobj.cycleNum,...
             length(sobj.size_pix_list), 2, sobj.stimsz);
+        maxDiameter = max(stim_size) * 1.01;
         
         % define stim position using center and size
-        Rect = set_Rect(stim_center, stim_size);
+        Rect = CenterRectOnPointd([0,0,stim_size],stim_center(1), stim_center(2));
         
         % Set Luminance
         switch get(figUIobj.lumi,'value')
@@ -287,8 +292,53 @@ end
             length(sobj.stimlumi_list), flag_lumi_random, sobj.stimlumi);
         
         %PrepScreen Screen
-        Screen(sobj.shape, sobj.wPtr, lumi, Rect);
+        Screen(sobj.shape, sobj.wPtr, lumi, Rect, maxDiameter);
     end
+%%
+    function Uni_BW
+        
+        if get(figUIobj.shiftDir, 'value') == 9 %ord8
+            flag_random_dir = 3;%ordered
+        else
+            flag_random_dir = 1;%random distance, direction
+        end
+        conc_pos_mat = get_condition(4, sobj.concentric_mat, recobj.cycleNum,...
+            size(sobj.concentric_mat,1), flag_random_dir);
+        
+        %conc_pos_mat(1,i): distance(pix)
+        %conc_pos_mat(2,i): angle(rad)
+        [concX, concY] = pol2cart(conc_pos_mat(2),conc_pos_mat(1));
+        
+        
+        % Set stim center fix
+        fix_center = sobj.center_pos_list(sobj.fixpos,:);
+        stim_center = get_condition(1, sobj.center_pos_list, recobj.cycleNum,...
+            sobj.divnum^2, 2, fix_center);
+        
+        % if conc_pos_mat is defined, changes stim_cneter position
+        stim_center = [stim_center(1) + concX, stim_center(2) - concY];
+        
+        % Set stim size
+        stim_size = get_condition(2, sobj.size_pix_list, recobj.cycleNum,...
+            length(sobj.size_pix_list), 2, sobj.stimsz);
+        maxDiameter = max(stim_size) * 1.01;
+        
+        % define stim position using center and size
+        Rect = CenterRectOnPointd([0,0,stim_size],stim_center(1), stim_center(2));
+        
+        % Set Luminance
+        switch conc_pos_mat(3)
+            case 1
+                lumi = 255;
+            case 2
+                lumi = 0; 
+        end
+        
+        %PrepScreen Screen
+        Screen(sobj.shape, sobj.wPtr, lumi, Rect, maxDiameter);
+    end
+
+
 %%
     function Conc_2P
         if get(figUIobj.shiftDir, 'value') == 9 %ord8
@@ -316,13 +366,18 @@ end
         % Set stim size, size(fix)
         stim_size = get_condition(2, sobj.size_pix_list, recobj.cycleNum,...
             length(sobj.size_pix_list), 2, sobj.stimsz);
+        maxDiameter = max(stim_size) * 1.01;
         
         stim_size2 = get_condition(2, sobj.size_pix_list, recobj.cycleNum,...
             length(sobj.size_pix_list), 2, sobj.stimsz2);
+        maxDiameter2 = max(stim_size2) * 1.01;
         
         % define stim position using center and size
-        Rect = set_Rect(stim_center, stim_size);
-        Rect2 = set_Rect(stim_center2, stim_size2);
+        
+        
+        % define stim position using center and size
+        Rect = CenterRectOnPointd([0,0,stim_size],stim_center(1), stim_center(2));
+        Rect2 = CenterRectOnPointd([0,0,stim_size2],stim_center2(1), stim_center2(2));
         
         % Set Luminance
         switch get(figUIobj.lumi,'value')
@@ -333,10 +388,82 @@ end
         end
         lumi = get_condition(3, sobj.stimlumi_list, recobj.cycleNum,...
             length(sobj.stimlumi_list), flag_lumi_random, sobj.stimlumi);
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        %PrepScreen Screen by OffscreenTexture
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        % Stim1 only
+        Stim1 = Screen('OpenOffscreenWindow', sobj.ScrNum, sobj.bgcol);
+        Screen(sobj.shape, Stim1, lumi, Rect, maxDiameter);
+        Screen('FillRect', Stim1, 180, [0 0 40 40]);
+        % Stim2 only
+        Stim2 = Screen('OpenOffscreenWindow', sobj.ScrNum, sobj.bgcol);
+        Screen(sobj.shape2, Stim2, lumi, Rect2, maxDiameter2);
+        Screen('FillRect', Stim2, 180, [0 0 40 40]);
+        % Both Stim1 & Stim2
+        Stim3 = Screen('OpenOffscreenWindow', sobj.ScrNum, sobj.bgcol);
+        Screen(sobj.shape, Stim3, lumi, Rect);
+        Screen(sobj.shape2, Stim3, sobj.stimcol2, Rect2, max([maxDiameter, maxDiameter2]));
+        Screen('FillRect', Stim3, 255, [0 0 40 40]);
         
-        %PrepScreen Screen
-        Screen(sobj.shape, sobj.wPtr, lumi, Rect);
-        Screen(sobj.shape, sobj.wPtr, lumi, Rect2);
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        %ScreenFlip
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        if sobj.delayPTB == sobj.delayPTB2 % same timing
+            Screen('DrawTexture', sobj.wPtr, Stim3)
+            [sobj.vbl_2, sobj.OnsetTime_2, sobj.FlipTimeStamp_2] =...
+                Screen('Flip', sobj.wPtr, sobj.vbl_1 + sobj.delayPTB);
+            sobj.vbl2_2 = sobj.vbl_2;
+            sobj.OnsetTime2_2 = sobj.OnsetTime_2;
+            sobj.FlipTimeStamp2_2 = sobj.FlipTimeStamp_2;
+        elseif sobj.delayPTB < sobj.delayPTB2 % Stim1 appears earier thant Stm1
+            Screen('DrawTexture', sobj.wPtr, Stim1)
+            [sobj.vbl_2, sobj.OnsetTime_2, sobj.FlipTimeStamp_2] =...
+                Screen('Flip', sobj.wPtr, sobj.vbl_1 + sobj.delayPTB);
+            Screen('DrawTexture', sobj.wPtr, Stim3)
+            [sobj.vbl2_2, sobj.OnsetTime2_2, sobj.FlipTimeStamp2_2] =...
+                Screen('Flip', sobj.wPtr, sobj.vbl_1 + sobj.delayPTB2);
+        elseif sobj.delayPTB > sobj.delayPTB2 %Stim2 appears earier than Stim1
+            Screen('DrawTexture', sobj.wPtr, Stim2)
+            [sobj.vbl2_2, sobj.OnsetTime2_2, sobj.FlipTimeStamp2_2] =...
+                Screen('Flip', sobj.wPtr, sobj.vbl_1 + sobj.delayPTB2);
+            Screen('DrawTexture', sobj.wPtr, Stim3)
+            [sobj.vbl_2, sobj.OnsetTime_2, sobj.FlipTimeStamp_2] =...
+                Screen('Flip', sobj.wPtr, sobj.vbl_1 + sobj.delayPTB);
+        end
+        stim_monitor;
+        
+        duration1 = sobj.delayPTB + sobj.duration;
+        duration2 = sobj.delayPTB2 + sobj.duration2;
+        
+        if duration1 == duration2
+            Screen('FillRect', sobj.wPtr, sobj.bgcol);
+            [sobj.vbl_3, sobj.OnsetTime_3, sobj.FlipTimeStamp_3] =...
+                Screen('Flip', sobj.wPtr, sobj.vbl_1+duration1);
+            sobj.vbl2_3 = sobj.vbl_3;
+            sobj.OnsetTime2_3 = sobj.OnsetTime_3;
+            sobj.FlipTimeStamp2_3 = sobj.FlipTimeStamp_3;
+        elseif duration1 < duration2
+            Screen('DrawTexture', sobj.wPtr, Stim2);
+            [sobj.vbl_3, sobj.OnsetTime_3, sobj.FlipTimeStamp_3] =...
+                Screen('Flip', sobj.wPtr, sobj.vbl_1+duration1);
+            Screen('FillRect', sobj.wPtr, sobj.bgcol);
+            [sobj.vbl2_3, sobj.OnsetTime2_3, sobj.FlipTimeStamp2_3] =...
+                Screen('Flip', sobj.wPtr, sobj.vbl_1+duration2);
+        elseif duration1 > duration2
+            Screen('DrawTexture', sobj.wPtr, Stim1);
+            [sobj.vbl2_3, sobj.OnsetTime2_3, sobj.FlipTimeStamp2_3] =...
+                Screen('Flip', sobj.wPtr, sobj.vbl_1+duration2);
+            Screen('FillRect', sobj.wPtr, sobj.bgcol);
+            [sobj.vbl_3, sobj.OnsetTime_3, sobj.FlipTimeStamp_3] =...
+                Screen('Flip', sobj.wPtr, sobj.vbl_1+duration1);
+        end
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        % Close OffscreenWindow
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        Screen(Stim1, 'Close');
+        Screen(Stim2, 'Close');
+        Screen(Stim3, 'Close');
+        stim_monitor_reset;
     end
 
 
@@ -362,7 +489,7 @@ end
                 i_in_cycle = list_size;
                 disp(i_in_cycle)
                 
-
+                
             elseif i_in_cycle == 1 %Reset list order
                 switch flag_random
                     case 1 %randomize
@@ -376,7 +503,8 @@ end
     end
 
 %%
-    function Rect = set_Rect(stim_center, stim_size)
+%{
+function Rect = set_Rect(stim_center, stim_size)
         %[left, top, right, bottom]
         Left = floor(stim_center(:,1) - stim_size(1)/2);
         Top = floor(stim_center(:,2) - stim_size(2)/2);
@@ -386,8 +514,6 @@ end
         Rect = [Left, Top, Right, Bottom];% position ‚Æ size ‚ðŠm’è
     end
 
-%%
-%{
 function Stim_Presentation
         %Stim ON
         [sobj.vbl_2, sobj.OnsetTime_2, sobj.FlipTimeStamp_2] = ...

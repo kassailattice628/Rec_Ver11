@@ -111,7 +111,7 @@ set(hGui.prestimN, 'callback', {@reload_params, Testmode});
 hGui.prestim=uicontrol('style','text','position',[45 355 100 15],'string',['loops = > ',num2str(recobj.prestim * (recobj.rect/1000 + recobj.interval)),' sec'],'Horizontalalignment','left');
 
 %%% Size %%%%
-uicontrol('style','text','position',[10 330 105 15],'string','Stim.Size (Diamiter)','Horizontalalignment','left');
+uicontrol('style','text','position',[10 330 130 15],'string','Stim.Size (Diamiter)','Horizontalalignment','left');
 hGui.size=uicontrol('style','edit','position',[10 305 50 25],'string','1','BackGroundColor','w');
 set(hGui.size, 'callback', {@reload_params, Testmode});
 uicontrol('style','text','position',[65 305 30 15],'string','deg','Horizontalalignment','left');
