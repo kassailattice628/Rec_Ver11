@@ -169,11 +169,14 @@ if recobj.cycleNum <= 0
     Trigger(Testmode, dio)
     
 elseif recobj.cycleNum > 0
+    % Start AI
     Trigger(Testmode, dio)
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     % Set stim params
     if strcmp(sobj.pattern, '2P_Conc')
         Conc_2P
+    elseif strcmp(sobj.pattern, 'Looming')
+        Looming
     else
         switch sobj.pattern
             case 'Uni'
@@ -190,10 +193,6 @@ elseif recobj.cycleNum > 0
                 
             case {'Sin', 'Rect', 'Gabor'}
             case 'Images'
-                
-                
-            case '2P_Conc'
-                Conc_2P;
         end
         
         %AddPhoto Sensor (Left, UP in the monitor) for the stimulus timing check
@@ -249,6 +248,7 @@ end
         %PrepScreen Screen
         Screen(sobj.shape, sobj.wPtr, lumi, Rect, maxDiameter);
     end
+
 %%
     function Conc_1P
         
@@ -294,6 +294,7 @@ end
         %PrepScreen Screen
         Screen(sobj.shape, sobj.wPtr, lumi, Rect, maxDiameter);
     end
+
 %%
     function Uni_BW
         
@@ -308,7 +309,6 @@ end
         %conc_pos_mat(1,i): distance(pix)
         %conc_pos_mat(2,i): angle(rad)
         [concX, concY] = pol2cart(conc_pos_mat(2),conc_pos_mat(1));
-        
         
         % Set stim center fix
         fix_center = sobj.center_pos_list(sobj.fixpos,:);
@@ -331,13 +331,59 @@ end
             case 1
                 lumi = 255;
             case 2
-                lumi = 0; 
+                lumi = 0;
         end
         
         %PrepScreen Screen
         Screen(sobj.shape, sobj.wPtr, lumi, Rect, maxDiameter);
     end
 
+%%
+    function Looming
+        %initialize Looming parameters
+        time =  0;
+        waitframes =  1;
+        
+        stim_center = sobj.center_pos_list(sobj.fixpos,:); %fixed position
+        stim_size =  [0, 0, sobj.loomSize_pix];% max_Stim_Size
+        
+        topPriorityLevel =  MaxPriority(sobj.wPtr);
+        Priority(topPriorityLevel);
+        
+        %Prep first frame
+        Rect = CenterRectOnPointd(stim_size .* 0, stim_center(1), stim_center(2));
+        Screen(sobj.shape, sobj.wPtr, 255, Rect);
+        Screen('FillRect', sobj.wPtr, 255, [0 0 40 40]);
+        
+        % onscreen に １枚目提示してタイマースタート
+        [sobj.vbl_2, sobj.OnsetTime_2, sobj.FlipTimeStamp_2] =...
+            Screen('Flip', sobj.wPtr, sobj.vbl_1+sobj.delayPTB);% put some delay for PTB
+        sobj.sFlipTimeStamp_2=toc(recobj.STARTloop);
+        vbl=sobj.vbl_2;
+        
+        
+        looming_timer = tic;
+        %for count = 1:sobj.flipNum
+        while toc(looming_timer) < sobj.loomDuration
+            %scaleFactor =  abs(amp * sin(angFreq * time + startPhase));
+            scaleFactor = time/sobj.loomDuration;
+            Rect = CenterRectOnPointd(stim_size .* scaleFactor, stim_center(1), stim_center(2));
+            Screen(sobj.shape, sobj.wPtr, 255, Rect);
+            Screen('FillRect', sobj.wPtr, 255, [0 0 40 40]);
+            vbl = Screen('Flip', sobj.wPtr, vbl + (waitframes - 0.5) * sobj. m_int);
+            time = time + sobj.m_int;
+        end
+        
+        % Prep Stim OFF
+        Screen('FillRect', sobj.wPtr, sobj.bgcol);
+        % After sobj.duration, flip BG color
+        [sobj.vbl_3, sobj.OnsetTime_3, sobj.FlipTimeStamp_3] = ...
+            Screen('Flip', sobj.wPtr, sobj.vbl_2 + sobj.loomDuration);
+        sobj.sFlipTimeStamp_3 = toc(recobj.STARTloop);
+        
+        %GUI stim indicater
+        stim_monitor_reset;
+    end
 
 %%
     function Conc_2P
@@ -435,6 +481,9 @@ end
         duration1 = sobj.delayPTB + sobj.duration;
         duration2 = sobj.delayPTB2 + sobj.duration2;
         
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        %Screen OFF
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         if duration1 == duration2
             Screen('FillRect', sobj.wPtr, sobj.bgcol);
             [sobj.vbl_3, sobj.OnsetTime_3, sobj.FlipTimeStamp_3] =...

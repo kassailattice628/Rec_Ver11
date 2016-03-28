@@ -50,8 +50,8 @@ hGui.mode=uicontrol('style','popupmenu','position',[10 600 90 20],'string',[{'Ra
 set(hGui.mode, 'callback', @set_fig_pos);
 
 uicontrol('style','text','position',[105 620 70 15],'string','Stim.Pattern','Horizontalalignment','left');
-hGui.pattern=uicontrol('style','popupmenu','position',[105 600 90 20],'string',[{'Uni'},{'Size_rand'},{'1P_Conc'},{'2P_Conc'},{'B/W'},{'Sin'},{'Rect'},{'Gabor'},{'Images'}]);
-set(hGui.pattern, 'callback', @set_pattern);
+hGui.pattern=uicontrol('style','popupmenu','position',[105 600 90 20],'string',[{'Uni'},{'Size_rand'},{'1P_Conc'},{'2P_Conc'},{'B/W'},{'Looming'},{'Sin'},{'Rect'},{'Gabor'},{'Images'}]);
+set(hGui.pattern, 'callback', {@set_pattern, Testmode});
 
 %% New stimulus patterns will be added this list and, change stim_pattern and "visual stimulus.m".
 
@@ -111,7 +111,7 @@ set(hGui.prestimN, 'callback', {@reload_params, Testmode});
 hGui.prestim=uicontrol('style','text','position',[45 355 100 15],'string',['loops = > ',num2str(recobj.prestim * (recobj.rect/1000 + recobj.interval)),' sec'],'Horizontalalignment','left');
 
 %%% Size %%%%
-uicontrol('style','text','position',[10 330 130 15],'string','Stim.Size (Diamiter)','Horizontalalignment','left');
+uicontrol('style','text','position',[10 330 130 15],'string','Size (Diamiter)','Horizontalalignment','left');
 hGui.size=uicontrol('style','edit','position',[10 305 50 25],'string','1','BackGroundColor','w');
 set(hGui.size, 'callback', {@reload_params, Testmode});
 uicontrol('style','text','position',[65 305 30 15],'string','deg','Horizontalalignment','left');
@@ -132,16 +132,28 @@ set(hGui.fixpos,'callback', {@reload_params, Testmode});
 hGui.fixposN = uicontrol('style','text','position',[65 205 130 15],'string',['(<= ' num2str(sobj.divnum) ' x ' num2str(sobj.divnum) ' Matrix)'],'Horizontalalignment','left');
 
 %%% Rotation Direction %%
-uicontrol('style','text','position',[10 180 130 15],'string','Direction (Grating, Poler)','Horizontalalignment','left');
+uicontrol('style','text','position',[10 180 180 15],'string','Direction (Grating, Concentric)','Horizontalalignment','left');
 hGui.shiftDir = uicontrol('style','popupmenu','position',[10 155 90 25],'string',[{'0'},{'45'},{'90'},{'135'},{'180'},{'225'},{'270'},{'315'},{'Order8'},{'Rand8'},{'Rand16'}]);
 %set(hGui.shiftDir, 'callback', {@reload_params, Testmode});
 uicontrol('style','text','position',[100 160 25 15],'string','deg','Horizontalalignment','left');
 
 %%%
-uicontrol('style','text','position',[10 135 80 15],'string','Temporal Freq','Horizontalalignment','left');
-hGui.shiftSpd=uicontrol('style','popupmenu','position',[10 110 80 25],'string',[{'0.5'},{'1'},{'2'},{'4'},{'8'}],'value',3,'BackGroundColor','w');
+uicontrol('style','text','position',[10 135 80 15],'string','Tempo Freq','Horizontalalignment','left');
+hGui.shiftSpd=uicontrol('style','popupmenu','position',[10 110 70 25],'string',[{'0.5'},{'1'},{'2'},{'4'},{'8'}],'value',3,'BackGroundColor','w');
 %set(hGui.shiftSpd, 'callback', {@reload_params, Testmode});
-uicontrol('style','text','position',[90 115 20 15],'string','Hz','Horizontalalignment','left');
+uicontrol('style','text','position',[75 115 20 15],'string','Hz','Horizontalalignment','left');
+
+%%% Looming Speed
+uicontrol('style','text','position', [95 140 100 15],'string','Loom Spd/Size', 'Horizontalalignment','left');
+hGui.loomSpd = uicontrol('style', 'popupmenu','position',[95, 115, 70, 25],'string',[{'5'},{'10'},{'20'},{'40'},{'80'},{'160'}]);
+set(hGui.loomSpd,'callback', {@reload_params, Testmode});
+uicontrol('style','text','position',[160 120 35 15],'string','deg/s','Horizontalalignment','left');
+
+% Looming Max Size
+hGui.loomSize = uicontrol('style','edit','position',[105 90 50 25],'string',sobj.looming_Size,'BackGroundColor','w');
+set(hGui.loomSize,'callback', {@reload_params, Testmode});
+uicontrol('style','text','position',[160 90 35 15],'string','deg','Horizontalalignment','left');
+
 
 %%%
 uicontrol('style','text','position',[10 90 75 15],'string','Spatial Freq','Horizontalalignment','left');
@@ -274,7 +286,7 @@ hGui.stepf = uicontrol('style','togglebutton','position',[555 455 40 30],'string
 hGui.pulse = uicontrol('style','togglebutton','position',[410 505 70 30],'string','Pulse ON', 'callback', @set_pulse);
 %%
 uicontrol('style','text','position',[410 405 80 15],'string','Daq Range (V)','Horizontalalignment','left');
-hGui.DAQrange=uicontrol('style','popupmenu','position',[410 380 120 25],'string',[{'x1:[-10,10]'},{'x10:[-1,1]'},{'x50:[-0.2,0.2]'},{'x100:[-0.1,0.1]'}],'value',1);
+hGui.DAQrange=uicontrol('style','popupmenu','position',[410 380 160 25],'string',[{'x1: [-10,10]'},{'x10: [-1,1]'},{'x50: [-0.2,0.2]'},{'x100: [-0.1,0.1]'}],'value',1);
 set(hGui.DAQrange,'callback',@ch_DaqRange);
 %%%%%%%
 %% select plot channel %%
@@ -413,13 +425,14 @@ end
 end
 
 %%
-function set_pattern(hObject, ~)
+function set_pattern(hObject, ~, Testmode)
 global figUIobj
 
 if get(hObject,'value') ~= 1
     set(figUIobj.mode, 'value', 2)
     set(figUIobj.fixpos,'BackGroundColor','g');
 end
+reload_params([], [], Testmode);
 end
 
 

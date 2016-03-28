@@ -121,12 +121,39 @@ set(figUIobj.delayPTB2, 'string',['flips = ',num2str(floor(sobj.delayPTB2*1000))
 
 sobj.stimsz2 = stim_size(sobj.MonitorDist,figUIobj.size2, sobj.pixpitch);
 
-%% Recording %%
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%% NIDAQ Recording %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
+
 recobj.interval = re_write(figUIobj.interval);
 recobj.sampf = str2double(get(figUIobj.sampf,'string'))*1000;
-%recobj.sampt = recobj.sampf/10^6;
-recobj.rect = re_write(figUIobj.rect);
+
+if strcmp(pattern_list{get(figUIobj.pattern,'value'),1}, 'Looming')
+    % change recording time according to the looming speed.
+    loomSpd_list = get(figUIobj.loomSpd, 'string');
+    
+    sobj.loomSize_pix = stim_size(sobj.MonitorDist, figUIobj.loomSize, sobj.pixpitch);
+    
+    sobj.maxSize_deg = str2double(get(figUIobj.loomSize,'string'));  
+    sobj.loomSpd_deg = str2double(loomSpd_list{get(figUIobj.loomSpd,'value'),1});
+    sobj.loomDuration = sobj.maxSize_deg/sobj.loomSpd_deg;
+    rect_in_sec = (sobj.loomDuration + 1) * 10; % add 1 sec 
+    recobj.rect = 100 * round(rect_in_sec);
+    
+    set(figUIobj.rect, 'string', recobj.rect, 'BackgroundColor', 'y');
+    set(figUIobj.loomSize, 'BackgroundColor', 'g');
+else
+    set(figUIobj.loomSize, 'BackgroundColor', 'w');
+    set(figUIobj.rect, 'BackgroundColor', 'g');
+end
+
 recobj.recp = recobj.sampf*recobj.rect/1000;
+
+
+
+
 
 recobj.pulseDuration = re_write(figUIobj.pulseDuration);
 recobj.pulseDelay = re_write(figUIobj.pulseDelay);
