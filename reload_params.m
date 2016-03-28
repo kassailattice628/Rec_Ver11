@@ -16,9 +16,6 @@ sobj.MonitorDist = re_write(figUIobj.MonitorDist);
 sobj.div_zoom = re_write(figUIobj.div_zoom);
 sobj.dist = re_write(figUIobj.dist);
 sobj.bgcol = re_write(figUIobj.bgcol);
-if strcmp(sobj.pattern, 'B/W')
-    sobj.bgcol = 127;
-end
 
 sobj.divnum = re_write(figUIobj.divnum);
 set(figUIobj.divnumN, 'string', ['(=> ' num2str(sobj.divnum) ' x ' num2str(sobj.divnum) ' Matrix)']);
@@ -39,6 +36,12 @@ sobj.mode = modelist{get(figUIobj.mode,'value')};
 pattern_list = get(figUIobj.pattern,'string');
 %[{'Uni'},{'BW'},{'Sin'},{'Rect'},{'Gabor'},{'Sz_r'},{'Zoom'},{'2Stim'},{'Images'}]
 sobj.pattern = pattern_list{get(figUIobj.pattern,'value'),1};
+switch sobj.pattern
+    case {'B/W', 'Gabor'}
+    sobj.bgcol = sobj.gray;
+end
+
+
 
 sobj.shape = sobj.shapelist{get(figUIobj.shape, 'value'), 1};
 
@@ -130,7 +133,7 @@ sobj.stimsz2 = stim_size(sobj.MonitorDist,figUIobj.size2, sobj.pixpitch);
 recobj.interval = re_write(figUIobj.interval);
 recobj.sampf = str2double(get(figUIobj.sampf,'string'))*1000;
 
-if strcmp(pattern_list{get(figUIobj.pattern,'value'),1}, 'Looming')
+if strcmp(sobj.pattern,'Looming')
     % change recording time according to the looming speed.
     loomSpd_list = get(figUIobj.loomSpd, 'string');
     
@@ -147,6 +150,7 @@ if strcmp(pattern_list{get(figUIobj.pattern,'value'),1}, 'Looming')
 else
     set(figUIobj.loomSize, 'BackgroundColor', 'w');
     set(figUIobj.rect, 'BackgroundColor', 'g');
+    recobj.rect = re_write(figUIobj.rect);
 end
 
 recobj.recp = recobj.sampf*recobj.rect/1000;
@@ -226,7 +230,7 @@ end
 
 %% check vars
 
-
+        
 end
 
 
