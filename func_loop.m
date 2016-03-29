@@ -94,6 +94,7 @@ try %error check
             %%%%%%%%%%%%%%%%%%%% Visual Stimulus ON %%%%%%%%%%%%%%%%%%%%%
         case 1
             % start timer, start FV and start Stim
+            AssertOpenGL;
             VisStim(Testmode, dio);
     end
 catch ME1
@@ -181,12 +182,15 @@ elseif recobj.cycleNum > 0
         
     elseif strcmp(sobj.pattern, 'Sin')
         %Grating(sin/square, gabor)
+        AssertOpenGL
         Grating(1,0)
      
     elseif strcmp(sobj.pattern, 'Gabor')
+        AssertOpenGL
         Grating(1,1)
         
     elseif strcmp(sobj.pattern, 'Rect')
+        AssertOpenGL
         Grating(0,0)
         
     else
@@ -618,6 +622,8 @@ end
         i = 0;%frame count
         vbl = 0;%
         
+        
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         while toc(GratingTime) < sobj.duration
             xoffset = mod(i * shiftperframe, p);
             i = i + 1;
@@ -632,6 +638,7 @@ end
             Screen('FillRect', sobj.wPtr, 255, [0 0 40 40]);
             vbl = Screen('Flip', sobj.wPtr, vbl + (waitframes - 0.5) * sobj.m_int);
         end
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
         % Prep Stim OFF
         Screen('FillRect', sobj.wPtr, sobj.bgcol);
@@ -644,8 +651,7 @@ end
         stim_monitor_reset;
     end
 
-%%
-
+%% %%
     function out = get_condition(n, list_mat, cycleNum, list_size, flag_random, fix)
         % generate list order
         % n is the number of conditions
@@ -679,40 +685,6 @@ end
     end
 
 %%
-%{
-function Rect = set_Rect(stim_center, stim_size)
-        %[left, top, right, bottom]
-        Left = floor(stim_center(:,1) - stim_size(1)/2);
-        Top = floor(stim_center(:,2) - stim_size(2)/2);
-        Right = floor(stim_center(:,1) + stim_size(1)/2);
-        Bottom = floor(stim_center(:,2) + stim_size(2)/2);
-        
-        Rect = [Left, Top, Right, Bottom];% position ‚Æ size ‚ðŠm’è
-    end
-
-function Stim_Presentation
-        %Stim ON
-        [sobj.vbl_2, sobj.OnsetTime_2, sobj.FlipTimeStamp_2] = ...
-            Screen('Flip', sobj.wPtr, sobj.vbl_1+sobj.delayPTB);% put some delay for PTB
-        
-        sobj.sFlipTimeStamp_2=toc(recobj.STARTloop);
-        disp(['AITrig; ',sobj.pattern, ': #', num2str(recobj.cycleNum)]);
-        stim_monitor;
-        
-        % Prep Stim OFF
-        Screen('FillRect', sobj.wPtr, sobj.bgcol);
-        % After sobj.duration, flib BG color
-        [sobj.vbl_3, sobj.OnsetTime_3, sobj.FlipTimeStamp_3] = ...
-            Screen('Flip', sobj.wPtr, sobj.vbl_2+sobj.duration);
-        sobj.sFlipTimeStamp_3 = toc(recobj.STARTloop);
-        
-        %GUI stim indicater
-        stim_monitor_reset;
-        
-    end
-%}
-
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % end if VisStim
 end

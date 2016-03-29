@@ -229,8 +229,7 @@ end
 
 
 %% check vars
-
-        
+disp(plotUIobj)
 end
 
 

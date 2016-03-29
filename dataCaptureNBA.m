@@ -42,22 +42,23 @@ if (numSamplesToDiscard > 0)
 end
 
 %% Update live data plot, Plot latest plotTimeSpan seconds of data in dataBuffer
-if get(plotUIobj.button4{1,1},'value') || ...
-        get(plotUIobj.button4{1,2},'value') || ...
-        get(plotUIobj.button4{1,3},'value') || ...
-        get(plotUIobj.button4{1,4},'value')
+if isfield(plotUIobj, 'button4')
+    if get(plotUIobj.button4{1,1},'value') || ...
+            get(plotUIobj.button4{1,2},'value') || ...
+            get(plotUIobj.button4{1,3},'value') || ...
+            get(plotUIobj.button4{1,4},'value')
         
-samplesToPlot = min([round(c.plotTimeSpan * src.Rate), size(dataBuffer,1)]);
-firstPoint = size(dataBuffer, 1) - samplesToPlot + 1;
-% Update x-axis limits
-set(plotUIobj.axes4, 'XLim', [dataBuffer(firstPoint,1), dataBuffer(end,1)]);
-% Live plot has one line for each acquisition channel
-for ii = 1:size(plotUIobj.button4, 2)
-    if get(plotUIobj.button4{1,ii},'value')
-        set(plotUIobj.plot4(ii), 'XData', dataBuffer(firstPoint:end, 1),'YData', dataBuffer(firstPoint:end, ii+1))
+        samplesToPlot = min([round(c.plotTimeSpan * src.Rate), size(dataBuffer,1)]);
+        firstPoint = size(dataBuffer, 1) - samplesToPlot + 1;
+        % Update x-axis limits
+        set(plotUIobj.axes4, 'XLim', [dataBuffer(firstPoint,1), dataBuffer(end,1)]);
+        % Live plot has one line for each acquisition channel
+        for ii = 1:size(plotUIobj.button4, 2)
+            if get(plotUIobj.button4{1,ii},'value')
+                set(plotUIobj.plot4(ii), 'XData', dataBuffer(firstPoint:end, 1),'YData', dataBuffer(firstPoint:end, ii+1))
+            end
+        end
     end
-end
-
 end
 %%
 % If capture is requested, analyze latest acquired data until a trigger
@@ -90,6 +91,7 @@ elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) > c.Tim
     % captureData(:,1) is timstamp
     % 2: AI1, 3: AI2, 4:AI 3=photosensor, 5: AI4=Trigger monitor, 6: RotaryEncoder
     % plotVI = get(figUIobj.plot, 'value'): 0=V plot, 1=I plot
+    if isfield(plotUIobj,'button4')
     if get(plotUIobj.button1, 'value')
         set(plotUIobj.plot1, 'XData', captureData(:, 1), 'YData', captureData(:,plotVI+2))
         set(plotUIobj.axes1, 'XLim',[-inf,inf]);
@@ -109,14 +111,14 @@ elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) > c.Tim
     end
     %update plot
     drawnow update;
-    
+    end
     trigActive = false;
     
     %disp(size(captureData));
     %disp(trigMoment)
     %disp(s.NotifyWhenDataAvailableExceeds)
     
-
+    
     %parameters are define in 'LoopON.m'
     %%%%%% save setting %%%%%%
     if get(hGui.save, 'value') == 1 % Saving

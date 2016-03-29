@@ -401,14 +401,12 @@ function open_plot(hObject, ~, hGui)
 global plotUIobj
 
 if get(hObject,'value')
-    if isstruct(plotUIobj)
         plotUIobj = plot_window(hGui);
-        disp('open')
-    end
+        disp('open plot window')
 else
     if isfield(plotUIobj,'fig')
         close(plotUIobj.fig)
-        clear plotUIobj
+        clearvars -global plotUIobj
     end
 end
 ch_ButtonColor(hObject,[],'g')
