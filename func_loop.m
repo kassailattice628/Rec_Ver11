@@ -181,16 +181,13 @@ elseif recobj.cycleNum > 0
         Looming
         
     elseif strcmp(sobj.pattern, 'Sin')
-        AssertOpenGL
         %GratingGLSL(flag_gabor,flag_sin);
         GratingGLSL(0,1);
         
     elseif strcmp(sobj.pattern, 'Gabor')
-        AssertOpenGL
         GratingGLSL(1,0);
         
     elseif strcmp(sobj.pattern, 'Rect')
-        AssertOpenGL
         GratingGLSL(0,0);
         
     else
@@ -208,6 +205,7 @@ elseif recobj.cycleNum > 0
                 Uni_BW;
                 
             case 'Images'
+                Imgs_stim;
         end
         
         %AddPhoto Sensor (Left, UP in the monitor) for the stimulus timing check
@@ -628,6 +626,37 @@ end
         stim_monitor_reset;
         disp(sobj.vbl_3 - sobj.vbl_2);
     end
+
+%%
+    function Imgs_stim
+        %Select Tiff Image from img folder.
+        sobj.img_i = get_condition(6, sobj.img_sublist, recobj.cycleNum, length(sobj.img_sublist), 1);
+        
+        %get img file name
+        imgFolder = ['Imgs', filesep];
+        imgFileList = dir([imgFolder 'Im*.tif']);
+        imgFileName = char(imgFileList(sobj.img_i).name);
+        imgFileName2 = [imgFolder imgFileName];
+        
+        imgdata = imread(imgFileName2, 'TIFF');
+        imgtex = Screen('MakeTexture',sobj.wPtr,imgdata);
+        
+        % Set stim center_fix
+        fix_center = sobj.center_pos_list(sobj.fixpos,:);
+        stim_center = get_condition(1, sobj.center_pos_list, recobj.cycleNum,...
+            sobj.divnum^2, 2, fix_center);
+        stim_size = get_condition(2, sobj.size_pix_list, recobj.cycleNum,...
+            length(sobj.size_pix_list), 2, sobj.stimsz);
+        %
+        
+        %base_stimRect = [0, 0, size(imgdata,1), size(imgdata,2)];
+        base_stimRect = [0, 0, stim_size];
+        stimRect = CenterRectOnPointd(base_stimRect, stim_center(1), stim_center(2));
+        
+        Screen('DrawTexture', sobj.wPtr, imgtex, [], stimRect);
+        
+    end
+
 %% %%
     function out = get_condition(n, list_mat, cycleNum, list_size, flag_random, fix)
         % generate list order
@@ -643,7 +672,7 @@ end
             out = fix;
         else
             if cycleNum == 1 && n == 1
-                list_order = cell(5,1);
+                list_order = cell(6,1);
             end
             i_in_cycle = mod(cycleNum, list_size);
             if i_in_cycle == 0

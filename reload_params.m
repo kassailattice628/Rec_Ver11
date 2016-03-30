@@ -109,7 +109,9 @@ for n = 1:num_directions
     sobj.concentric_mat(sobj.concentric_mat(:,2)==n, 2) = conc_angle_rad_list(n);
 end
 
-%%
+%% Select Image Set
+sobj.img_list = randperm(256);
+sobj.img_sublist = sobj.img_list(1:sobj.ImageNum)';
 
 %% %%% stim 2 %%%%%
 sobj.shape2 = sobj.shapelist{get(figUIobj.shape2, 'value'), 1};
