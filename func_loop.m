@@ -181,19 +181,17 @@ elseif recobj.cycleNum > 0
         Looming
         
     elseif strcmp(sobj.pattern, 'Sin')
-        %Grating(sin/square, gabor)
         AssertOpenGL
-        %Grating(1,0)
-        GratingGLS(0);
+        %GratingGLSL(flag_gabor,flag_sin);
+        GratingGLSL(0,1);
         
     elseif strcmp(sobj.pattern, 'Gabor')
         AssertOpenGL
-        %Grating(1,1)
-        GratingGLS(1);
+        GratingGLSL(1,0);
         
     elseif strcmp(sobj.pattern, 'Rect')
         AssertOpenGL
-        Grating(0,0)
+        GratingGLSL(0,0);
         
     else
         switch sobj.pattern
@@ -530,132 +528,7 @@ end
     end
 
 %%
-    function Grating(flag_sin, flag_gabor)
-        %get grating direction
-        angle_list = sobj.concentric_angle_deg_list';
-        
-        if get(figUIobj.shiftDir, 'value') < 9
-            flag_rand_dir = 2;
-        elseif get(figUIobj.shiftDir, 'value') == 9 %ord8
-            flag_rand_dir=3;
-        else %randomize
-            flag_rand_dir=1;
-        end
-        angle = get_condition(5, angle_list, recobj.cycleNum,...
-            length(angle_list), flag_rand_dir, angle_list);
-        
-        %%%%%
-        % 0 deg: left->right, 90 deg: up, 180 deg : right->left, 270 deg: down
-        angle = 180 - angle;
-        
-        %%%%%
-        % Set stim center_fix
-        fix_center = sobj.center_pos_list(sobj.fixpos,:);
-        stim_center = get_condition(1, sobj.center_pos_list, recobj.cycleNum,...
-            sobj.divnum^2, 2, fix_center);
-        
-        %%%%%
-        % Set Stim Size fix
-        stim_size = get_condition(2, sobj.size_pix_list, recobj.cycleNum,...
-            length(sobj.size_pix_list), 2, sobj.stimsz);
-        %define half-size of the grating image.
-        texsize = stim_size(1)/2;
-        
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        % cycle/deg
-        gratFreq_list_deg = get(figUIobj.gratFreq, 'string');
-        gratFreq_deg = str2double(gratFreq_list_deg(get(figUIobj.gratFreq,'value')));
-        % deg/cycle
-        deg_per_cycle = 1/gratFreq_deg;
-        % deg/cycle -> pix/cycle
-        pix_per_cycle = Deg2Pix(deg_per_cycle, sobj.MonitorDist, sobj.pixpitch);
-        
-        p = ceil(pix_per_cycle);
-        
-        fr = 2*pi / pix_per_cycle;
-        
-        visiblesize = 2*texsize + 1;
-        
-        x = meshgrid(-texsize:texsize + p, 1);
-        inc = sobj.white - sobj.gray;
-        
-        if flag_sin == 0
-            grating = sobj.gray + inc * square(fr*x);
-        elseif flag_sin == 1
-            grating = sobj.gray + inc * sin(fr*x);
-        end
-        
-        gratingtex = Screen('MakeTexture', sobj.wPtr, grating);
-        
-        if flag_gabor == 1
-            Screen('BlendFunction', sobj.wPtr, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-            %for gabor patch, create two-layer texture
-            mask = ones(2*texsize+1, 2*texsize+1, 2)*sobj.gray;
-            [x,y] = meshgrid(-1*texsize:1*texsize, -1*texsize:1*texsize);
-            scale_patch = texsize*0.4;
-            mask(:,:,2) = sobj.white * (1 - exp(-((x/scale_patch).^2)-((y/scale_patch).^2)));
-            masktex = Screen('MakeTexture', sobj.wPtr, mask);
-        end
-        
-        priorityLevel=MaxPriority(sobj.wPtr);
-        Priority(priorityLevel);
-        
-        dstRect = [0 0 visiblesize visiblesize];
-        dstRect = CenterRectOnPointd(dstRect, stim_center(1), stim_center(2));
-        
-        waitframes = 1;
-        waitduration = waitframes + sobj.m_int;
-        
-        %reset pixels/cycle
-        p = ceil(pix_per_cycle);
-        
-        shiftperframe = sobj.shiftSpd * p * waitduration;
-        
-        
-        %%%%%%%%%%%%%%%%%%
-        %AddPhoto Sensor (Left, UP in the monitor) for the stimulus timing check
-        Screen('FillRect', sobj.wPtr, 255, [0 0 40 40]);
-        
-        % Flip and rap timer
-        [sobj.vbl_2, sobj.OnsetTime_2, sobj.FlipTimeStamp_2] = ...
-            Screen('Flip', sobj.wPtr, sobj.vbl_1+sobj.delayPTB);% put some delay for PTB
-        
-        GratingTime = tic;
-        i = 0;%frame count
-        vbl = 0;%
-        
-        
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        while toc(GratingTime) < sobj.duration
-            xoffset = mod(i * shiftperframe, p);
-            i = i + 1;
-            
-            srcRect = [xoffset, 0, xoffset + visiblesize, visiblesize];
-            
-            %Draw grating texture, rotated by 'angle':
-            Screen('DrawTexture', sobj.wPtr, gratingtex, srcRect, dstRect, angle);
-            if flag_gabor == 1
-                Screen('DrawTexture', sobj.wPtr, masktex, [0 0 visiblesize visiblesize], dstRect, angle);
-            end
-            Screen('FillRect', sobj.wPtr, 255, [0 0 40 40]);
-            vbl = Screen('Flip', sobj.wPtr, vbl + (waitframes - 0.5) * sobj.m_int);
-        end
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        
-        % Prep Stim OFF
-        Screen('FillRect', sobj.wPtr, sobj.bgcol);
-        % After sobj.duration, flip BG color
-        [sobj.vbl_3, sobj.OnsetTime_3, sobj.FlipTimeStamp_3] = ...
-            Screen('Flip', sobj.wPtr, sobj.vbl_2 + sobj.duration);
-        sobj.sFlipTimeStamp_3 = toc(recobj.STARTloop);
-        
-        %GUI stim indicater
-        stim_monitor_reset;
-    end
-
-%%
-    function GratingGLS(flag_gabor)
-        
+    function GratingGLSL(flag_gabor, flag_sin)
         % get grating direction
         angle_list = sobj.concentric_angle_deg_list';
         
@@ -700,15 +573,21 @@ end
         if flag_gabor ==  0
             % 0 deg: left->right, 90 deg: up, 180 deg : right->left, 270 deg: down
             angle = 180 - angle;
+            if flag_sin == 0
+                contrastPreMultiplicator = 1;
+            else
+                contrastPreMultiplicator = 2.55/sobj.stimlumi;
+            end
             %CreateProceduralSineGrating(windowPtr, width, height [, backgroundColorOffset =(0,0,0,0)] [, radius=inf] [, contrastPreMultiplicator=1])
-            gratingtex =  CreateProceduralSineGrating(sobj.wPtr, stim_size(1), stim_size(2), [], []);
+            gratingtex =  CreateProceduralSineGrating(sobj.wPtr, stim_size(1), stim_size(2), [0,0,0,0.0], [], contrastPreMultiplicator);
             Screen('DrawTexture', sobj.wPtr, gratingtex, [], stimRect, angle, [], [], [], [], [], [phase, cycles_per_pix, contrast, 0]);
             
         elseif flag_gabor == 1
             sc = stim_size(1) * 0.16; %sc = 50.0;
             % 0 deg: left->right, 90 deg: up, 180 deg : right->left, 270 deg: down
             angle = angle - 180;
-            gabortex = CreateProceduralGabor(sobj.wPtr, stim_size(1), stim_size(2), [], [0.5 0.5 0.5 0.0]);
+            bgcol = sobj.bgcol/sobj.stimlumi;
+            gabortex = CreateProceduralGabor(sobj.wPtr, stim_size(1), stim_size(2), [], [bgcol bgcol bgcol 0.0]);
             Screen('DrawTexture', sobj.wPtr, gabortex, [], stimRect, angle, [], [], [], [], kPsychDontDoRotation, [phase, cycles_per_pix, sc, contrast, 1, 0, 0, 0]);
             
         end
