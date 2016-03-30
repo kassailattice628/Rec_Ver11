@@ -26,7 +26,6 @@ set(hGui.EXIT, 'CallBack', {@quit_NBA, s});
 %% save %%
 uicontrol('string','File Name','position', [345 705 80 30],'Callback',@SelectSaveFile,'Horizontalalignment','center');
 hGui.save=uicontrol('style','togglebutton','position', [430 705 70 30],'string','Unsave','Callback',@ch_save);
-%hGui.savech=uicontrol('style','popupmenu','position', [430 710 120 20],'string',[{'ALL'},{'Header Only'},{'Header&Photo'}]);
 
 %% plot %%
 hGui.PlotWindowON=uicontrol('style', 'togglebutton', 'string','Plot ON','position',[345 670 65 30],...
@@ -117,7 +116,7 @@ set(hGui.size, 'callback', {@reload_params, Testmode});
 uicontrol('style','text','position',[65 305 30 15],'string','deg','Horizontalalignment','left');
 %Auto-Fill
 hGui.auto_size=uicontrol('style','togglebutton','position',[105 300 70 30],'string','Auto OFF','Horizontalalignment','center');
-set(hGui.auto_size, 'callback', {@autosizing, sobj.MonitorDist, hGui});
+set(hGui.auto_size, 'callback', {@autosizing, hGui});
 
 
 %%% Center/Position %%%
@@ -455,7 +454,7 @@ sobj.stimcol = sobj.stimlumi * sobj.stimRGB;
 sobj.stimcol2 = sobj.stimlumi2 * sobj.stimRGB;
 end
 %%
-function autosizing(hObject, ~, dist, hGui)
+function autosizing(hObject, ~, hGui)
 %automatically set stimulus size to one division
 global sobj
 
@@ -464,12 +463,13 @@ if get(hObject, 'value')==1
     Rx = floor((sobj.ScreenSize(1)/sobj.divnum));
     Ry = floor((sobj.ScreenSize(2)/sobj.divnum));
     sobj.stimsz = [Rx,Ry];
-    szdeg = round(Pix2Deg([sobj.stimsz], dist));
-    set(hGui.size,'string',[num2str(szdeg(1)), ' x ', num2str(szdeg(2))]);
+    stimsz_deg = round(Pix2Deg([sobj.stimsz], sobj.MonitorDist));
+    set(hGui.size,'string',[num2str(stimsz_deg(1)), ' x ', num2str(stimsz_deg(2))]);
     
 elseif get(hObject,'value')==0
     set(hObject,'string','Auto OFF');
-    sobj.stimsz = round(ones(1,2)*Deg2Pix(1,sobj.MonitorDist));% default ‚Í 1“x
+    % seg to 1 deg
+    sobj.stimsz = round(ones(1,2)*Deg2Pix(1, sobj.MonitorDist, sobj.pixpitch));
     set(hGui.size,'string', 1);
 end
 

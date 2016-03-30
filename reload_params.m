@@ -58,9 +58,10 @@ set(figUIobj.delayPTB,'string',['flips = ',num2str(floor(sobj.delayPTB*1000)),' 
 stimsz_deg_list = [0.5; 1; 3; 5; 10];
 sobj.size_pix_list = repmat(round(Deg2Pix(stimsz_deg_list, sobj.MonitorDist, sobj.pixpitch)),1,2);
 
-sobj.stimsz = stim_size(sobj.MonitorDist, figUIobj.size, sobj.pixpitch);
 if get(figUIobj.auto_size,'value')==1
-    set(figUIobj.auto_size,'value',0,'string','Auto OFF')
+    %set(figUIobj.auto_size,'value',0,'string','Auto OFF')
+else
+    sobj.stimsz = stim_size(sobj.MonitorDist, figUIobj.size, sobj.pixpitch);
 end
 
 sobj.shiftDir = get(figUIobj.shiftDir,'value');

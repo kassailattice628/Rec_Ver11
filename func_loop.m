@@ -5,8 +5,8 @@ global recobj
 global sobj
 global s
 global dio
-%global DataSave %save
-%global ParamsSave %save
+global DataSave %save
+global ParamsSave %save
 global lh
 
 %%
@@ -173,53 +173,56 @@ elseif recobj.cycleNum > 0
     % Start AI
     Trigger(Testmode, dio)
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    % Set stim params
     if strcmp(sobj.pattern, '2P_Conc')
-        Conc_2P
-        
-    elseif strcmp(sobj.pattern, 'Looming')
-        Looming
-        
-    elseif strcmp(sobj.pattern, 'Sin')
-        %GratingGLSL(flag_gabor,flag_sin);
-        GratingGLSL(0,1);
-        
-    elseif strcmp(sobj.pattern, 'Gabor')
-        GratingGLSL(1,0);
-        
-    elseif strcmp(sobj.pattern, 'Rect')
-        GratingGLSL(0,0);
+        %Prep, ON, OFF
+        Conc_2P;
         
     else
-        switch sobj.pattern
-            case 'Uni'
+        if strcmp(sobj.pattern, 'Looming')
+            %Prep, ON
+            Looming;
+            
+        elseif strcmp(sobj.pattern, 'Sin') || strcmp(sobj.pattern, 'Gabor') || strcmp(sobj.pattern, 'Rect')
+            %Prep, ON
+            GratingGLSL;
+            
+        else
+            if strcmp(sobj.pattern, 'Uni')
+                %Prep,
                 Uni_stim(2);
                 
-            case 'Size_rand'
+            elseif strcmp(sobj.pattern, 'Size_rand')
+                %Prep,
                 Uni_stim(1);
                 
-            case '1P_Conc'
+            elseif strcmp(sobj.pattern, '1P_Conc')
+                %Prep,
                 Conc_1P;
                 
-            case {'B/W'}
+            elseif strcmp(sobj.pattern, 'B/W')
+                %Prep,
                 Uni_BW;
                 
-            case 'Images'
+            elseif strcmp(sobj.pattern, 'Images')
+                %Prep,
                 Imgs_stim;
+            end
+            
+            %AddPhoto Sensor (Left, UP in the monitor) for the stimulus timing check
+            Screen('FillRect', sobj.wPtr, 255, [0 0 40 40]);
+            
+            %%% stim ON %%%%%%%%%%%%%%%%%%%%%%%%%%%
+            % Flip and rap timer
+            [sobj.vbl_2, sobj.OnsetTime_2, sobj.FlipTimeStamp_2] = ...
+                Screen('Flip', sobj.wPtr, sobj.vbl_1+sobj.delayPTB);% put some delay for PTB
+            
+            sobj.sFlipTimeStamp_2=toc(recobj.STARTloop);
+            disp(['AITrig; ',sobj.pattern, ': #', num2str(recobj.cycleNum)]);
+            stim_monitor;
         end
         
-        %AddPhoto Sensor (Left, UP in the monitor) for the stimulus timing check
-        Screen('FillRect', sobj.wPtr, 255, [0 0 40 40]);
-        
-        % Flip and rap timer
-        [sobj.vbl_2, sobj.OnsetTime_2, sobj.FlipTimeStamp_2] = ...
-            Screen('Flip', sobj.wPtr, sobj.vbl_1+sobj.delayPTB);% put some delay for PTB
-        
-        sobj.sFlipTimeStamp_2=toc(recobj.STARTloop);
-        disp(['AITrig; ',sobj.pattern, ': #', num2str(recobj.cycleNum)]);
-        stim_monitor;
-        
-        % Prep Stim OFF
+        %%% stim OFF %%%%%%%%%%%%%%%%%%%%%%%%%%%
+        % Prep BG
         Screen('FillRect', sobj.wPtr, sobj.bgcol);
         % After sobj.duration, flib BG color
         [sobj.vbl_3, sobj.OnsetTime_3, sobj.FlipTimeStamp_3] = ...
@@ -243,10 +246,10 @@ end
         % Set stim size
         stim_size = get_condition(2, sobj.size_pix_list, recobj.cycleNum,...
             length(sobj.size_pix_list), flag_size_random, sobj.stimsz);
+        disp(sobj.stimsz);
         maxDiameter = max(stim_size) * 1.01;
         % define stim position using center and size
         Rect = CenterRectOnPointd([0,0,stim_size],stim_center(1), stim_center(2));
-        
         
         % Set Luminance
         switch get(figUIobj.lumi,'value')
@@ -276,7 +279,6 @@ end
         %conc_pos_mat(1,i): distance(pix)
         %conc_pos_mat(2,i): angle(rad)
         [concX, concY] = pol2cart(conc_pos_mat(2),conc_pos_mat(1));
-        
         
         % Set stim center fix
         fix_center = sobj.center_pos_list(sobj.fixpos,:);
@@ -386,16 +388,6 @@ end
             vbl = Screen('Flip', sobj.wPtr, vbl + (waitframes - 0.5) * sobj. m_int);
             time = time + sobj.m_int;
         end
-        
-        % Prep Stim OFF
-        Screen('FillRect', sobj.wPtr, sobj.bgcol);
-        % After sobj.duration, flip BG color
-        [sobj.vbl_3, sobj.OnsetTime_3, sobj.FlipTimeStamp_3] = ...
-            Screen('Flip', sobj.wPtr, sobj.vbl_2 + sobj.loomDuration);
-        sobj.sFlipTimeStamp_3 = toc(recobj.STARTloop);
-        
-        %GUI stim indicater
-        stim_monitor_reset;
     end
 
 %%
@@ -492,7 +484,7 @@ end
         duration2 = sobj.delayPTB2 + sobj.duration2;
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        %Screen OFF
+        % stim OFF
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         if duration1 == duration2
             Screen('FillRect', sobj.wPtr, sobj.bgcol);
@@ -526,7 +518,18 @@ end
     end
 
 %%
-    function GratingGLSL(flag_gabor, flag_sin)
+    function GratingGLSL
+        if strcmp(sobj.pattern, 'Sin')
+            flag_gabor = 0;
+            flag_sin = 1;
+        elseif strcmp(sobj.pattern, 'Rect')
+            flag_gabor = 0;
+            flag_sin = 0;
+        elseif strcmp(sobj.pattern, 'Gabor')
+            flag_gabor = 1;
+            flag_sin = 0;
+        end
+        
         % get grating direction
         angle_list = sobj.concentric_angle_deg_list';
         
@@ -610,21 +613,11 @@ end
                 Screen('DrawTexture', sobj.wPtr, gabortex, [], stimRect, angle, [], [], [], [], kPsychDontDoRotation, [phase, cycles_per_pix, sc, contrast, 1, 0, 0, 0]);
             end
             
-            Screen('FillRect', sobj.wPtr, 255, [0 0 40 40]); 
+            Screen('FillRect', sobj.wPtr, 255, [0 0 40 40]);
             Screen('Flip', sobj.wPtr);
         end
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
-        % Prep Stim OFF
-        Screen('FillRect', sobj.wPtr, sobj.bgcol);
-        % After sobj.duration, flip BG color
-        [sobj.vbl_3, sobj.OnsetTime_3, sobj.FlipTimeStamp_3] = ...
-            Screen('Flip', sobj.wPtr, sobj.vbl_2 + sobj.duration);
-        sobj.sFlipTimeStamp_3 = toc(recobj.STARTloop);
-        
-        %GUI stim indicater
-        stim_monitor_reset;
-        disp(sobj.vbl_3 - sobj.vbl_2);
     end
 
 %%
@@ -657,13 +650,14 @@ end
         
     end
 
-%% %%
+%% %% %% %%
     function out = get_condition(n, list_mat, cycleNum, list_size, flag_random, fix)
         % generate list order
         % n is the number of conditions
         % 1: stimulus center, 2: stimulus size, 3: luminace
         % 4: concentric_angle & distance matrix
         % 5: grating angle
+        % 6: tif images
         
         persistent list_order %keep in this function
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

@@ -112,14 +112,8 @@ elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) > c.Tim
     %update plot
     drawnow update;
     end
-    trigActive = false;
+    trigActive = false;    
     
-    %disp(size(captureData));
-    %disp(trigMoment)
-    %disp(s.NotifyWhenDataAvailableExceeds)
-    
-    
-    %parameters are define in 'LoopON.m'
     %%%%%% save setting %%%%%%
     if get(hGui.save, 'value') == 1 % Saving
         DataSave(:,:,trigCount) = captureData;
