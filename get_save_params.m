@@ -14,6 +14,8 @@ save.stim1duration = sobj.duration;
 save.stim1color = sobj.stimcol;
 save.stim1PTBOnTime = sobj.tPTBon;
 save.stim1PTBOffTime = sobj.tPTBoff;
+
+
 %save.stim1CenterLeft = stim1_center(1);
 %save.stim1CenterBottom = stim1_center(2);
 

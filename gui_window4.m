@@ -18,17 +18,20 @@ set(hGui.ONSCR,'Callback', {@OpenSCR, sobj});
 hGui.CLSCR = uicontrol('style','pushbutton','string','CloseScreen','position', [5 670 80 30],'Horizontalalignment','center');
 set(hGui.CLSCR, 'Callback',{@CloseSCR, sobj});
 
-hGui.stim=uicontrol('style','togglebutton','position',[110 705 100 30],'string','Stim-OFF','callback',@ch_stimON,'Horizontalalignment','center');
+hGui.stim = uicontrol('style','togglebutton', 'string', 'Stim-OFF', 'position',[110 705 100 30],'Horizontalalignment','center');
+set(hGui.stim, 'Callback',@ch_stimON);
 
-hGui.EXIT=uicontrol('style', 'pushbutton', 'string','EXIT','position',[680 705 65 30],'FontSize',12,'Horizontalalignment','center');
+hGui.EXIT = uicontrol('style', 'pushbutton', 'string','EXIT','position',[680 705 65 30],'FontSize',12,'Horizontalalignment','center');
 set(hGui.EXIT, 'CallBack', {@quit_NBA, s});
 
 %% save %%
-uicontrol('string','File Name','position', [345 705 80 30],'Callback',@SelectSaveFile,'Horizontalalignment','center');
-hGui.save=uicontrol('style','togglebutton','position', [430 705 70 30],'string','Unsave','Callback',@ch_save);
+hGui.getfname = uicontrol('style', 'pushbutton', 'string','File Name','position', [345 705 80 30],'Horizontalalignment','center');
+set(hGui.getfname, 'Callback',@SelectSaveFile);
+
+hGui.save=uicontrol('style','togglebutton','string','Unsave','position', [430 705 70 30],'Callback',@ch_save);
 
 %% plot %%
-hGui.PlotWindowON=uicontrol('style', 'togglebutton', 'string','Plot ON','position',[345 670 65 30],...
+hGui.PlotWindowON = uicontrol('style', 'togglebutton', 'string','Plot ON','position',[345 670 65 30],...
     'value', 1, 'BackGroundColor', 'g', 'FontSize',12,'Horizontalalignment','center');
 set(hGui.PlotWindowON, 'CallBack', {@open_plot, hGui});
 %%
@@ -44,75 +47,77 @@ hGui.StimMonitor3=uicontrol('style','text','position',[230 715 100 20], 'string'
 
 uipanel('Title','Vis. Stim.1','FontSize',12,'Units', 'Pixels', 'Position',[5 10 195 650]);
 
-uicontrol('style','text','position',[10 620 90 15],'string','Mode (Position)','Horizontalalignment','left');
+uicontrol('style','text','string','Mode (Position)','position',[10 620 90 15],'Horizontalalignment','left');
+
 hGui.mode=uicontrol('style','popupmenu','position',[10 600 90 20],'string',[{'Random'},{'Fix_Rep'},{'Ordered'}]);
 set(hGui.mode, 'callback', @set_fig_pos);
 
-uicontrol('style','text','position',[105 620 70 15],'string','Stim.Pattern','Horizontalalignment','left');
-hGui.pattern=uicontrol('style','popupmenu','position',[105 600 90 20],'string',[{'Uni'},{'Size_rand'},{'1P_Conc'},{'2P_Conc'},{'B/W'},{'Looming'},{'Sin'},{'Rect'},{'Gabor'},{'Images'}]);
-set(hGui.pattern, 'callback', {@set_pattern, Testmode});
-
-%% New stimulus patterns will be added this list and, change stim_pattern and "visual stimulus.m".
+%%
+uicontrol('style','text','string','Stim.Pattern','position',[105 620 70 15],'Horizontalalignment','left');
+hGui.pattern=uicontrol('style','popupmenu','position',[105 600 90 20],...
+    'string',[{'Uni'},{'Size_rand'},{'1P_Conc'},{'2P_Conc'},{'B/W'},{'Looming'},{'Sin'},{'Rect'},{'Gabor'},{'Images'}]);
+set(hGui.pattern, 'callback', @change_stim_pattern);
+% New stimulus patterns will be added this list and, change stim_pattern and "visual stimulus.m".
 
 %%
-uicontrol('style','text','position',[10 575 60 15],'string','Stim.Shape','Horizontalalignment','left');
-hGui.shape=uicontrol('style','popupmenu','position',[10 555 75 20],'string',[{'Rect'},{'Circle'}]);
-%set(hGui.shape, 'callback', {@reload_params, Testmode});
+%%% Stim1 shape
+uicontrol('style','text','string','Stim.Shape','position',[10 575 60 15],'Horizontalalignment','left');
+hGui.shape=uicontrol('style','popupmenu','position',[10 555 75 20],...
+    'string',[{'Rect'},{'Circle'}]);
 set(hGui.shape, 'value', 2); % default: 'FillOval'
 
-uicontrol('style','text','position',[90 575 45 15],'string','Div.Zoom','Horizontalalignment','left');
-hGui.div_zoom = uicontrol('style','edit','position',[90 550 40 25],'string',sobj.div_zoom,'BackGroundColor','w');
-%set(hGui.div_zoom,'callback', {@reload_params, Testmode});
+%%% the nubmer of division for concentric positions
+uicontrol('style','text','string','Div.Zoom','position',[90 575 45 15],'Horizontalalignment','left');
+hGui.div_zoom = uicontrol('style','edit','string',sobj.div_zoom,'position',[90 550 40 25],'BackGroundColor','w');
 
-%distance from the center point
-uicontrol('style','text','position',[140 575 50 15],'string','Dist(deg)','Horizontalalignment','left');
-hGui.dist = uicontrol('style','edit','position',[140 550 40 25],'string',sobj.dist,'BackGroundColor','w');
-%set(hGui.dist, 'callback', {@reload_params, Testmode});
+%%% distance from the center position
+uicontrol('style','text','string','Dist(deg)','position',[140 575 50 15],'Horizontalalignment','left');
+hGui.dist = uicontrol('style','edit','string',sobj.dist,'position',[140 550 40 25],'BackGroundColor','w');
 
 %%% Luminance %%%
-uicontrol('style','text','position',[10 530 55 15],'string','Stim.Lumi','Horizontalalignment','left');
-hGui.stimlumi=uicontrol('style','edit','position',[10 505 45 25],'string',sobj.stimlumi,'BackGroundColor','w');
-%set(hGui.stimlumi, 'callback', {@reload_params, Testmode});
+uicontrol('style','text','string','Stim.Lumi','position',[10 530 55 15],'Horizontalalignment','left');
+hGui.stimlumi=uicontrol('style','edit','string',sobj.stimlumi,'position',[10 505 45 25],'BackGroundColor','w');
+set(hGui.stimlumi, 'callback', @check_stimlumi);
 
-uicontrol('style','text','position',[65 530 45 15],'string','BG.Lumi','Horizontalalignment','left');
-hGui.bgcol=uicontrol('style','edit','position',[65 505 45 25],'string',sobj.bgcol,'BackGroundColor','w');
-%set(hGui.bgcol, 'callback', {@reload_params, Testmode});
+uicontrol('style','text','string','BG.Lumi','position',[65 530 45 15],'Horizontalalignment','left');
+hGui.bgcol=uicontrol('style','edit','string',sobj.bgcol,'position',[65 505 45 25],'BackGroundColor','w');
+set(hGui.bgcol, 'callback', @check_stimlumi);
 
-uicontrol('style','text','position',[120 530 40 15],'string','Lumi','Horizontalalignment','left');
+uicontrol('style','text','string','Lumi','position',[120 530 40 15],'Horizontalalignment','left');
 hGui.lumi=uicontrol('style','popupmenu','position',[120 510 75 20],'string',[{'Fix'},{'Rand'}]);
-set(hGui.lumi, 'callback', @Random_luminance);
-
-%%%%% Durtion %%%
-uicontrol('style','text','position',[10 480 65 15],'string','Stim.Duration','Horizontalalignment','left');
-hGui.flipNum=uicontrol('style','edit','position',[10 455 30 25],'string',sobj.flipNum,'BackGroundColor','w');
-set(hGui.flipNum,'callback', {@reload_params, Testmode});
-sobj.duration = sobj.flipNum*sobj.m_int;
-hGui.stimDur = uicontrol('style','text','position',[45 455 75 15],'string',['flips = ',num2str(floor(sobj.duration*1000)),' ms'],'Horizontalalignment','left');
-
 
 %%% RGB %%% sobj.stimRGB
 uicontrol('style','text','position',[120,480,70,15],'string','Stim.RGB','Horizontalalignment','left');
 hGui.stimRGB = uicontrol('style','popupmenu','position',[120,455,70,25], 'string',[{'BW'},{'Blu'},{'Gre'},{'Yel'},{'Red'}]);
 set(hGui.stimRGB, 'callback', @check_stimRGB);
 
+%%% Durtion 
+uicontrol('style','text','string','Stim.Duration','position',[10 480 65 15],'Horizontalalignment','left');
+hGui.flipNum=uicontrol('style','edit','string',sobj.flipNum,'position',[10 455 30 25],'BackGroundColor','w');
+set(hGui.flipNum,'callback', @check_stim_duration);
+sobj.duration = sobj.flipNum*sobj.m_int;
+hGui.stimDur = uicontrol('style','text','position',[45 455 75 15],'string',['flips = ',num2str(floor(sobj.duration*1000)),' ms'],'Horizontalalignment','left');
 
 %%% Delay Frames
 uicontrol('style','text','position',[10 430 75 15],'string','PTB delay flip ','Horizontalalignment','left');
 hGui.delayPTBflip = uicontrol('style','edit','position',[10 405 30 25],'string',sobj.delayPTBflip,'BackGroundColor','w');
-set(hGui.delayPTBflip,'callback', {@reload_params, Testmode});
+set(hGui.delayPTBflip,'callback', @check_stim_duration);
 sobj.delayPTB = sobj.delayPTBflip*sobj.m_int;
 hGui.delayPTB = uicontrol('style','text','position',[45 405 75 15],'string',['flips = ',num2str(floor(sobj.delayPTB*1000)),' ms'],'Horizontalalignment','left');
 
 %%% Blank Frames
 uicontrol('style','text','position',[10 380 70 15],'string','Set Blank','Horizontalalignment','left');
 hGui.prestimN=uicontrol('style','edit','position',[10 355 30 25],'string',recobj.prestim,'BackGroundColor','w');
-set(hGui.prestimN, 'callback', {@reload_params, Testmode});
-hGui.prestim=uicontrol('style','text','position',[45 355 100 15],'string',['loops = > ',num2str(recobj.prestim * (recobj.rect/1000 + recobj.interval)),' sec'],'Horizontalalignment','left');
+hGui.prestim=uicontrol('style','text','position',[45 355 100 15],...
+    'string',['loops = > ',num2str(recobj.prestim * (recobj.rect/1000 + recobj.interval)),' sec'],'Horizontalalignment','left');
+
+%%% The number of Image stimli
+uicontrol('style', 'text','string','# of Imgs','position',[120 430 70 15],'HorizontalAlignment','left');
+hGui.ImageNum = uicontrol('style','edit','string', sobj.ImageNum, 'position',[120 405 40 25],'BackGroundColor','w');
 
 %%% Size %%%%
 uicontrol('style','text','position',[10 330 130 15],'string','Size (Diamiter)','Horizontalalignment','left');
 hGui.size=uicontrol('style','edit','position',[10 305 50 25],'string','1','BackGroundColor','w');
-set(hGui.size, 'callback', {@reload_params, Testmode});
 uicontrol('style','text','position',[65 305 30 15],'string','deg','Horizontalalignment','left');
 %Auto-Fill
 hGui.auto_size=uicontrol('style','togglebutton','position',[105 300 70 30],'string','Auto OFF','Horizontalalignment','center');
@@ -130,46 +135,36 @@ hGui.fixpos=uicontrol('style','edit','position',[10 205 50 25],'string',sobj.fix
 set(hGui.fixpos,'callback', {@reload_params, Testmode});
 hGui.fixposN = uicontrol('style','text','position',[65 205 130 15],'string',['(<= ' num2str(sobj.divnum) ' x ' num2str(sobj.divnum) ' Matrix)'],'Horizontalalignment','left');
 
-%%% Rotation Direction %%
+%%% Direction for grating stimulis or concentirc positions
 uicontrol('style','text','position',[10 180 180 15],'string','Direction (Grating, Concentric)','Horizontalalignment','left');
 hGui.shiftDir = uicontrol('style','popupmenu','position',[10 155 90 25],'string',[{'0'},{'45'},{'90'},{'135'},{'180'},{'225'},{'270'},{'315'},{'Order8'},{'Rand8'},{'Rand16'}]);
-%set(hGui.shiftDir, 'callback', {@reload_params, Testmode});
 uicontrol('style','text','position',[100 160 25 15],'string','deg','Horizontalalignment','left');
 
-%%%
+%%% Temporal Frequecy for grating stimuli
 uicontrol('style','text','position',[10 135 80 15],'string','Tempo Freq','Horizontalalignment','left');
 hGui.shiftSpd=uicontrol('style','popupmenu','position',[10 110 70 25],'string',[{'0.5'},{'1'},{'2'},{'4'},{'8'}],'value',3,'BackGroundColor','w');
-%set(hGui.shiftSpd, 'callback', {@reload_params, Testmode});
 uicontrol('style','text','position',[75 115 20 15],'string','Hz','Horizontalalignment','left');
+
+%%% Spatial Frequency for grating stimuli
+uicontrol('style','text','position',[10 90 75 15],'string','Spatial Freq','Horizontalalignment','left');
+hGui.gratFreq=uicontrol('style','popupmenu','position',[10 65 100 25],'string',[{'0.01'},{'0.02'},{'0.04'},{'0.08'},{'0.16'},{'0.32'}],'value',4,'BackGroundColor','w');
+uicontrol('style','text','position',[110 70 60 15],'string','cycle/deg','Horizontalalignment','left');
 
 %%% Looming Speed
 uicontrol('style','text','position', [95 140 100 15],'string','Loom Spd/Size', 'Horizontalalignment','left');
 hGui.loomSpd = uicontrol('style', 'popupmenu','position',[95, 115, 70, 25],'string',[{'5'},{'10'},{'20'},{'40'},{'80'},{'160'}]);
-set(hGui.loomSpd,'callback', {@reload_params, Testmode});
+set(hGui.loomSpd,'callback', @check_looming);
 uicontrol('style','text','position',[160 120 35 15],'string','deg/s','Horizontalalignment','left');
 
 % Looming Max Size
 hGui.loomSize = uicontrol('style','edit','position',[105 90 50 25],'string',sobj.looming_Size,'BackGroundColor','w');
-set(hGui.loomSize,'callback', {@reload_params, Testmode});
+set(hGui.loomSize,'callback',  @check_looming);
 uicontrol('style','text','position',[160 90 35 15],'string','deg','Horizontalalignment','left');
 
-
-%%%
-uicontrol('style','text','position',[10 90 75 15],'string','Spatial Freq','Horizontalalignment','left');
-hGui.gratFreq=uicontrol('style','popupmenu','position',[10 65 100 25],'string',[{'0.01'},{'0.02'},{'0.04'},{'0.08'},{'0.16'},{'0.32'}],'value',4,'BackGroundColor','w');
-%set(hGui.gratFreq, 'callback', {@reload_params, Testmode});
-uicontrol('style','text','position',[110 70 60 15],'string','cycle/deg','Horizontalalignment','left');
-
-%%%
+%%% Distance b/w the LCD monitor and eye
 uicontrol('style','text','position',[10 45 70 15],'string','Monior Dist.','Horizontalalignment','left');
 hGui.MonitorDist=uicontrol('style','edit','position',[10 20 50 25],'string',sobj.MonitorDist,'BackGroundColor','y');
-%set(hGui.MonitorDist,'callback', {@reload_params, Testmode});
 uicontrol('style','text','position',[65 20 30 15],'string','mm','Horizontalalignment','left');
-
-%%
-uicontrol('style', 'text','position',[120 430 70 15],'string','# of Imgs','HorizontalAlignment','left');
-hGui.ImageNum = uicontrol('style','edit','position',[120 405 40 25],'string',sobj.ImageNum','BackGroundColor','w');
-%set(hGui.ImageNum, 'callback', {@reload_params, Testmode});
 
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -177,35 +172,34 @@ hGui.ImageNum = uicontrol('style','edit','position',[120 405 40 25],'string',sob
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 uipanel('Title','Vis. Stim.2','FontSize',12,'Units','Pixels','Position',[205 240 195 420]);
 
-uicontrol('style','text','position',[210 620 70 15],'string','Stim.Shape2','Horizontalalignment','left');
+uicontrol('style','text','string','Stim.Shape2','position',[210 620 70 15],'Horizontalalignment','left');
 hGui.shape2=uicontrol('style','popupmenu','position',[210 600 85 20],'string',[{'Rect'},{'Circle'}]);
-%set(hGui.shape2,'callback', {@reload_params, Testmode});
 set(hGui.shape2, 'value', 2);
 
-%%%
-uicontrol('style','text','position',[210 575 60 15],'string','Stim.Lumi2','Horizontalalignment','left');
-hGui.stimlumi2=uicontrol('style','edit','position',[210 550 50 25],'string',sobj.stimlumi2,'BackGroundColor','w');
-%set(hGui.stimlumi2,'callback', {@reload_params, Testmode});
+%%% Luminace
+uicontrol('style','text','string','Stim.Lumi2','position',[210 575 60 15],'Horizontalalignment','left');
+hGui.stimlumi2=uicontrol('style','edit','string',sobj.stimlumi2,'position',[210 550 50 25],'BackGroundColor','w');
+set(hGui.stimlumi2,'callback', @check_stimlumi);
 
-%%%
-uicontrol('style','text','position',[210 525 85 15],'string','Stim.Duration2','Horizontalalignment','left');
-hGui.flipNum2=uicontrol('style','edit','position',[210 500 30 25],'string',sobj.flipNum2,'BackGroundColor','w');
-set(hGui.flipNum2, 'callback', {@reload_params, Testmode});
+%%% Duration
+uicontrol('style','text','string','Stim.Duration2','position',[210 525 85 15],'Horizontalalignment','left');
+hGui.flipNum2=uicontrol('style','edit','string',sobj.flipNum2,'position',[210 500 30 25],'BackGroundColor','w');
+set(hGui.flipNum2, 'callback', @check_stim_duration);
 sobj.duration2 = sobj.flipNum2*sobj.m_int;
-hGui.stimDur2 = uicontrol('style','text','position',[245 500 75 15],'string',['flips = ',num2str(floor(sobj.duration2*1000)),' ms'],'Horizontalalignment','left');
+hGui.stimDur2 = uicontrol('style','text','position',[245 500 75 15],...
+    'string',['flips = ',num2str(floor(sobj.duration2*1000)),' ms'],'Horizontalalignment','left');
 
-%%%
-uicontrol('style','text','position',[210 475 85 15],'string','PTB delay flip2 ','Horizontalalignment','left');
-hGui.delayPTBflip2 = uicontrol('style','edit','position',[210 450 30 25],'string',sobj.delayPTBflip2,'BackGroundColor','w');
-set(hGui.delayPTBflip2, 'callback', {@reload_params, Testmode});
+%%% Delay flip
+uicontrol('style','text','string','PTB delay flip2','position',[210 475 85 15],'Horizontalalignment','left');
+hGui.delayPTBflip2 = uicontrol('style','edit','string',sobj.delayPTBflip2,'position',[210 450 30 25],'BackGroundColor','w');
+set(hGui.delayPTBflip2, 'callback', @check_stim_duration);
 sobj.delayPTB2 = sobj.delayPTBflip2*sobj.m_int;
 hGui.delayPTB2 = uicontrol('style','text','position',[245 450 75 15],'string',['flips = ',num2str(floor(sobj.delayPTB2*1000)),' ms'],'Horizontalalignment','left');
 
-%%%
-uicontrol('style','text','position',[210 425 130 15],'string','Stim.Size2 (Diamiter)','Horizontalalignment','left');
-hGui.size2=uicontrol('style','edit','position',[210 400 50 25],'string','1','BackGroundColor','w');
-%set(hGui.size2, 'callback', {@reload_params, Testmode});
-uicontrol('style','text','position',[265 400 25 15],'string','deg','Horizontalalignment','left');
+%%% Size
+uicontrol('style','text','string','Stim.Size2 (Diamiter)','position',[210 425 130 15],'Horizontalalignment','left');
+hGui.size2=uicontrol('style','edit','string', 1,'position',[210 400 50 25],'BackGroundColor','w');
+uicontrol('style','text','string','deg','position',[265 400 25 15],'Horizontalalignment','left');
 
 %%% Stim2 condition matching to Stim1
 hGui.matchS1S2=uicontrol('style','pushbutton','string','Match S2 & S1','position',[300,595 95, 30],'Horizontalalignment','center');
@@ -215,22 +209,20 @@ set(hGui.matchS1S2, 'callback',{@match_stim2cond, hGui})
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%% Electrophysiology %%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-uipanel('Title', 'Rec Setting','FontSize',12,'Units', 'Pixels', 'Position',[405 10 340 650]);
+uipanel('Title', 'Rec Setting', 'FontSize', 12, 'Units', 'Pixels', 'Position',[405 10 340 650]);
 
 %%
 uicontrol('style','text','position',[410 625 60 15],'string','Samp.Freq','Horizontalalignment','left');
 hGui.sampf=uicontrol('style','edit','position',[410 600 50 25],'string',recobj.sampf/1000,'BackGroundColor','g');
-set(hGui.sampf,'callback', {@reload_params, Testmode});
 uicontrol('style','text','position',[465 600 25 15],'string','kHz','Horizontalalignment','left');
 
 uicontrol('style','text','position',[495 625 50 15],'string','Rec.Time','Horizontalalignment','left');
 hGui.rect=uicontrol('style','edit','position',[495 600 50 25],'string',recobj.rect,'BackGroundColor','g');
-set(hGui.rect,'callback', {@reload_params, Testmode});
+set(hGui.rect,'callback', @check_stim_duration);
 uicontrol('style','text','position',[550 600 20 15],'string','ms','Horizontalalignment','left');
 
 uicontrol('style','text','position',[580 625 80 15],'string','Loop Interval','Horizontalalignment','left');
 hGui.interval=uicontrol('style','edit','position',[580 600 50 25],'string',recobj.interval,'BackGroundColor','g');
-set(hGui.rect,'callback', {@reload_params, Testmode});
 uicontrol('style','text','position',[635 600 25 15],'string','sec','Horizontalalignment','left');
 
 %%
@@ -312,12 +304,10 @@ uipanel('Title','TTL3','FontSize',12,'Units', 'Pixels', 'Position',[205 10 195 2
 %% DIO3 (outer TTL);
 uicontrol('style','text','position',[210 165 50 15],'string','duration','Horizontalalignment','left');
 hGui.durationTTL3=uicontrol('style', 'edit', 'position', [210,140,40,25], 'string',recobj.durationTTL3,'BackGroundColor','w');
-%set(hGui.durationTTL3, 'callback',{@reload_params, Testmode});
 uicontrol('style','text','position',[255 140 20 15],'string','ms','Horizontalalignment','left');
 
 uicontrol('style','text','position',[280 165 50 15],'string','delay','Horizontalalignment','left');
 hGui.delayTTL3=uicontrol('style','edit','position',[280 140 40 25],'string',recobj.delayTTL3,'BackGroundColor','w');
-%set(hGui.delayTTL3,'callback',{@reload_params, Testmode});
 uicontrol('style','text','position',[325 140 20 15],'string','ms','Horizontalalignment','left');
 
 hGui.TTL3=uicontrol('style','togglebutton','position',[210 185 65 30],'string','TTL-OFF','Horizontalalignment','left');
@@ -331,8 +321,7 @@ hGui.loop=uicontrol('style','togglebutton','position',[110 670 100 30],...
     'string','Loop-OFF', 'callback',{@func_loop, hGui, Testmode},'BackGroundColor','r');
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% open plot window
-%plotUIobj = plot_window;
+
 end
 
 
@@ -420,18 +409,6 @@ else
     set(figUIobj.fixpos,'BackGroundColor','w');
 end
 end
-
-%%
-function set_pattern(hObject, ~, Testmode)
-global figUIobj
-
-if get(hObject,'value') ~= 1
-    set(figUIobj.mode, 'value', 2)
-    set(figUIobj.fixpos,'BackGroundColor','g');
-end
-reload_params([], [], Testmode);
-end
-
 
 %%
 function check_stimRGB(hObject,~)
@@ -614,3 +591,5 @@ end
 
 ch_ButtonColor(hObject,[],'g');
 end
+
+%%

@@ -30,6 +30,7 @@ if get(pulse, 'value') == 1 && get(stepf,'value') == 0
     set(Cend, 'BackGroundColor', 'w');
     set(Cstep, 'BackGroundColor', 'w');
     %pulse ON && step ON
+    
 elseif get(pulse, 'value') == 1 && get(stepf,'value') == 1
     switch get(plot, 'value')
         case 0 %Vplot

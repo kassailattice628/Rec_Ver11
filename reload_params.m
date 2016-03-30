@@ -34,14 +34,11 @@ modelist = get(figUIobj.mode,'string'); % {'Random', 'Fix_Rep', 'Ordered'};
 sobj.mode = modelist{get(figUIobj.mode,'value')};
 
 pattern_list = get(figUIobj.pattern,'string');
-%[{'Uni'},{'BW'},{'Sin'},{'Rect'},{'Gabor'},{'Sz_r'},{'Zoom'},{'2Stim'},{'Images'}]
 sobj.pattern = pattern_list{get(figUIobj.pattern,'value'),1};
 switch sobj.pattern
     case {'B/W', 'Gabor'}
     sobj.bgcol = sobj.gray;
 end
-
-
 
 sobj.shape = sobj.shapelist{get(figUIobj.shape, 'value'), 1};
 
@@ -50,10 +47,9 @@ sobj.stimlumi_list = linspace(sobj.bgcol, sobj.stimlumi, 5)';
 
 sobj.flipNum = re_write(figUIobj.flipNum);
 sobj.duration = sobj.flipNum*sobj.m_int;
-set(figUIobj.stimDur,'string',['flips = ',num2str(floor(sobj.duration*1000)),' ms']);
+
 sobj.delayPTBflip = re_write(figUIobj.delayPTBflip);
 sobj.delayPTB = sobj.delayPTBflip*sobj.m_int;
-set(figUIobj.delayPTB,'string',['flips = ',num2str(floor(sobj.delayPTB*1000)),' ms']);
 
 stimsz_deg_list = [0.5; 1; 3; 5; 10];
 sobj.size_pix_list = repmat(round(Deg2Pix(stimsz_deg_list, sobj.MonitorDist, sobj.pixpitch)),1,2);
@@ -80,7 +76,6 @@ if get(figUIobj.shiftDir, 'value') < 9
     sobj.concentric_angle_deg_list = deg_list(get(figUIobj.shiftDir, 'value'));
     conc_angle_rad_list = linspace(0, 2*pi- 2*pi/8, 8);
     num_directions = get(figUIobj.shiftDir, 'value');
-
 else
     if get(figUIobj.shiftDir, 'value') < 11
         % when angle is random or ordered
@@ -97,6 +92,7 @@ else
     sobj.concentric_angle_deg_list = 0: 360/num_directions: 360-360/num_directions;
     conc_angle_rad_list = 0: 2*pi/num_directions: 2*pi-2*pi/num_directions;
 end
+
 %% for BW:Black/White concentric mapping (position + color)
 %1st: distance, 2nd: direction, 3rd: 1=white, 2=black
 sobj.concentric_mat = ones(size(prep_mat,2)*2, 3);
@@ -119,11 +115,9 @@ sobj.shape2 = sobj.shapelist{get(figUIobj.shape2, 'value'), 1};
 sobj.stimlumi2 = re_write(figUIobj.stimlumi2);
 sobj.flipNum2 = re_write(figUIobj.flipNum2);
 sobj.duration2 = sobj.flipNum2*sobj.m_int;
-set(figUIobj.stimDur2,'string',['flips = ',num2str(floor(sobj.duration2*1000)),' ms']);
 
 sobj.delayPTBflip2 = re_write(figUIobj.delayPTBflip2);
 sobj.delayPTB2 = sobj.delayPTBflip2*sobj.m_int;
-set(figUIobj.delayPTB2, 'string',['flips = ',num2str(floor(sobj.delayPTB2*1000)),' ms']);
 
 sobj.stimsz2 = stim_size(sobj.MonitorDist,figUIobj.size2, sobj.pixpitch);
 
@@ -136,31 +130,8 @@ sobj.stimsz2 = stim_size(sobj.MonitorDist,figUIobj.size2, sobj.pixpitch);
 recobj.interval = re_write(figUIobj.interval);
 recobj.sampf = str2double(get(figUIobj.sampf,'string'))*1000;
 
-if strcmp(sobj.pattern,'Looming')
-    % change recording time according to the looming speed.
-    loomSpd_list = get(figUIobj.loomSpd, 'string');
-    
-    sobj.loomSize_pix = stim_size(sobj.MonitorDist, figUIobj.loomSize, sobj.pixpitch);
-    
-    sobj.maxSize_deg = str2double(get(figUIobj.loomSize,'string'));  
-    sobj.loomSpd_deg = str2double(loomSpd_list{get(figUIobj.loomSpd,'value'),1});
-    sobj.loomDuration = sobj.maxSize_deg/sobj.loomSpd_deg;
-    rect_in_sec = (sobj.loomDuration + 1) * 10; % add 1 sec 
-    recobj.rect = 100 * round(rect_in_sec);
-    
-    set(figUIobj.rect, 'string', recobj.rect, 'BackgroundColor', 'y');
-    set(figUIobj.loomSize, 'BackgroundColor', 'g');
-else
-    set(figUIobj.loomSize, 'BackgroundColor', 'w');
-    set(figUIobj.rect, 'BackgroundColor', 'g');
-    recobj.rect = re_write(figUIobj.rect);
-end
 
 recobj.recp = recobj.sampf*recobj.rect/1000;
-
-
-
-
 
 recobj.pulseDuration = re_write(figUIobj.pulseDuration);
 recobj.pulseDelay = re_write(figUIobj.pulseDelay);
@@ -237,8 +208,7 @@ end
 
 
 
-%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%% sub functions %%
+%% %%%%%%%%%%%%%%%%%%%%   sub functions   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%
 function y = re_write(h)
 y = str2double(get(h,'string'));
@@ -259,9 +229,6 @@ for m = 1:sobj.divnum
     centerXY_list((1:sobj.divnum:sobj.divnum^2)+(m-1),2) = center_div(2,m);
 end
 end
-
-%%
-
 
 %%
 function size = stim_size(dist , h, pixpitch)

@@ -5,8 +5,8 @@ global recobj
 global sobj
 global s
 global dio
-global DataSave %save
-global ParamsSave %save
+%global DataSave %save
+%global ParamsSave %save
 global lh
 
 %%
@@ -39,7 +39,7 @@ if get(hObject, 'value')==1 % loop ON
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
         %%%%%%%%%%%%%% loop interval %%%%%%%%%%%%%%%%
-        pause(recobj.rect/1000 + recobj.interval);
+        pause(recobj.interval);
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     end
 else %loop OFF
