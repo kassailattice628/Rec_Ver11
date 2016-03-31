@@ -253,22 +253,24 @@ end
     function Uni_stim(flag_size_random)
         % Set stim center
         fix_center = sobj.center_pos_list(sobj.fixpos,:);
-        stim_center = get_condition(1, sobj.center_pos_list, recobj.cycleNum,...
+        [sobj.stim_center, sobj.center_index] = get_condition(1, sobj.center_pos_list, recobj.cycleNum,...
             sobj.divnum^2, get(figUIobj.mode,'value'), fix_center);
-        
-        sobj.position = intersect(...
-            find(sobj.center_pos_list(:,1)==stim_center(1)),...
-            find(sobj.center_pos_list(:,2)==stim_center(2)));
-        
+        if get(figUIobj.mode,'value') == 2
+            sobj.center_index = sobj.fixpos;
+        end
         
         % Set stim size
-        stim_size = get_condition(2, sobj.size_pix_list, recobj.cycleNum,...
+        [sobj.stim_size, sobj.size_index] = get_condition(2, sobj.size_pix_list, recobj.cycleNum,...
             length(sobj.size_pix_list), flag_size_random, sobj.stimsz);
-        figUIobj.stim_size = stim_size;
+        if flag_size_random == 2
+            sobj.size_deg = str2double(get(figUIobj.stimsz, 'string'));
+        else
+            sobj.size_deg = sobj.stimsz_deg_list(sobj.size_index);
+        end
         
-        maxDiameter = max(stim_size) * 1.01;
+        maxDiameter = max(sobj.stim_size) * 1.01;
         % define stim position using center and size
-        Rect = CenterRectOnPointd([0,0,stim_size],stim_center(1), stim_center(2));
+        Rect = CenterRectOnPointd([0,0,sobj.stim_size], sobj.stim_center(1), sobj.stim_center(2));
         
         % Set Luminance
         switch get(figUIobj.lumi,'value')
@@ -277,11 +279,11 @@ end
             case 2
                 flag_lumi_random = 1; %randomize
         end
-        lumi = get_condition(3, sobj.stimlumi_list, recobj.cycleNum,...
+        sobj.lumi = get_condition(3, sobj.stimlumi_list, recobj.cycleNum,...
             length(sobj.stimlumi_list), flag_lumi_random, sobj.stimlumi);
         
         %PrepScreen Screen
-        Screen(sobj.shape, sobj.wPtr, lumi, Rect, maxDiameter);
+        Screen(sobj.shape, sobj.wPtr, sobj.lumi, Rect, maxDiameter);
     end
 
 %%
@@ -292,32 +294,31 @@ end
         else
             flag_random_dir = 1;%random distance, direction
         end
-        conc_pos_mat = get_condition(4, sobj.concentric_mat(1:end/2,:), recobj.cycleNum,...
+        [conc_pos_mat, sobj.conc_index] = get_condition(4, sobj.concentric_mat(1:end/2,:), recobj.cycleNum,...
             size(sobj.concentric_mat,1)/2, flag_random_dir);
         
         %conc_pos_mat(1,i): distance(pix)
         %conc_pos_mat(2,i): angle(rad)
         [concX, concY] = pol2cart(conc_pos_mat(2),conc_pos_mat(1));
         
-        % Set stim center fix
+        % Set stim center
         fix_center = sobj.center_pos_list(sobj.fixpos,:);
-        stim_center = get_condition(1, sobj.center_pos_list, recobj.cycleNum,...
-            sobj.divnum^2, 2, fix_center);
-        
-        sobj.position = intersect(...
-            find(sobj.center_pos_list(:,1)==stim_center(1)),...
-            find(sobj.center_pos_list(:,2)==stim_center(2)));
+        [sobj.stim_center, sobj.center_index] = get_condition(1, sobj.center_pos_list, recobj.cycleNum,...
+            sobj.divnum^2, get(figUIobj.mode,'value'), fix_center);
+        if get(figUIobj.mode,'value') == 2
+            sobj.center_index = sobj.fixpos;
+        end
         
         % if conc_pos_mat is defined, changes stim_cneter position
-        stim_center = [stim_center(1) + concX, stim_center(2) - concY];
+        sobj.stim_center = [sobj.stim_center(1) + concX, sobj.stim_center(2) - concY];
         
         % Set stim size
-        stim_size = get_condition(2, sobj.size_pix_list, recobj.cycleNum,...
-            length(sobj.size_pix_list), 2, sobj.stimsz);
+        sobj.stim_size = sobj.stimsz;
+        sobj.size_deg = str2double(get(figUIobj.stimsz, 'string'));
         maxDiameter = max(stim_size) * 1.01;
         
         % define stim position using center and size
-        Rect = CenterRectOnPointd([0,0,stim_size],stim_center(1), stim_center(2));
+        Rect = CenterRectOnPointd([0,0, sobj.stim_size], sobj.stim_center(1), sobj.stim_center(2));
         
         % Set Luminance
         switch get(figUIobj.lumi,'value')
@@ -326,11 +327,11 @@ end
             case 2
                 flag_lumi_random = 1; %randomize
         end
-        lumi = get_condition(3, sobj.stimlumi_list, recobj.cycleNum,...
+        sobj.lumi = get_condition(3, sobj.stimlumi_list, recobj.cycleNum,...
             length(sobj.stimlumi_list), flag_lumi_random, sobj.stimlumi);
         
         %PrepScreen Screen
-        Screen(sobj.shape, sobj.wPtr, lumi, Rect, maxDiameter);
+        Screen(sobj.shape, sobj.wPtr, sobj.lumi, Rect, maxDiameter);
     end
 
 %%
@@ -341,43 +342,42 @@ end
         else
             flag_random_dir = 1;%random distance, direction
         end
-        conc_pos_mat = get_condition(4, sobj.concentric_mat, recobj.cycleNum,...
+        [conc_pos_mat, sobj.conc_index] = get_condition(4, sobj.concentric_mat, recobj.cycleNum,...
             size(sobj.concentric_mat,1), flag_random_dir);
         
         %conc_pos_mat(1,i): distance(pix)
         %conc_pos_mat(2,i): angle(rad)
         [concX, concY] = pol2cart(conc_pos_mat(2),conc_pos_mat(1));
         
-        % Set stim center fix
+        % Set stim center
         fix_center = sobj.center_pos_list(sobj.fixpos,:);
-        stim_center = get_condition(1, sobj.center_pos_list, recobj.cycleNum,...
-            sobj.divnum^2, 2, fix_center);
-        
-        sobj.position = intersect(...
-            find(sobj.center_pos_list(:,1)==stim_center(1)),...
-            find(sobj.center_pos_list(:,2)==stim_center(2)));
+        [sobj.stim_center, sobj.center_index] = get_condition(1, sobj.center_pos_list, recobj.cycleNum,...
+            sobj.divnum^2, get(figUIobj.mode,'value'), fix_center);
+        if get(figUIobj.mode,'value') == 2
+            sobj.center_index = sobj.fixpos;
+        end
         
         % if conc_pos_mat is defined, changes stim_cneter position
-        stim_center = [stim_center(1) + concX, stim_center(2) - concY];
+        sobj.stim_center = [sobj.stim_center(1) + concX, sobj.stim_center(2) - concY];
         
         % Set stim size
-        stim_size = get_condition(2, sobj.size_pix_list, recobj.cycleNum,...
-            length(sobj.size_pix_list), 2, sobj.stimsz);
+        stim_size = sobj.stimsz;
+        sobj.size_deg = str2double(get(figUIobj.stimsz, 'string'));
         maxDiameter = max(stim_size) * 1.01;
         
         % define stim position using center and size
-        Rect = CenterRectOnPointd([0,0,stim_size],stim_center(1), stim_center(2));
+        Rect = CenterRectOnPointd([0,0,sobj.stim_size], sobj.stim_center(1), sobj.stim_center(2));
         
         % Set Luminance
         switch conc_pos_mat(3)
             case 1
-                lumi = 255;
+                sobj.lumi = 255;
             case 2
-                lumi = 0;
+                sobj.lumi = 0;
         end
         
         %PrepScreen Screen
-        Screen(sobj.shape, sobj.wPtr, lumi, Rect, maxDiameter);
+        Screen(sobj.shape, sobj.wPtr, sobj.lumi, Rect, maxDiameter);
     end
 
 %%
@@ -386,19 +386,19 @@ end
         time =  0;
         waitframes =  1;
         
-        stim_center = sobj.center_pos_list(sobj.fixpos,:); %fixed position
-        
-        sobj.position = intersect(...
-            find(sobj.center_pos_list(:,1)==stim_center(1)),...
-            find(sobj.center_pos_list(:,2)==stim_center(2)));
+        % Set stim center as fixed position
+        sobj.stim_center = sobj.center_pos_list(sobj.fixpos,:); %fixed position
+        sobj.center_index = sobj.fixpos;
         
         stim_size =  [0, 0, sobj.loomSize_pix];% max_Stim_Size
+        sobj.stim_size = sobj.loomingSize_pix;
         
         topPriorityLevel =  MaxPriority(sobj.wPtr);
         Priority(topPriorityLevel);
         
         %Prep first frame
-        Rect = CenterRectOnPointd(stim_size .* 0, stim_center(1), stim_center(2));
+        Rect = CenterRectOnPointd(stim_size .* 0, sobj.stim_center(1), sobj.stim_center(2));
+        
         Screen(sobj.shape, sobj.wPtr, 255, Rect);
         Screen('FillRect', sobj.wPtr, 255, [0 0 40 40]);
         
@@ -415,7 +415,7 @@ end
         while toc(looming_timer) < sobj.loomDuration
             %scaleFactor =  abs(amp * sin(angFreq * time + startPhase));
             scaleFactor = time/sobj.loomDuration;
-            Rect = CenterRectOnPointd(stim_size .* scaleFactor, stim_center(1), stim_center(2));
+            Rect = CenterRectOnPointd(stim_size .* scaleFactor, sobj.stim_center(1), sobj.stim_center(2));
             Screen(sobj.shape, sobj.wPtr, 255, Rect);
             Screen('FillRect', sobj.wPtr, 255, [0 0 40 40]);
             vbl = Screen('Flip', sobj.wPtr, vbl + (waitframes - 0.5) * sobj. m_int);
@@ -430,7 +430,7 @@ end
         else
             flag_random_dir = 1;%random distance, direction
         end
-        conc_pos_mat = get_condition(4, sobj.concentric_mat(1:end/2,:), recobj.cycleNum,...
+        [conc_pos_mat, sobj.conc_index] = get_condition(4, sobj.concentric_mat(1:end/2,:), recobj.cycleNum,...
             size(sobj.concentric_mat,1)/2, flag_random_dir);
         %conc_pos_mat(1,i): distance(pix)
         %conc_pos_mat(2,i): angle(rad)
@@ -438,31 +438,28 @@ end
         
         % Set stim center_fix
         fix_center = sobj.center_pos_list(sobj.fixpos,:);
-        stim_center = get_condition(1, sobj.center_pos_list, recobj.cycleNum,...
+        [sobj.stim_center, sobj.center_index] = get_condition(1, sobj.center_pos_list, recobj.cycleNum,...
             sobj.divnum^2, 2, fix_center);
-        
-        sobj.position = intersect(...
-            find(sobj.center_pos_list(:,1)==stim_center(1)),...
-            find(sobj.center_pos_list(:,2)==stim_center(2)));
+        sobj.center_index = sobj.fixpos;
         
         % if conc_pos_mat is defined, changes stim_cneter position
-        stim_center2 = [stim_center(1) + concX, stim_center(2) - concY];
+        sobj.stim_center2 = [sobj.stim_center(1) + concX, sobj.stim_center(2) - concY];
         
         % Set stim size, size(fix)
-        stim_size = get_condition(2, sobj.size_pix_list, recobj.cycleNum,...
-            length(sobj.size_pix_list), 2, sobj.stimsz);
+        sobj.stim_size = sobj.stimsz;
+        sobj.size_deg = str2double(get(figUIobj.stimsz, 'string'));
         maxDiameter = max(stim_size) * 1.01;
         
-        stim_size2 = get_condition(2, sobj.size_pix_list, recobj.cycleNum,...
-            length(sobj.size_pix_list), 2, sobj.stimsz2);
-        maxDiameter2 = max(stim_size2) * 1.01;
+        sobj.stim_size2 = sobj.stimsz2;
+        sobj.size_deg2 = str2double(get(figUIobj.stimsz2, 'string'));
+        maxDiameter2 = max(sobj.stim_size2) * 1.01;
         
         % define stim position using center and size
         
         
         % define stim position using center and size
-        Rect = CenterRectOnPointd([0,0,stim_size],stim_center(1), stim_center(2));
-        Rect2 = CenterRectOnPointd([0,0,stim_size2],stim_center2(1), stim_center2(2));
+        Rect = CenterRectOnPointd([0,0, sobj.stim_size], sobj.stim_center(1), sobj.stim_center(2));
+        Rect2 = CenterRectOnPointd([0,0, sobj.stim_size2], sobj.stim_center2(1), sobj.stim_center2(2));
         
         % Set Luminance
         switch get(figUIobj.lumi,'value')
@@ -471,23 +468,23 @@ end
             case 2
                 flag_lumi_random = 1; %randomize
         end
-        lumi = get_condition(3, sobj.stimlumi_list, recobj.cycleNum,...
+        sobj.lumi = get_condition(3, sobj.stimlumi_list, recobj.cycleNum,...
             length(sobj.stimlumi_list), flag_lumi_random, sobj.stimlumi);
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         %PrepScreen Screen by OffscreenTexture
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % Stim1 only
         Stim1 = Screen('OpenOffscreenWindow', sobj.ScrNum, sobj.bgcol);
-        Screen(sobj.shape, Stim1, lumi, Rect, maxDiameter);
+        Screen(sobj.shape, Stim1, sobj.lumi, Rect, maxDiameter);
         Screen('FillRect', Stim1, 180, [0 0 40 40]);
         % Stim2 only
         Stim2 = Screen('OpenOffscreenWindow', sobj.ScrNum, sobj.bgcol);
-        Screen(sobj.shape2, Stim2, lumi, Rect2, maxDiameter2);
+        Screen(sobj.shape2, Stim2, sobj.lumi, Rect2, maxDiameter2);
         Screen('FillRect', Stim2, 180, [0 0 40 40]);
         % Both Stim1 & Stim2
         Stim3 = Screen('OpenOffscreenWindow', sobj.ScrNum, sobj.bgcol);
-        Screen(sobj.shape, Stim3, lumi, Rect);
-        Screen(sobj.shape2, Stim3, sobj.stimcol2, Rect2, max([maxDiameter, maxDiameter2]));
+        Screen(sobj.shape, Stim3, sobj.lumi, Rect);
+        Screen(sobj.shape2, Stim3, sobj.lumi, Rect2, max([maxDiameter, maxDiameter2]));
         Screen('FillRect', Stim3, 255, [0 0 40 40]);
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -572,36 +569,36 @@ end
         
         if get(figUIobj.shiftDir, 'value') < 9
             flag_rand_dir = 2;
+            angle_list = sobj.concentric_angle_deg_list(get(figUIobj.shiftDir, 'value'));
         elseif get(figUIobj.shiftDir, 'value') == 9 %ord8
             flag_rand_dir=3;
         else %randomize
             flag_rand_dir=1;
         end
         
-        angle = get_condition(5, angle_list, recobj.cycleNum,...
+        [sobj.angle, sobj.angle_index] = get_condition(5, angle_list, recobj.cycleNum,...
             length(angle_list), flag_rand_dir, angle_list);
         
-        % Set stim center_fix
+        % Set stim center
         fix_center = sobj.center_pos_list(sobj.fixpos,:);
-        stim_center = get_condition(1, sobj.center_pos_list, recobj.cycleNum,...
-            sobj.divnum^2, get(figUIobj.mode, 'value'), fix_center);
+        [sobj.stim_center, sobj.center_index] = get_condition(1, sobj.center_pos_list, recobj.cycleNum,...
+            sobj.divnum^2, get(figUIobj.mode,'value'), fix_center);
+        if get(figUIobj.mode,'value') == 2
+            sobj.center_index = sobj.fixpos;
+        end
         
-        sobj.position = intersect(...
-            find(sobj.center_pos_list(:,1)==stim_center(1)),...
-            find(sobj.center_pos_list(:,2)==stim_center(2)));
-        
-        % Set Stim Size fix
-        %stim_size = get_condition(2, sobj.size_pix_list, recobj.cycleNum, length(sobj.size_pix_list), 2, sobj.stimsz);
-        stim_size = sobj.stimsz;
+        % Set stim size
+        sobj.stim_size = sobj.stimsz;
+        sobj.size_deg = str2double(get(figUIobj.stimsz, 'string'));
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
         % get  Spatial frequency of the grating
         % cycles/deg
         gratFreq_list_deg = get(figUIobj.gratFreq, 'string');
-        gratFreq_deg = str2double(gratFreq_list_deg(get(figUIobj.gratFreq,'value')));
+        sobj.gratFreq_deg = str2double(gratFreq_list_deg(get(figUIobj.gratFreq,'value')));
         % deg/cyclesca
-        deg_per_cycle = 1/gratFreq_deg;
+        deg_per_cycle = 1/sobj.gratFreq_deg;
         % deg/cycle -> pix/cycle
         pix_per_cycle = Deg2Pix(deg_per_cycle, sobj.MonitorDist, sobj.pixpitch);
         cycles_per_pix = 1/pix_per_cycle;
@@ -615,7 +612,7 @@ end
         % generate grating texture
         if flag_gabor ==  0
             % 0 deg: left->right, 90 deg: up, 180 deg : right->left, 270 deg: down
-            angle = 180 - angle;
+            angle = 180 - sobj.angle;
             if flag_sin == 0
                 contrastPreMultiplicator = 1;
             else
@@ -635,7 +632,7 @@ end
         elseif flag_gabor == 1
             sc = stim_size(1) * 0.16; %sc = 50.0;
             % 0 deg: left->right, 90 deg: up, 180 deg : right->left, 270 deg: down
-            angle = angle - 180;
+            angle = sobj.angle - 180;
             bgcol = sobj.bgcol/sobj.stimlumi;
             gabortex = CreateProceduralGabor(sobj.wPtr, stim_size(1), stim_size(2), [], [bgcol bgcol bgcol 0.0]);
             Screen('DrawTexture', sobj.wPtr, gabortex, [], stimRect, angle, [], [], [], [], kPsychDontDoRotation, [phase, cycles_per_pix, sc, contrast, 1, 0, 0, 0]);
@@ -681,29 +678,24 @@ end
         imgdata = imread(imgFileName2, 'TIFF');
         imgtex = Screen('MakeTexture',sobj.wPtr,imgdata);
         
-        % Set stim center_fix
-        fix_center = sobj.center_pos_list(sobj.fixpos,:);
-        stim_center = get_condition(1, sobj.center_pos_list, recobj.cycleNum,...
-            sobj.divnum^2, 2, fix_center);
+        % Set stim center as fixed position
+        sobj.stim_center = sobj.center_pos_list(sobj.fixpos,:); %fixed position
+        sobj.center_index = sobj.fixpos;
         
-        sobj.position = intersect(...
-            find(sobj.center_pos_list(:,1)==stim_center(1)),...
-            find(sobj.center_pos_list(:,2)==stim_center(2)));
         
-        stim_size = get_condition(2, sobj.size_pix_list, recobj.cycleNum,...
-            length(sobj.size_pix_list), 2, sobj.stimsz);
+        sobj.stim_size = sobj.stimsz;
+        sobj.size_deg = str2double(get(figUIobj.stimsz, 'string'));
         %
-        
-        %base_stimRect = [0, 0, size(imgdata,1), size(imgdata,2)];
-        base_stimRect = [0, 0, stim_size];
-        stimRect = CenterRectOnPointd(base_stimRect, stim_center(1), stim_center(2));
+       
+        base_stimRect = [0, 0, sobj.stim_size];
+        stimRect = CenterRectOnPointd(base_stimRect, sobj.stim_center(1), sobj.stim_center(2));
         
         Screen('DrawTexture', sobj.wPtr, imgtex, [], stimRect);
         
     end
 
-%% %% %% %%
-    function out = get_condition(n, list_mat, cycleNum, list_size, flag_random, fix)
+%% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% 
+    function [out, index] = get_condition(n, list_mat, cycleNum, list_size, flag_random, fix)
         % generate list order
         % n is the number of conditions
         % 1: stimulus center, 2: stimulus size, 3: luminace
@@ -715,12 +707,15 @@ end
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         if flag_random == 2 %fixed condition
             %list_order{n} = fix * ones(1,list_size);
+            index = [];
             out = fix;
+            
         else
             if cycleNum == 1 && n == 1
                 list_order = cell(6,1);
             end
             i_in_cycle = mod(cycleNum, list_size);
+            
             if i_in_cycle == 0
                 i_in_cycle = list_size;
                 disp('reset_rand_cycle')
@@ -733,7 +728,8 @@ end
                         list_order{n,1} = 1:list_size;
                 end
             end
-            out = list_mat(list_order{n,1}(i_in_cycle),:);
+            index = list_order{n,1}(i_in_cycle);
+            out = list_mat(index,:);
         end
     end
 
