@@ -43,6 +43,8 @@ end
 sobj.shape = sobj.shapelist{get(figUIobj.shape, 'value'), 1};
 
 sobj.stimlumi = re_write(figUIobj.stimlumi);
+sobj.stimcol = sobj.stimlumi * sobj.stimRGB;
+
 sobj.stimlumi_list = linspace(sobj.bgcol, sobj.stimlumi, 5)';
 
 sobj.flipNum = re_write(figUIobj.flipNum);
@@ -113,6 +115,8 @@ sobj.img_sublist = sobj.img_list(1:sobj.ImageNum)';
 %% %%% stim 2 %%%%%
 sobj.shape2 = sobj.shapelist{get(figUIobj.shape2, 'value'), 1};
 sobj.stimlumi2 = re_write(figUIobj.stimlumi2);
+sobj.stimcol2 = sobj.stimlumi2 * sobj.stimRGB;
+
 sobj.flipNum2 = re_write(figUIobj.flipNum2);
 sobj.duration2 = sobj.flipNum2*sobj.m_int;
 

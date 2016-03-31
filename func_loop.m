@@ -21,7 +21,7 @@ if get(hObject, 'value')==1 % loop ON
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     while get(hObject,'value') == 1
         
-        if Testmode == 1 && recobj.cycleNum == 3
+        if Testmode == 1 && recobj.cycleNum == 5
             sca;
             set(hObject, 'value', 0);
             break;
@@ -38,10 +38,9 @@ if get(hObject, 'value')==1 % loop ON
         MainLoop(dio, hGui, Testmode)
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
-        %%%%%%%%%%%%%% loop interval %%%%%%%%%%%%%%%%
-        pause(recobj.interval);
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     end
+    
+    
 else %loop OFF
     set(hObject,'string', 'Loop-Off', 'BackGroundColor', 'r');
     % stop loop & data acquiring
@@ -74,8 +73,8 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function MainLoop(dio, hGui, Testmode)
 % Main structure%
-
 global s
+global recobj
 
 % ready to start DAQ
 if Testmode == 0
@@ -91,10 +90,15 @@ try %error check
         case 0
             % start timer and start FV
             Trigger(Testmode, dio);
+            
+            % loop interval %
+            pause(recobj.rect/1000 + recobj.interval);
+            
+            
             %%%%%%%%%%%%%%%%%%%% Visual Stimulus ON %%%%%%%%%%%%%%%%%%%%%
         case 1
             % start timer, start FV and start Stim
-            AssertOpenGL;
+            % AssertOpenGL;
             VisStim(Testmode, dio);
     end
 catch ME1
@@ -116,20 +120,19 @@ global sobj
 Screen('FillRect', sobj.wPtr, sobj.bgcol); %presenting background
 
 %ScreenON;
-[sobj.vbl_1,sobj. OnsetTime_1, sobj.FlipTimeStamp_1] = Screen('Flip', sobj.wPtr);
+[sobj.vbl_1, sobj. OnsetTime_1, sobj.FlipTimeStamp_1] = Screen('Flip', sobj.wPtr);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % timer start, digital out
 if recobj.cycleNum == -recobj.prestim +1
     recobj.STARTloop = tic;
     generate_trigger([1,1]); %Start AI
-    disp('Start AI & Imaging')
 else
     recobj.tRec = toc(recobj.STARTloop);
     generate_trigger([1,0]);
-    disp('Trig AI')
 end
 %reset Trigger level
 generate_trigger([0,0]);
+
 
 %%nested%%
     function generate_trigger(pattern)
@@ -165,19 +168,25 @@ global sobj
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%Start Recording, with/without Visual Stimulus
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-if recobj.cycleNum <= 0
-    %prestimulus
+if recobj.cycleNum <= 0 % prestimulus
+    % Start AI
     Trigger(Testmode, dio)
+    stim_monitor;
+    pause_time = recobj.rect/1000 + recobj.interval;
+    pause(pause_time);
     
-elseif recobj.cycleNum > 0
+elseif recobj.cycleNum > 0 %StimON
     % Start AI
     Trigger(Testmode, dio)
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     if strcmp(sobj.pattern, '2P_Conc')
         %Prep, ON, OFF
         Conc_2P;
-        
+        time1 = recobj.rect/1000 - (sobj.vbl_3-sobj.vbl_1);
+        time2 = recobj.rect/1000 - (sobj.vbl2_3-sobj.vbl_1);
+        pause_time = min([time1,time2] + recobj.interval);
     else
+        
         if strcmp(sobj.pattern, 'Looming')
             %Prep, ON
             Looming;
@@ -231,7 +240,10 @@ elseif recobj.cycleNum > 0
         
         %GUI stim indicater
         stim_monitor_reset;
+        time1 = recobj.rect/1000 - (sobj.vbl_3-sobj.vbl_1);
+        pause_time = time1 + recobj.interval;
     end
+    pause(pause_time);
 end
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -243,10 +255,17 @@ end
         fix_center = sobj.center_pos_list(sobj.fixpos,:);
         stim_center = get_condition(1, sobj.center_pos_list, recobj.cycleNum,...
             sobj.divnum^2, get(figUIobj.mode,'value'), fix_center);
+        
+        sobj.position = intersect(...
+            find(sobj.center_pos_list(:,1)==stim_center(1)),...
+            find(sobj.center_pos_list(:,2)==stim_center(2)));
+        
+        
         % Set stim size
         stim_size = get_condition(2, sobj.size_pix_list, recobj.cycleNum,...
             length(sobj.size_pix_list), flag_size_random, sobj.stimsz);
-        disp(sobj.stimsz);
+        figUIobj.stim_size = stim_size;
+        
         maxDiameter = max(stim_size) * 1.01;
         % define stim position using center and size
         Rect = CenterRectOnPointd([0,0,stim_size],stim_center(1), stim_center(2));
@@ -284,6 +303,10 @@ end
         fix_center = sobj.center_pos_list(sobj.fixpos,:);
         stim_center = get_condition(1, sobj.center_pos_list, recobj.cycleNum,...
             sobj.divnum^2, 2, fix_center);
+        
+        sobj.position = intersect(...
+            find(sobj.center_pos_list(:,1)==stim_center(1)),...
+            find(sobj.center_pos_list(:,2)==stim_center(2)));
         
         % if conc_pos_mat is defined, changes stim_cneter position
         stim_center = [stim_center(1) + concX, stim_center(2) - concY];
@@ -330,6 +353,10 @@ end
         stim_center = get_condition(1, sobj.center_pos_list, recobj.cycleNum,...
             sobj.divnum^2, 2, fix_center);
         
+        sobj.position = intersect(...
+            find(sobj.center_pos_list(:,1)==stim_center(1)),...
+            find(sobj.center_pos_list(:,2)==stim_center(2)));
+        
         % if conc_pos_mat is defined, changes stim_cneter position
         stim_center = [stim_center(1) + concX, stim_center(2) - concY];
         
@@ -360,6 +387,11 @@ end
         waitframes =  1;
         
         stim_center = sobj.center_pos_list(sobj.fixpos,:); %fixed position
+        
+        sobj.position = intersect(...
+            find(sobj.center_pos_list(:,1)==stim_center(1)),...
+            find(sobj.center_pos_list(:,2)==stim_center(2)));
+        
         stim_size =  [0, 0, sobj.loomSize_pix];% max_Stim_Size
         
         topPriorityLevel =  MaxPriority(sobj.wPtr);
@@ -374,6 +406,7 @@ end
         [sobj.vbl_2, sobj.OnsetTime_2, sobj.FlipTimeStamp_2] =...
             Screen('Flip', sobj.wPtr, sobj.vbl_1+sobj.delayPTB);% put some delay for PTB
         sobj.sFlipTimeStamp_2=toc(recobj.STARTloop);
+        stim_monitor
         vbl=sobj.vbl_2;
         
         
@@ -407,6 +440,10 @@ end
         fix_center = sobj.center_pos_list(sobj.fixpos,:);
         stim_center = get_condition(1, sobj.center_pos_list, recobj.cycleNum,...
             sobj.divnum^2, 2, fix_center);
+        
+        sobj.position = intersect(...
+            find(sobj.center_pos_list(:,1)==stim_center(1)),...
+            find(sobj.center_pos_list(:,2)==stim_center(2)));
         
         % if conc_pos_mat is defined, changes stim_cneter position
         stim_center2 = [stim_center(1) + concX, stim_center(2) - concY];
@@ -540,17 +577,22 @@ end
         else %randomize
             flag_rand_dir=1;
         end
+        
         angle = get_condition(5, angle_list, recobj.cycleNum,...
             length(angle_list), flag_rand_dir, angle_list);
         
         % Set stim center_fix
         fix_center = sobj.center_pos_list(sobj.fixpos,:);
         stim_center = get_condition(1, sobj.center_pos_list, recobj.cycleNum,...
-            sobj.divnum^2, 2, fix_center);
+            sobj.divnum^2, get(figUIobj.mode, 'value'), fix_center);
+        
+        sobj.position = intersect(...
+            find(sobj.center_pos_list(:,1)==stim_center(1)),...
+            find(sobj.center_pos_list(:,2)==stim_center(2)));
         
         % Set Stim Size fix
-        stim_size = get_condition(2, sobj.size_pix_list, recobj.cycleNum,...
-            length(sobj.size_pix_list), 2, sobj.stimsz);
+        %stim_size = get_condition(2, sobj.size_pix_list, recobj.cycleNum, length(sobj.size_pix_list), 2, sobj.stimsz);
+        stim_size = sobj.stimsz;
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
@@ -579,8 +621,15 @@ end
             else
                 contrastPreMultiplicator = 2.55/sobj.stimlumi;
             end
+            
+            if get(figUIobj.shape, 'value')==1
+                radius = [];
+            else
+                radius = stim_size(1)/2;
+            end
+            
             %CreateProceduralSineGrating(windowPtr, width, height [, backgroundColorOffset =(0,0,0,0)] [, radius=inf] [, contrastPreMultiplicator=1])
-            gratingtex =  CreateProceduralSineGrating(sobj.wPtr, stim_size(1), stim_size(2), [0,0,0,0.0], [], contrastPreMultiplicator);
+            gratingtex =  CreateProceduralSineGrating(sobj.wPtr, stim_size(1), stim_size(2), [0,0,0,0.0], radius, contrastPreMultiplicator);
             Screen('DrawTexture', sobj.wPtr, gratingtex, [], stimRect, angle, [], [], [], [], [], [phase, cycles_per_pix, contrast, 0]);
             
         elseif flag_gabor == 1
@@ -590,9 +639,7 @@ end
             bgcol = sobj.bgcol/sobj.stimlumi;
             gabortex = CreateProceduralGabor(sobj.wPtr, stim_size(1), stim_size(2), [], [bgcol bgcol bgcol 0.0]);
             Screen('DrawTexture', sobj.wPtr, gabortex, [], stimRect, angle, [], [], [], [], kPsychDontDoRotation, [phase, cycles_per_pix, sc, contrast, 1, 0, 0, 0]);
-            
         end
-        
         
         % prep 1st frame
         %%%%%%%%%%%%%%%%%%
@@ -601,7 +648,7 @@ end
         % Flip and rap timer
         [sobj.vbl_2, sobj.OnsetTime_2, sobj.FlipTimeStamp_2] = ...
             Screen('Flip', sobj.wPtr, sobj.vbl_1+sobj.delayPTB);% put some delay for PTB
-        
+        stim_monitor;
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         for count = 1:sobj.flipNum-1
             phase = count * 360/sobj.frameRate * sobj.shiftSpd;
@@ -638,6 +685,11 @@ end
         fix_center = sobj.center_pos_list(sobj.fixpos,:);
         stim_center = get_condition(1, sobj.center_pos_list, recobj.cycleNum,...
             sobj.divnum^2, 2, fix_center);
+        
+        sobj.position = intersect(...
+            find(sobj.center_pos_list(:,1)==stim_center(1)),...
+            find(sobj.center_pos_list(:,2)==stim_center(2)));
+        
         stim_size = get_condition(2, sobj.size_pix_list, recobj.cycleNum,...
             length(sobj.size_pix_list), 2, sobj.stimsz);
         %
@@ -671,7 +723,8 @@ end
             i_in_cycle = mod(cycleNum, list_size);
             if i_in_cycle == 0
                 i_in_cycle = list_size;
-                disp(i_in_cycle)
+                disp('reset_rand_cycle')
+                
             elseif i_in_cycle == 1 %Reset list order
                 switch flag_random
                     case 1 %randomize
@@ -710,45 +763,65 @@ global sobj
 global recobj
 
 if recobj.cycleNum <= 0 % prestim
-    set(figUIobj.StimMonitor3,'string','', 'BackGroundColor','black');
-    set(figUIobj.StimMonitor2,'string','Pre Stim','ForegroundColor','white','BackGroundColor','black');
-    set(figUIobj.StimMonitor1,'string','', 'BackGroundColor','black');
+    set(figUIobj.StimMonitor3,'string','', 'BackGroundColor','k');
+    set(figUIobj.StimMonitor2,'string','Pre Stim','ForegroundColor','white','BackGroundColor','k');
+    set(figUIobj.StimMonitor1,'string','', 'BackGroundColor','k');
+    
 else % during stimulation
     switch sobj.pattern
         case 'Uni'
             bgcol = 'm';
             stim_str3 = '';
-        case 'B/W'
-            bgcol = 'y';
-            stim_str3 = [num2str(sobj.zoom_dist), 'deg, ', num2str(sobj.zoom_ang), 'deg'];
-        case 'Sin'
-            bgcol = 'c';
-            stim_str3 = ['Dir: ', num2str(sobj.angle), ' deg'];
-        case 'Rect'
-            bgcol = 'c';
-            stim_str3 = ['Dir: ', num2str(sobj.angle), ' deg'];
-        case 'Gabor'
-            bgcol = 'c';
-            stim_str3 = ['Dir: ', num2str(sobj.angle), ' deg'];
+            
         case 'Size_rand'
             bgcol = 'm';
-            size = Pix2Deg(sobj.stimsz(1), sobj.MonitorDist);
+            size = Pix2Deg(figUIobj.stim_size(1), sobj.MonitorDist);
             size = round(size*10)/10; %for disp
             stim_str3 = ['Sz: ', num2str(size),' deg'];
+            
+        case 'B/W'
+            bgcol = 'c';
+            stim_str3 = [num2str(sobj.zoom_dist), 'deg, ', num2str(sobj.zoom_ang), 'deg'];
+        
+        case 'Looming'
+            bgcol = 'y';
+            stim_str3 = ['Spd: ', num2str(sobj.loomSpd_deg), 'deg/s'];
+            
+        case 'Sin'
+            bgcol = 'c';
+            %stim_str3 = ['Dir: ', num2str(sobj.angle), ' deg'];
+            stim_str3 = [];
+            
+        case 'Rect'
+            bgcol = 'c';
+            %stim_str3 = ['Dir: ', num2str(sobj.angle), ' deg'];
+            stim_str3 = [];
+            
+        case 'Gabor'
+            bgcol = 'c';
+            %stim_str3 = ['Dir: ', num2str(sobj.angle), ' deg'];
+            stim_str3 = [];
+            
         case '1P_Conc'
             bgcol = 'm';
-            stim_str3 = [num2str(sobj.zoom_dist), 'deg, ', num2str(sobj.zoom_ang), 'deg'];
+            %stim_str3 = [num2str(sobj.zoom_dist), 'deg, ', num2str(sobj.zoom_ang), 'deg'];
+            stim_str3 = [];
+            
         case '2P_Conc'
             bgcol = 'g';
-            stim_str3 = [num2str(sobj.zoom_dist), 'deg, ', num2str(sobj.zoom_ang), 'deg'];
+            %stim_str3 = [num2str(sobj.zoom_dist), 'deg, ', num2str(sobj.zoom_ang), 'deg'];
+            stim_str3 = [];
+            
         case 'Images'
             bgcol = 'y';
             stim_str3 = ['Image #: ', num2str(sobj.img_i)];
     end
     
+    %position in matrix
+    
     set(figUIobj.StimMonitor3,'string',sobj.pattern, 'BackGroundColor',bgcol);
     set(figUIobj.StimMonitor2,'string',['POS: ',num2str(sobj.position),'/',num2str(sobj.divnum^2)],'ForegroundColor','black','BackGroundColor',bgcol);
-    set(figUIobj.StimMonitor1,'string',stim_str3, 'BackGroundColor',bgcol);
+    set(figUIobj.StimMonitor1,'string', stim_str3, 'BackGroundColor',bgcol);
 end
 drawnow;
 end
