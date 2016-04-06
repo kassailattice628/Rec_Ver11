@@ -186,7 +186,6 @@ function ResetTTLall(Testmode, dio)
 if Testmode == 0; %Test mode off
     outputSingleScan(dio.TrigAIFV,[0,0]);
     outputSingleScan(dio.VSon,0);
-    %outputSingleScan(dio.TTL3,0);
 else
     sca;
 end

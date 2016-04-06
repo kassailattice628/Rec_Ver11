@@ -10,7 +10,7 @@ check_stim_duration;
 change_plot;
 check_AOrange;
 
-
+%% 
 %%%%% define functions (nested) %%%%%
     function change_stim_pattern
         defcol = [0.9400 0.9400 0.9400];

@@ -42,10 +42,11 @@ addDigitalChannel(dio.VSon, dev.ID, 'port0/line2', 'OutputOnly');
 outputSingleScan(dio.VSon,0); %reset trigger signals at Low
 
 %P0.3:digital Trigger for other device
+%{
 dio.TTL3 = daq.createSession(dev.Vendor.ID);
 addDigitalChannel(dio.TTL3, dev.ID, 'port0/line3', 'OutputOnly');
 outputSingleScan(dio.TTL3,0); %reset trigger signals at Low
-
+%}
 %if other digital outputs will be needed, the code is here.
 
 %% for Rotary Encoder
@@ -65,6 +66,7 @@ CtrCh.Frequency = 100;
 CtrCh.InitialDelay = recobj.delayTTL3;
 CtrCh.DutyCycle = 0.5;
 %}
+
 %% DAQ capture settings
 % Specify triggered capture timespan, in seconds
 capture.TimeSpan = recobj.rect/1000;% sec
