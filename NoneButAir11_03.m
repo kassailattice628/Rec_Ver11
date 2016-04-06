@@ -10,6 +10,7 @@ global recobj %save
 global figUIobj %save
 global plotUIobj
 global s
+global sTTL
 global dev
 global dio
 global capture
@@ -31,7 +32,7 @@ if Testmode == 0
     % Reset DAQ
     daq.reset
     % NI DAQ params
-    [s, dio, capture, dev] = daq_ini;
+    [s, sTTL, dio, capture, dev] = daq_ini;
     %disp(s)
 end
 %% open Window PTB %%

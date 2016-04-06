@@ -117,7 +117,7 @@ elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) > c.Tim
     %%%%%% save setting %%%%%%
     if get(hGui.save, 'value') == 1 % Saving
         DataSave(:,:,trigCount) = captureData;
-        ParamsSave{1,trigCount} = get_save_params(recobj,sobj);
+        ParamsSave{1,trigCount} = get_save_params(recobj, sobj);
     end
     
 elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) < c.TimeSpan)

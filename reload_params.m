@@ -5,6 +5,8 @@ global plotUIobj
 global sobj
 global recobj
 global s
+global sTTL
+global CtrCh
 global capture
 global lh
 global dio
@@ -37,7 +39,7 @@ pattern_list = get(figUIobj.pattern,'string');
 sobj.pattern = pattern_list{get(figUIobj.pattern,'value'),1};
 switch sobj.pattern
     case {'B/W', 'Gabor'}
-    sobj.bgcol = sobj.gray;
+        sobj.bgcol = sobj.gray;
 end
 
 sobj.shape = sobj.shapelist{get(figUIobj.shape, 'value'), 1};
@@ -159,8 +161,9 @@ plotnum = get(figUIobj.plot, 'value')+1;
 recobj.stepAmp = recobj.stepCV(plotnum,1):recobj.stepCV(plotnum,3):recobj.stepCV(plotnum,2);
 
 % TTL
-recobj.durationTTL3 = re_write(figUIobj.durationTTL3);
-recobj.delayTTL3 = re_write(figUIobj.delayTTL3);
+recobj.TTL3.duration = re_write(figUIobj.durationTTL3);
+recobj.TTL3.delay = re_write(figUIobj.delayTTL3);
+recobj.TTL3.Freq = re_write(figUIobj.freqTTL3);
 
 %% DAQ
 if Testmode == 0
@@ -170,10 +173,22 @@ if Testmode == 0
         disp('stop s')
     end
     
-    s.Rate = recobj.sampf;
-    %s.DurationInSeconds = recobj.rect/1000;%sec, when AO channel is set, s.DurationInSeconds is replaced with 's.scansqued/s.rate'.
+    if sTTL.IsRunning
+        sTTL.stop;
+        disp('stop sTTL')
+    end
     
-    % data capture settings
+    s.Rate = recobj.sampf;
+    s.DurationInSeconds = recobj.rect/1000;%sec
+    %when AO channel is set, s.DurationInSeconds is replaced with 's.scansqued/s.rate'.
+    
+    sTTL.Rate = recobj.sampf;
+    sTTL.DurationInSeconds = recobj.rect/1000 - recobj.TTL3.delay - recobj.TTL3.duration; % sec
+    CtrCh.Frequency = recobj.TTL3.Freq;
+    CtrCh.InitialDelay = recobj.TTL3.delay;
+    %CtrCh.DutyCycle = 0.5;
+    
+    %%%%%% data capture settings %%%%%
     % Specify triggered capture timespan, in seconds
     capture.TimeSpan = recobj.rect/1000;% sec
     

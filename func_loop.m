@@ -4,6 +4,7 @@ function func_loop(hObject, ~, hGui, Testmode)
 global recobj
 global sobj
 global s
+global sTTL
 global dio
 %global DataSave %save
 %global ParamsSave %save
@@ -44,10 +45,15 @@ if get(hObject, 'value')==1 % loop ON
 else %loop OFF
     set(hObject,'string', 'Loop-Off', 'BackGroundColor', 'r');
     % stop loop & data acquiring
-    if Testmode==0 && s.IsRunning
-        stop(s)
+    if Testmode==0
+        if s.IsRunning
+            stop(s)
+        end
+        if sTTL.IsRunning
+            stop(sTTL)
+        end
         delete(lh)
-        disp('delete lh')
+        disp('stop daq sessions, delete event listenner')
     end
     
     %%%%%% Save Data %%%%%%%%
@@ -74,13 +80,16 @@ end
 function MainLoop(dio, hGui, Testmode)
 % Main structure%
 global s
+global sTTL
 global recobj
 
 % ready to start DAQ
 if Testmode == 0
-    if s.IsRunning
-    else
+    if s.IsRunning==false
         s.startBackground; %session start, listener ON, *** Waiting Analog Trigger (AI3)
+    end
+    if get(hGui.TTL3,'value')==1 && sTTL.IsRunning==false
+        sTTL.startBackground
     end
 end
 
@@ -142,9 +151,22 @@ generate_trigger([0,0]);
     end
 end
 
-
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+function TriggerTTL3(Testmode, dio, value)
+global recobj
+if Testmode == 0
+    if value == 1
+        recobj.START_TTL3 = tic;
+    end
+   outputSingleScan(dio.TTL3, value); 
+end
+
+
+end
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 function ResetTTLall(Testmode, dio)
 % Reset all TTL to zero.
 
@@ -391,7 +413,7 @@ end
         sobj.center_index = sobj.fixpos;
         
         stim_size =  [0, 0, sobj.loomSize_pix];% max_Stim_Size
-        sobj.stim_size = sobj.loomingSize_pix;
+        sobj.stim_size = sobj.loomSize_pix;
         
         topPriorityLevel =  MaxPriority(sobj.wPtr);
         Priority(topPriorityLevel);
@@ -442,7 +464,6 @@ end
             sobj.divnum^2, 2, fix_center);
         sobj.center_index = sobj.fixpos;
         
-        % if conc_pos_mat is defined, changes stim_cneter position
         sobj.stim_center2 = [sobj.stim_center(1) + concX, sobj.stim_center(2) - concY];
         
         % Set stim size, size(fix)
@@ -453,9 +474,6 @@ end
         sobj.stim_size2 = sobj.stimsz2;
         sobj.size_deg2 = str2double(get(figUIobj.stimsz2, 'string'));
         maxDiameter2 = max(sobj.stim_size2) * 1.01;
-        
-        % define stim position using center and size
-        
         
         % define stim position using center and size
         Rect = CenterRectOnPointd([0,0, sobj.stim_size], sobj.stim_center(1), sobj.stim_center(2));
@@ -477,38 +495,62 @@ end
         Stim1 = Screen('OpenOffscreenWindow', sobj.ScrNum, sobj.bgcol);
         Screen(sobj.shape, Stim1, sobj.lumi, Rect, maxDiameter);
         Screen('FillRect', Stim1, 180, [0 0 40 40]);
+        
         % Stim2 only
         Stim2 = Screen('OpenOffscreenWindow', sobj.ScrNum, sobj.bgcol);
         Screen(sobj.shape2, Stim2, sobj.lumi, Rect2, maxDiameter2);
         Screen('FillRect', Stim2, 180, [0 0 40 40]);
+        
         % Both Stim1 & Stim2
-        Stim3 = Screen('OpenOffscreenWindow', sobj.ScrNum, sobj.bgcol);
-        Screen(sobj.shape, Stim3, sobj.lumi, Rect);
-        Screen(sobj.shape2, Stim3, sobj.lumi, Rect2, max([maxDiameter, maxDiameter2]));
-        Screen('FillRect', Stim3, 255, [0 0 40 40]);
+        Both_Stim1_Stim2 = Screen('OpenOffscreenWindow', sobj.ScrNum, sobj.bgcol);
+        Screen(sobj.shape, Both_Stim1_Stim2, sobj.lumi, Rect);
+        Screen(sobj.shape2, Both_Stim1_Stim2, sobj.lumi, Rect2, max([maxDiameter, maxDiameter2]));
+        Screen('FillRect', Both_Stim1_Stim2, 255, [0 0 40 40]);
+        
+        
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         %ScreenFlip
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        if sobj.delayPTB == sobj.delayPTB2 % same timing
-            Screen('DrawTexture', sobj.wPtr, Stim3)
+        if sobj.delayPTB < sobj.delayPTB2
+            % Stim1 appears earier thant Stm1
+            
+            if (recobj.delayTTL3 + recobj.durationTTL3) <= recobj.delayPTB
+                %wait TTL3 delay
+                while toc(recobj.STARTloop) < recobj.delayTTL3
+                end
+                TriggerTTL3(Testmode, dio, 1) % TTL3 ON
+                while toc(recobj.START_TTL3) < recobj.duration
+                end
+                TriggerTTL3(Testmode, dio, 0) % TTL3 OFF
+                
+                Flip_Conc2(Stim1, Stim2, Both_Stim1_Stim2, 1);
+            
+            elseif recobj.delayTTL3 < recobj.delayPTB
+                %wait TTL3 delay
+                while toc(recobj.STARTloop) < recobj.delayTTL3
+                end
+                TriggerTTL3(Testmode, dio, 1) % TTL3 ON
+                
+                Flip_Conc2(Stim1, Stim2, Both_Stim1_Stim2, 1);
+                
+            end
+            
+        elseif sobj.delayPTB == sobj.delayPTB2
+            % Stim1 and Stim2 appear at the same timing
+            Screen('DrawTexture', sobj.wPtr, Both_Stim1_Stim2)
             [sobj.vbl_2, sobj.OnsetTime_2, sobj.FlipTimeStamp_2] =...
                 Screen('Flip', sobj.wPtr, sobj.vbl_1 + sobj.delayPTB);
             sobj.vbl2_2 = sobj.vbl_2;
             sobj.OnsetTime2_2 = sobj.OnsetTime_2;
             sobj.FlipTimeStamp2_2 = sobj.FlipTimeStamp_2;
-        elseif sobj.delayPTB < sobj.delayPTB2 % Stim1 appears earier thant Stm1
-            Screen('DrawTexture', sobj.wPtr, Stim1)
-            [sobj.vbl_2, sobj.OnsetTime_2, sobj.FlipTimeStamp_2] =...
-                Screen('Flip', sobj.wPtr, sobj.vbl_1 + sobj.delayPTB);
-            Screen('DrawTexture', sobj.wPtr, Stim3)
-            [sobj.vbl2_2, sobj.OnsetTime2_2, sobj.FlipTimeStamp2_2] =...
-                Screen('Flip', sobj.wPtr, sobj.vbl_1 + sobj.delayPTB2);
-        elseif sobj.delayPTB > sobj.delayPTB2 %Stim2 appears earier than Stim1
+            
+        elseif sobj.delayPTB > sobj.delayPTB2
+            % Stim1 appears after Stim2
             Screen('DrawTexture', sobj.wPtr, Stim2)
             [sobj.vbl2_2, sobj.OnsetTime2_2, sobj.FlipTimeStamp2_2] =...
                 Screen('Flip', sobj.wPtr, sobj.vbl_1 + sobj.delayPTB2);
-            Screen('DrawTexture', sobj.wPtr, Stim3)
+            Screen('DrawTexture', sobj.wPtr, Both_Stim1_Stim2)
             [sobj.vbl_2, sobj.OnsetTime_2, sobj.FlipTimeStamp_2] =...
                 Screen('Flip', sobj.wPtr, sobj.vbl_1 + sobj.delayPTB);
         end
@@ -547,9 +589,41 @@ end
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         Screen(Stim1, 'Close');
         Screen(Stim2, 'Close');
-        Screen(Stim3, 'Close');
+        Screen(Both_Stim1_Stim2, 'Close');
         stim_monitor_reset;
     end
+
+
+function Flip_Conc2(Stim1, Stim2, Both_Stim1_Stim2, type)
+switch type
+    case 1
+        % Stim1 appears earier thant Stm1
+            Screen('DrawTexture', sobj.wPtr, Stim1)
+            [sobj.vbl_2, sobj.OnsetTime_2, sobj.FlipTimeStamp_2] =...
+                Screen('Flip', sobj.wPtr, sobj.vbl_1 + sobj.delayPTB);
+            
+            Screen('DrawTexture', sobj.wPtr, Both_Stim1_Stim2)
+            [sobj.vbl2_2, sobj.OnsetTime2_2, sobj.FlipTimeStamp2_2] =...
+                Screen('Flip', sobj.wPtr, sobj.vbl_1 + sobj.delayPTB2);
+    case 2
+            % Stim1 and Stim2 appear at the same timing
+            Screen('DrawTexture', sobj.wPtr, Both_Stim1_Stim2)
+            [sobj.vbl_2, sobj.OnsetTime_2, sobj.FlipTimeStamp_2] =...
+                Screen('Flip', sobj.wPtr, sobj.vbl_1 + sobj.delayPTB);
+            sobj.vbl2_2 = sobj.vbl_2;
+            sobj.OnsetTime2_2 = sobj.OnsetTime_2;
+            sobj.FlipTimeStamp2_2 = sobj.FlipTimeStamp_2;
+    case 3
+            % Stim1 appears after Stim2
+            Screen('DrawTexture', sobj.wPtr, Stim2)
+            [sobj.vbl2_2, sobj.OnsetTime2_2, sobj.FlipTimeStamp2_2] =...
+                Screen('Flip', sobj.wPtr, sobj.vbl_1 + sobj.delayPTB2);
+            Screen('DrawTexture', sobj.wPtr, Both_Stim1_Stim2)
+            [sobj.vbl_2, sobj.OnsetTime_2, sobj.FlipTimeStamp_2] =...
+                Screen('Flip', sobj.wPtr, sobj.vbl_1 + sobj.delayPTB);
+        
+end
+end
 
 %%
     function GratingGLSL

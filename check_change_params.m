@@ -405,9 +405,7 @@ check_AOrange;
         delayNum2 = re_write(figUIobj.delayPTBflip2);
         delay2 = delayNum2*sobj.m_int;
         
-        % check duration
-        
-        
+        %%%%%% check duration %%%%%
         if strcmp(sobj.pattern, 'Looming')
             % change recording time according to the looming speed.
             loomSpd_list = get(figUIobj.loomSpd, 'string');
@@ -427,7 +425,6 @@ check_AOrange;
             set(figUIobj.loomSize, 'BackgroundColor', 'g');
             
         else
-            
             set(figUIobj.loomSize, 'BackgroundColor', 'w');
             set(figUIobj.rect, 'BackgroundColor', 'g');
             recobj.rect = re_write(figUIobj.rect);

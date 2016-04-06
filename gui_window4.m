@@ -1,5 +1,5 @@
 function hGui = gui_window4(Testmode)
-%gui_window3 creates a None But Air Graphical User Interface
+% gui_window3 creates a None But Air Graphical User Interface
 % hGui = gui_window3(s, sTrig) returns a structure of graphics components
 % handles (hGui) and create a GUI for PTB visual stimuli, data acquisition
 % from a DAQ session (s), and control TTL output
@@ -91,7 +91,7 @@ uicontrol('style','text','position',[120,480,70,15],'string','Stim.RGB','Horizon
 hGui.stimRGB = uicontrol('style','popupmenu','position',[120,455,70,25], 'string',[{'BW'},{'Blu'},{'Gre'},{'Yel'},{'Red'}]);
 set(hGui.stimRGB, 'callback', @check_stimRGB);
 
-%%% Durtion 
+%%% Durtion
 uicontrol('style','text','string','Stim.Duration','position',[10 480 65 15],'Horizontalalignment','left');
 hGui.flipNum=uicontrol('style','edit','string',sobj.flipNum,'position',[10 455 30 25],'BackGroundColor','w');
 set(hGui.flipNum,'callback', @check_change_params);
@@ -298,18 +298,38 @@ set(hGui.yaxis,'callback',@ch_yaxis);
 
 uipanel('Title','TTL3','FontSize',12,'Units', 'Pixels', 'Position',[205 10 195 230]);
 %% DIO3 (outer TTL);
-uicontrol('style','text','position',[210 165 50 15],'string','duration','Horizontalalignment','left');
-hGui.durationTTL3=uicontrol('style', 'edit', 'position', [210,140,40,25], 'string',recobj.durationTTL3,'BackGroundColor','w');
-set(hGui.durationTTL3,'callback',@check_change_params);
-uicontrol('style','text','position',[255 140 20 15],'string','ms','Horizontalalignment','left');
-
-uicontrol('style','text','position',[280 165 50 15],'string','delay','Horizontalalignment','left');
-hGui.delayTTL3=uicontrol('style','edit','position',[280 140 40 25],'string',recobj.delayTTL3,'BackGroundColor','w');
+uicontrol('style','text','position',[210 165 60 15],'string','Delay','Horizontalalignment','left');
+hGui.delayTTL3=uicontrol('style','edit','position',[210,140,40,25],'string', recobj.TTL3.delay*1000,'BackGroundColor','w');
 set(hGui.delayTTL3,'callback',@check_change_params);
-uicontrol('style','text','position',[325 140 20 15],'string','ms','Horizontalalignment','left');
+uicontrol('style','text','position',[250 140 20 15],'string','ms','Horizontalalignment','left');
+
+uicontrol('style','text','position',[285 165 60 15],'string','Duration','Horizontalalignment','left');
+hGui.durationTTL3=uicontrol('style', 'text', 'position', [285,140,60,15], 'string',recobj.TTL3.duration*1000);
+set(hGui.durationTTL3,'callback',@setTTL3);
+uicontrol('style','text','position',[345 140 20 15],'string','ms','Horizontalalignment','left');
+
+uicontrol('style','text','position',[210 120 60 15],'string','Freq.','Horizontalalignment','left');
+hGui.freqTTL3=uicontrol('style','edit','position',[210 95 40 25],'string',recobj.TTL3.Freq,'BackGroundColor','w');
+set(hGui.freqTTL3,'callback', @setTTL3);
+uicontrol('style','text','position',[250 95 20 15],'string','Hz','Horizontalalignment','left');
+
+uicontrol('style','text','position',[285 120 60 15],'string','PulseNum','Horizontalalignment','left');
+hGui.pulsenumTTL3=uicontrol('style','edit','position',[285 95 60 25],'string',recobj.TTL3.PulseNum,'BackGroundColor','w');
+set(hGui.pulsenumTTL3, 'callback', @setTTL3);
+
+uicontrol('style', 'text', 'position', [210 75 60 15], 'string', 'DutyCycle', 'Horizontalalignment','left');
+hGui.dutycycleTTL3=uicontrol('style','edit','position',[210 50 40 25],'string', recobj.TTL3.DutyCycle,'BackGroundColor','w');
+set(hGui.dutycycleTTL3, 'callback', @setTTL3);
+
+uicontrol('style','text','position',[285 75 100 15],'string','Single Pulse Width','Horizontalalignment','left');
+hGui.widthTTL3=uicontrol('style','text','position',[285 50 40 15],'string', recobj.TTL3.DutyCycle/recobj.TTL3.Freq*1000,'Horizontalalignment','center');
+uicontrol('style','text','position',[325 50 20 15],'string','ms','Horizontalalignment','left');
 
 hGui.TTL3=uicontrol('style','togglebutton','position',[210 185 65 30],'string','TTL-OFF','Horizontalalignment','left');
-set(hGui.TTL3, 'Callback',{@TTL3, hGui})
+set(hGui.TTL3, 'Callback',{@TTL3, Testmode})
+
+hGui.TTL3_select=uicontrol('style','togglebutton','position',[285 185 90 30],'string','Fix:Duration','Horizontalalignment','left');
+set(hGui.TTL3_select, 'Callback',{@TTL3_select, hGui})
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%   Loop Start Button   %%%%%%%%%%%%%%
@@ -387,8 +407,8 @@ function open_plot(hObject, ~, hGui)
 global plotUIobj
 
 if get(hObject,'value')
-        plotUIobj = plot_window(hGui);
-        disp('open plot window')
+    plotUIobj = plot_window(hGui);
+    disp('open plot window')
 else
     if isfield(plotUIobj,'fig')
         close(plotUIobj.fig)
@@ -490,21 +510,32 @@ InCh(3).Range = [-10 10];
 end
 
 %%
-function TTL3(hObject, ~, hGui)
-global recobj
-global dio
-
-switch get(hObject,'value')
-    case 1
-        set(hObject,'string', 'TTL-ON');
-        set(hGui.delayTTL3,'string','0')
-        recobj.delayTTL3 = 0;
-        outputSingleScan(dio.TTL3,0); %reset trigger signals at Low
-    case 0
-        set(hObject,'string', 'TTL-OFF');
+function TTL3(hObject, ~, Testmode)
+if Testmode == 0
+    switch get(hObject,'value')
+        case 1
+            set(hObject,'string', 'TTL-ON');
+        case 0
+            set(hObject,'string', 'TTL-OFF');
+    end
 end
 
 ch_ButtonColor(hObject,[], 'g')
+setTTL3;
+end
+
+%%
+function TTL3_select(hObject, ~, hGui)
+switch get(hObject,'value')
+    case 0
+        set(hObject, 'string', 'Fix:Duration');
+        set(hGui.durationTTL3, 'style','text', 'position', [285,140,60,15],'BackGroundColor',[0.9400 0.9400 0.9400])
+        set(hGui.pulsenumTTL3, 'style','edit', 'position', [285 95 60 25],'BackGroundColor','w')
+    case 1
+        set(hObject, 'string', 'Fix:PulseNum');
+        set(hGui.durationTTL3, 'style','edit', 'position', [285,140,60,25],'BackGroundColor','w')
+        set(hGui.pulsenumTTL3, 'style','text', 'position', [285 95 60 15],'BackGroundColor',[0.9400 0.9400 0.9400])
+end
 end
 
 %%

@@ -2,11 +2,8 @@ function [varargout] = daq_ini
 % initialize daq configurations
 
 global recobj
-global s
-global capture
-global dio
-global dev
 global InCh
+global CtrCh
 
 dev = daq.getDevices;
 s = daq.createSession(dev.Vendor.ID);
@@ -46,7 +43,17 @@ outputSingleScan(dio.TTL3,0); %reset trigger signals at Low
 sRot = addCounterInputChannel(s, dev.ID, 'ctr0', 'Position');
 sRot.EncoderType='X4'; %decode mode:X1, X2, X4, 'X4' is the most fine mode.
 
+%% for TTL3
+sTTL = daq.createSession(dev.Vendor.ID);
+sTTL.Rate = recobj.sampf;
+recobj.delayTTL3 = 0.5;
+TTL_duration = 0.1;
+sTTL.DurationInSeconds = recobj.rect/1000 - recobj.delayTTL3 - TTL_duration;
 
+CtrCh = addCounterOutputChannel(sTTL, dev.ID, 'ctr1','Pulsegeneration');
+CtrCh.Frequency = 100;
+CtrCh.InitialDelay = recobj.delayTTL3;
+CtrCh.DutyCycle = 0.5;
 
 %% DAQ capture settings
 % Specify triggered capture timespan, in seconds
@@ -68,6 +75,7 @@ capture.bufferSize =  round(capture.bufferTimeSpan * s.Rate);
 
 %%
 varargout{1,1} = s;
-varargout{1,2} = dio;
-varargout{1,3} = capture;
-varargout{1,4} = dev;
+varargout{1,2} = sTTL;
+varargout{1,3} = dio;
+varargout{1,4} = capture;
+varargout{1,5} = dev;
