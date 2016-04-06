@@ -7,28 +7,22 @@ global s
 global sTTL
 global dio
 %global DataSave %save
-%global ParamsSave %save
+global ParamsSave %save
 global lh
 
 %%
 if get(hObject, 'value')==1 % loop ON
     reload_params([], [], Testmode);
+    recobj.cycleCount = 0;
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     if Testmode == 1 && get(hGui.stim,'value')
         %open screen
         [sobj.wPtr, ~] = Screen('OpenWindow', sobj.ScrNum, sobj.bgcol);
     end
-    
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     while get(hObject,'value') == 1
-        
-        if Testmode == 1 && recobj.cycleNum == 5
-            sca;
-            set(hObject, 'value', 0);
-            break;
-        end
-        
         % set 1st counter
+        recobj.cycleCount = recobj.cycleCount + 1; % for ParamsSave
         recobj.cycleNum = recobj.cycleNum + 1;
         set(hObject,'string', 'Looping', 'BackGroundColor', 'g');
         % report the cycle number
@@ -39,38 +33,54 @@ if get(hObject, 'value')==1 % loop ON
         MainLoop(dio, hGui, Testmode)
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
+        if Testmode == 1 && recobj.cycleNum == 5
+            set(hObject, 'value', 0);
+            func_Loop_Off
+        end
     end
-    
-    
 else %loop OFF
-    set(hObject,'string', 'Loop-Off', 'BackGroundColor', 'r');
-    % stop loop & data acquiring
-    if Testmode==0
-        if s.IsRunning
-            stop(s)
+    func_Loop_Off;
+end
+
+    function func_Loop_Off
+        set(hObject,'string', 'Loop-Off', 'BackGroundColor', 'r');
+        % stop loop & data acquiring
+        if Testmode==0
+            if s.IsRunning
+                stop(s)
+            end
+            if sTTL.IsRunning
+                stop(sTTL)
+            end
+            delete(lh)
+            disp('stop daq sessions, delete event listenner')
+            
+            %%%%%% Save Data %%%%%%%%
+            if get(hGui.save, 'value')
+                save(recobj.savefilename, 'DataSave', 'ParamsSave', 'recobj', 'sobj');
+            end
+            
+        else
+            %%%%%% Save Data %%%%%%%%
+            if get(hGui.save, 'value')
+                save(recobj.savefilename, 'ParamsSave', 'recobj', 'sobj');
+            end
         end
-        if sTTL.IsRunning
-            stop(sTTL)
-        end
-        delete(lh)
-        disp('stop daq sessions, delete event listenner')
-    end
-    
-    %%%%%% Save Data %%%%%%%%
-    if get(hGui.save, 'value')
-        save(recobj.savefilename, 'DataSave', 'ParamsSave', 'recobj', 'sobj');
+        
         disp(['data saved as ::' recobj.savefilename])
         recobj.savecount = recobj.savecount + 1;
         set(hGui.save, 'value', 0, 'string', 'Unsave', 'BackGroundColor',[0.9400 0.9400 0.9400])
+        
+        %%%%%%%%%%%%%%%%%%%%%%%%%
+        % Reset Cycle Counter %
+        recobj.cycleNum = 0- recobj.prestim;
+        disp(['Loop-Out:', num2str(recobj.cycleNum)]);
+        recobj = rmfield(recobj,'STARTloop');
+        
+        %reset all triggers
+        ResetTTLall(Testmode, dio);
     end
-    %%%%%%%%%%%%%%%%%%%%%%%%%
-    %reset all triggers
-    ResetTTLall(Testmode, dio);
-    % Reset Cycle Counter %
-    recobj.cycleNum = 0- recobj.prestim;
-    disp(['Loop-Out:', num2str(recobj.cycleNum)]);
-    recobj = rmfield(recobj,'STARTloop');
-end
+
 end
 
 %% subfunctions %%
@@ -82,6 +92,8 @@ function MainLoop(dio, hGui, Testmode)
 global s
 global sTTL
 global recobj
+global sobj
+global ParamsSave
 
 % ready to start DAQ
 if Testmode == 0
@@ -109,6 +121,10 @@ try %error check
             % start timer, start FV and start Stim
             % AssertOpenGL;
             VisStim(Testmode, dio);
+    end
+    
+    if Testmode == 1
+        ParamsSave{1, recobj.cycleCount} = get_save_params(recobj, sobj);
     end
 catch ME1
     %PTB error
@@ -159,7 +175,7 @@ if Testmode == 0
     if value == 1
         recobj.START_TTL3 = tic;
     end
-   outputSingleScan(dio.TTL3, value); 
+    outputSingleScan(dio.TTL3, value);
 end
 
 
@@ -173,7 +189,9 @@ function ResetTTLall(Testmode, dio)
 if Testmode == 0; %Test mode off
     outputSingleScan(dio.TrigAIFV,[0,0]);
     outputSingleScan(dio.VSon,0);
-    outputSingleScan(dio.TTL3,0);
+    %outputSingleScan(dio.TTL3,0);
+else
+    sca;
 end
 end
 
@@ -285,7 +303,7 @@ end
         [sobj.stim_size, sobj.size_index] = get_condition(2, sobj.size_pix_list, recobj.cycleNum,...
             length(sobj.size_pix_list), flag_size_random, sobj.stimsz);
         if flag_size_random == 2
-            sobj.size_deg = str2double(get(figUIobj.stimsz, 'string'));
+            sobj.size_deg = str2double(get(figUIobj.size, 'string'));
         else
             sobj.size_deg = sobj.stimsz_deg_list(sobj.size_index);
         end
@@ -336,8 +354,7 @@ end
         
         % Set stim size
         sobj.stim_size = sobj.stimsz;
-        sobj.size_deg = str2double(get(figUIobj.stimsz, 'string'));
-        maxDiameter = max(stim_size) * 1.01;
+        sobj.size_deg = str2double(get(figUIobj.size, 'string'));
         
         % define stim position using center and size
         Rect = CenterRectOnPointd([0,0, sobj.stim_size], sobj.stim_center(1), sobj.stim_center(2));
@@ -353,7 +370,7 @@ end
             length(sobj.stimlumi_list), flag_lumi_random, sobj.stimlumi);
         
         %PrepScreen Screen
-        Screen(sobj.shape, sobj.wPtr, sobj.lumi, Rect, maxDiameter);
+        Screen(sobj.shape, sobj.wPtr, sobj.lumi, Rect);
     end
 
 %%
@@ -384,7 +401,7 @@ end
         
         % Set stim size
         stim_size = sobj.stimsz;
-        sobj.size_deg = str2double(get(figUIobj.stimsz, 'string'));
+        sobj.size_deg = str2double(get(figUIobj.size, 'string'));
         maxDiameter = max(stim_size) * 1.01;
         
         % define stim position using center and size
@@ -468,11 +485,11 @@ end
         
         % Set stim size, size(fix)
         sobj.stim_size = sobj.stimsz;
-        sobj.size_deg = str2double(get(figUIobj.stimsz, 'string'));
-        maxDiameter = max(stim_size) * 1.01;
+        sobj.size_deg = str2double(get(figUIobj.size, 'string'));
+        maxDiameter = max(sobj.stim_size) * 1.01;
         
         sobj.stim_size2 = sobj.stimsz2;
-        sobj.size_deg2 = str2double(get(figUIobj.stimsz2, 'string'));
+        sobj.size_deg2 = str2double(get(figUIobj.size2, 'string'));
         maxDiameter2 = max(sobj.stim_size2) * 1.01;
         
         % define stim position using center and size
@@ -525,7 +542,7 @@ end
                 TriggerTTL3(Testmode, dio, 0) % TTL3 OFF
                 
                 Flip_Conc2(Stim1, Stim2, Both_Stim1_Stim2, 1);
-            
+                
             elseif recobj.delayTTL3 < recobj.delayPTB
                 %wait TTL3 delay
                 while toc(recobj.STARTloop) < recobj.delayTTL3
@@ -594,36 +611,36 @@ end
     end
 
 
-function Flip_Conc2(Stim1, Stim2, Both_Stim1_Stim2, type)
-switch type
-    case 1
-        % Stim1 appears earier thant Stm1
-            Screen('DrawTexture', sobj.wPtr, Stim1)
-            [sobj.vbl_2, sobj.OnsetTime_2, sobj.FlipTimeStamp_2] =...
-                Screen('Flip', sobj.wPtr, sobj.vbl_1 + sobj.delayPTB);
-            
-            Screen('DrawTexture', sobj.wPtr, Both_Stim1_Stim2)
-            [sobj.vbl2_2, sobj.OnsetTime2_2, sobj.FlipTimeStamp2_2] =...
-                Screen('Flip', sobj.wPtr, sobj.vbl_1 + sobj.delayPTB2);
-    case 2
-            % Stim1 and Stim2 appear at the same timing
-            Screen('DrawTexture', sobj.wPtr, Both_Stim1_Stim2)
-            [sobj.vbl_2, sobj.OnsetTime_2, sobj.FlipTimeStamp_2] =...
-                Screen('Flip', sobj.wPtr, sobj.vbl_1 + sobj.delayPTB);
-            sobj.vbl2_2 = sobj.vbl_2;
-            sobj.OnsetTime2_2 = sobj.OnsetTime_2;
-            sobj.FlipTimeStamp2_2 = sobj.FlipTimeStamp_2;
-    case 3
-            % Stim1 appears after Stim2
-            Screen('DrawTexture', sobj.wPtr, Stim2)
-            [sobj.vbl2_2, sobj.OnsetTime2_2, sobj.FlipTimeStamp2_2] =...
-                Screen('Flip', sobj.wPtr, sobj.vbl_1 + sobj.delayPTB2);
-            Screen('DrawTexture', sobj.wPtr, Both_Stim1_Stim2)
-            [sobj.vbl_2, sobj.OnsetTime_2, sobj.FlipTimeStamp_2] =...
-                Screen('Flip', sobj.wPtr, sobj.vbl_1 + sobj.delayPTB);
-        
-end
-end
+    function Flip_Conc2(Stim1, Stim2, Both_Stim1_Stim2, type)
+        switch type
+            case 1
+                % Stim1 appears earier thant Stm1
+                Screen('DrawTexture', sobj.wPtr, Stim1)
+                [sobj.vbl_2, sobj.OnsetTime_2, sobj.FlipTimeStamp_2] =...
+                    Screen('Flip', sobj.wPtr, sobj.vbl_1 + sobj.delayPTB);
+                
+                Screen('DrawTexture', sobj.wPtr, Both_Stim1_Stim2)
+                [sobj.vbl2_2, sobj.OnsetTime2_2, sobj.FlipTimeStamp2_2] =...
+                    Screen('Flip', sobj.wPtr, sobj.vbl_1 + sobj.delayPTB2);
+            case 2
+                % Stim1 and Stim2 appear at the same timing
+                Screen('DrawTexture', sobj.wPtr, Both_Stim1_Stim2)
+                [sobj.vbl_2, sobj.OnsetTime_2, sobj.FlipTimeStamp_2] =...
+                    Screen('Flip', sobj.wPtr, sobj.vbl_1 + sobj.delayPTB);
+                sobj.vbl2_2 = sobj.vbl_2;
+                sobj.OnsetTime2_2 = sobj.OnsetTime_2;
+                sobj.FlipTimeStamp2_2 = sobj.FlipTimeStamp_2;
+            case 3
+                % Stim1 appears after Stim2
+                Screen('DrawTexture', sobj.wPtr, Stim2)
+                [sobj.vbl2_2, sobj.OnsetTime2_2, sobj.FlipTimeStamp2_2] =...
+                    Screen('Flip', sobj.wPtr, sobj.vbl_1 + sobj.delayPTB2);
+                Screen('DrawTexture', sobj.wPtr, Both_Stim1_Stim2)
+                [sobj.vbl_2, sobj.OnsetTime_2, sobj.FlipTimeStamp_2] =...
+                    Screen('Flip', sobj.wPtr, sobj.vbl_1 + sobj.delayPTB);
+                
+        end
+    end
 
 %%
     function GratingGLSL
@@ -663,7 +680,7 @@ end
         
         % Set stim size
         sobj.stim_size = sobj.stimsz;
-        sobj.size_deg = str2double(get(figUIobj.stimsz, 'string'));
+        sobj.size_deg = str2double(get(figUIobj.size, 'string'));
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
@@ -680,8 +697,8 @@ end
         phase = 0;
         contrast = 100;
         %sRect = [0, 0, sobj.ScreenSize(1), sobj.ScreenSize(2)];
-        base_stimRect = [0, 0, stim_size(1), stim_size(2)];
-        stimRect = CenterRectOnPointd(base_stimRect, stim_center(1), stim_center(2));
+        base_stimRect = [0, 0, sobj.stim_size(1), sobj.stim_size(2)];
+        stimRect = CenterRectOnPointd(base_stimRect, sobj.stim_center(1), sobj.stim_center(2));
         
         % generate grating texture
         if flag_gabor ==  0
@@ -696,19 +713,19 @@ end
             if get(figUIobj.shape, 'value')==1
                 radius = [];
             else
-                radius = stim_size(1)/2;
+                radius = sobj.stim_size(1)/2;
             end
             
             %CreateProceduralSineGrating(windowPtr, width, height [, backgroundColorOffset =(0,0,0,0)] [, radius=inf] [, contrastPreMultiplicator=1])
-            gratingtex =  CreateProceduralSineGrating(sobj.wPtr, stim_size(1), stim_size(2), [0,0,0,0.0], radius, contrastPreMultiplicator);
+            gratingtex =  CreateProceduralSineGrating(sobj.wPtr, sobj.stim_size(1), sobj.stim_size(2), [0,0,0,0.0], radius, contrastPreMultiplicator);
             Screen('DrawTexture', sobj.wPtr, gratingtex, [], stimRect, angle, [], [], [], [], [], [phase, cycles_per_pix, contrast, 0]);
             
         elseif flag_gabor == 1
-            sc = stim_size(1) * 0.16; %sc = 50.0;
+            sc = sobj.stim_size(1) * 0.16; %sc = 50.0;
             % 0 deg: left->right, 90 deg: up, 180 deg : right->left, 270 deg: down
             angle = sobj.angle - 180;
             bgcol = sobj.bgcol/sobj.stimlumi;
-            gabortex = CreateProceduralGabor(sobj.wPtr, stim_size(1), stim_size(2), [], [bgcol bgcol bgcol 0.0]);
+            gabortex = CreateProceduralGabor(sobj.wPtr, sobj.stim_size(1), sobj.stim_size(2), [], [bgcol bgcol bgcol 0.0]);
             Screen('DrawTexture', sobj.wPtr, gabortex, [], stimRect, angle, [], [], [], [], kPsychDontDoRotation, [phase, cycles_per_pix, sc, contrast, 1, 0, 0, 0]);
         end
         
@@ -758,9 +775,9 @@ end
         
         
         sobj.stim_size = sobj.stimsz;
-        sobj.size_deg = str2double(get(figUIobj.stimsz, 'string'));
+        sobj.size_deg = str2double(get(figUIobj.size, 'string'));
         %
-       
+        
         base_stimRect = [0, 0, sobj.stim_size];
         stimRect = CenterRectOnPointd(base_stimRect, sobj.stim_center(1), sobj.stim_center(2));
         
@@ -768,7 +785,7 @@ end
         
     end
 
-%% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% 
+%% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %%
     function [out, index] = get_condition(n, list_mat, cycleNum, list_size, flag_random, fix)
         % generate list order
         % n is the number of conditions
@@ -845,42 +862,30 @@ else % during stimulation
             
         case 'Size_rand'
             bgcol = 'm';
-            size = Pix2Deg(figUIobj.stim_size(1), sobj.MonitorDist);
-            size = round(size*10)/10; %for disp
-            stim_str3 = ['Sz: ', num2str(size),' deg'];
+            stim_str3 = ['Size: ', num2str(sobj.size_deg),' deg'];
+            
+        case '1P_Conc'
+            bgcol = 'm';
+            stim_str3 = ['Dist:',num2str(sobj.concentric_mat_deg(sobj.conc_index,1)),...
+                '/Ang:', num2str(sobj.concentric_mat_deg(sobj.conc_index,2))];
+            
+        case '2P_Conc'
+            bgcol = 'g';
+            stim_str3 = ['Dist:',num2str(sobj.concentric_mat_deg(sobj.conc_index,1)),...
+                '/Ang:', num2str(sobj.concentric_mat_deg(sobj.conc_index,2))];
             
         case 'B/W'
             bgcol = 'c';
-            stim_str3 = [num2str(sobj.zoom_dist), 'deg, ', num2str(sobj.zoom_ang), 'deg'];
-        
+            stim_str3 = ['Dist:',num2str(sobj.concentric_mat_deg(sobj.conc_index,1)),...
+                '/Ang:', num2str(sobj.concentric_mat_deg(sobj.conc_index,2))];
+            
         case 'Looming'
             bgcol = 'y';
             stim_str3 = ['Spd: ', num2str(sobj.loomSpd_deg), 'deg/s'];
             
-        case 'Sin'
+        case {'Sin', 'Rect','Gabor'}
             bgcol = 'c';
-            %stim_str3 = ['Dir: ', num2str(sobj.angle), ' deg'];
-            stim_str3 = [];
-            
-        case 'Rect'
-            bgcol = 'c';
-            %stim_str3 = ['Dir: ', num2str(sobj.angle), ' deg'];
-            stim_str3 = [];
-            
-        case 'Gabor'
-            bgcol = 'c';
-            %stim_str3 = ['Dir: ', num2str(sobj.angle), ' deg'];
-            stim_str3 = [];
-            
-        case '1P_Conc'
-            bgcol = 'm';
-            %stim_str3 = [num2str(sobj.zoom_dist), 'deg, ', num2str(sobj.zoom_ang), 'deg'];
-            stim_str3 = [];
-            
-        case '2P_Conc'
-            bgcol = 'g';
-            %stim_str3 = [num2str(sobj.zoom_dist), 'deg, ', num2str(sobj.zoom_ang), 'deg'];
-            stim_str3 = [];
+            stim_str3 = ['Dir: ', num2str(sobj.angle), ' deg'];
             
         case 'Images'
             bgcol = 'y';
@@ -890,7 +895,7 @@ else % during stimulation
     %position in matrix
     
     set(figUIobj.StimMonitor3,'string',sobj.pattern, 'BackGroundColor',bgcol);
-    set(figUIobj.StimMonitor2,'string',['POS: ',num2str(sobj.position),'/',num2str(sobj.divnum^2)],'ForegroundColor','black','BackGroundColor',bgcol);
+    set(figUIobj.StimMonitor2,'string',['POS: ',num2str(sobj.center_index),'/',num2str(sobj.divnum^2)],'ForegroundColor','black','BackGroundColor',bgcol);
     set(figUIobj.StimMonitor1,'string', stim_str3, 'BackGroundColor',bgcol);
 end
 drawnow;
