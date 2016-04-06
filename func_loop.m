@@ -54,22 +54,20 @@ end
             end
             delete(lh)
             disp('stop daq sessions, delete event listenner')
-            
-            %%%%%% Save Data %%%%%%%%
-            if get(hGui.save, 'value')
-                save(recobj.savefilename, 'DataSave', 'ParamsSave', 'recobj', 'sobj');
-            end
-            
-        else
-            %%%%%% Save Data %%%%%%%%
-            if get(hGui.save, 'value')
-                save(recobj.savefilename, 'ParamsSave', 'recobj', 'sobj');
-            end
         end
         
-        disp(['data saved as ::' recobj.savefilename])
-        recobj.savecount = recobj.savecount + 1;
-        set(hGui.save, 'value', 0, 'string', 'Unsave', 'BackGroundColor',[0.9400 0.9400 0.9400])
+        %%%%%% Save Data %%%%%%%%
+        if get(hGui.save, 'value')
+            if Testmode==0
+                save(recobj.savefilename, 'DataSave', 'ParamsSave', 'recobj', 'sobj');
+            else
+                save(recobj.savefilename, 'ParamsSave', 'recobj', 'sobj');
+            end
+            
+            disp(['data saved as ::' recobj.savefilename])
+            recobj.savecount = recobj.savecount + 1;
+            set(hGui.save, 'value', 0, 'string', 'Unsave', 'BackGroundColor',[0.9400 0.9400 0.9400])
+        end
         
         %%%%%%%%%%%%%%%%%%%%%%%%%
         % Reset Cycle Counter %
