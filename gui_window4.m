@@ -330,6 +330,7 @@ set(hGui.TTL3, 'Callback',{@TTL3, Testmode})
 
 hGui.TTL3_select=uicontrol('style','togglebutton','position',[285 185 90 30],'string','Fix:Duration','Horizontalalignment','left');
 set(hGui.TTL3_select, 'Callback',{@TTL3_select, hGui})
+
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%   Loop Start Button   %%%%%%%%%%%%%%
