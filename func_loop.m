@@ -4,7 +4,6 @@ function func_loop(hObject, ~, hGui, Testmode)
 global recobj
 global sobj
 global s
-global sTTL
 global dio
 %global DataSave %save
 global ParamsSave %save
@@ -41,16 +40,13 @@ if get(hObject, 'value')==1 % loop ON
 else %loop OFF
     func_Loop_Off;
 end
-
+%%
     function func_Loop_Off
         set(hObject,'string', 'Loop-Off', 'BackGroundColor', 'r');
         % stop loop & data acquiring
         if Testmode==0
             if s.IsRunning
                 stop(s)
-            end
-            if sTTL.IsRunning
-                stop(sTTL)
             end
             delete(lh)
             disp('stop daq sessions, delete event listenner')
@@ -88,18 +84,21 @@ end
 function MainLoop(dio, hGui, Testmode)
 % Main structure%
 global s
-global sTTL
 global recobj
 global sobj
 global ParamsSave
+global sOut
 
 % ready to start DAQ
 if Testmode == 0
     if s.IsRunning==false
         s.startBackground; %session start, listener ON, *** Waiting Analog Trigger (AI3)
     end
-    if get(hGui.TTL3,'value')==1 && sTTL.IsRunning==false
-        sTTL.startBackground
+    
+    if get(hGui.TTL3,'value')==1
+        %TTLpulse
+        queueOutputData(sOut, 5 * recobj.TTL3AO); %max 10V
+        sOut.startBackground
     end
 end
 
@@ -109,15 +108,11 @@ try %error check
         case 0
             % start timer and start FV
             Trigger(Testmode, dio);
-            
             % loop interval %
-            pause(recobj.rect/1000 + recobj.interval);
-            
-            
-            %%%%%%%%%%%%%%%%%%%% Visual Stimulus ON %%%%%%%%%%%%%%%%%%%%%
+            pause(recobj.rect/1000 + recobj.interval); 
+        %%%%%%%%%%%%%%%%%%%% Visual Stimulus ON %%%%%%%%%%%%%%%%%%%%%
         case 1
             % start timer, start FV and start Stim
-            % AssertOpenGL;
             VisStim(Testmode, dio);
     end
     
@@ -198,7 +193,6 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function VisStim(Testmode, dio)
 % define stimulus properties, start timer, recording, stimulus presentation
-
 global figUIobj
 global recobj
 global sobj
@@ -373,7 +367,6 @@ end
 
 %%
     function Uni_BW
-        
         if get(figUIobj.shiftDir, 'value') == 9 %ord8
             flag_random_dir = 3;%ordered
         else
@@ -889,7 +882,6 @@ else % during stimulation
             bgcol = 'y';
             stim_str3 = ['Image #: ', num2str(sobj.img_i)];
     end
-    
     %position in matrix
     
     set(figUIobj.StimMonitor3,'string',sobj.pattern, 'BackGroundColor',bgcol);

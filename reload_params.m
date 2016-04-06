@@ -5,13 +5,14 @@ global plotUIobj
 global sobj
 global recobj
 global s
-global sTTL
 global CtrCh
 global capture
 global lh
 global dio
 global DataSave
 global ParamsSave
+global OutCh
+global sOut
 
 %% visual stimulus settings %%
 % general %
@@ -143,8 +144,6 @@ sobj.stimsz2 = stim_size(sobj.MonitorDist,figUIobj.size2, sobj.pixpitch);
 
 recobj.interval = re_write(figUIobj.interval);
 recobj.sampf = str2double(get(figUIobj.sampf,'string'))*1000;
-
-
 recobj.recp = recobj.sampf*recobj.rect/1000;
 
 recobj.pulseDuration = re_write(figUIobj.pulseDuration);
@@ -175,23 +174,9 @@ if Testmode == 0
         disp('stop s')
     end
     
-    if sTTL.IsRunning
-        sTTL.stop;
-        disp('stop sTTL')
-    end
-    
     s.Rate = recobj.sampf;
+    sOut.Rate = recobj.sampf;
     %s.DurationInSeconds = recobj.rect/1000;%sec
-    %when AO channel is set, s.DurationInSeconds is replaced with 's.scansqued/s.rate'.
-    
-    %%%%%% session for TTL3 counter pulse generation %%%%%%
-    sTTL.Rate = recobj.sampf;
-    sTTL.DurationInSeconds = (recobj.TTL3.duration)/1000; % sec
-    CtrCh.Frequency = recobj.TTL3.Freq;
-    CtrCh.InitialDelay = recobj.TTL3.delay/1000;%sec
-    CtrCh.DutyCycle = recobj.TTL3.DutyCycle;
-    disp(sTTL)
-    disp(CtrCh)
     
     %%%%%% data capture settings %%%%%%
     % Specify triggered capture timespan, in seconds
@@ -220,6 +205,16 @@ if Testmode == 0
     outputSingleScan(dio.VSon,0)
     outputSingleScan(dio.TTL3,0)
     disp('reset s, dio, EventListener')
+      
+    %%%%%% session for TTL3 counter pulse generation %%%%%%
+    if get(figUIobj.TTL3, 'value')
+        delay = zeros(recobj.sampf*recobj.TTL3.delay/1000,1);
+        pulseON = ones(recobj.sampf/recobj.TTL3.Freq*recobj.TTL3.DutyCycle, 1);
+        pulseOFF = zeros(recobj.sampf/recobj.TTL3.Freq - size(pulseON,2), 1);
+        pulse = repmat([pulseON;pulseOFF], str2double(get(figUIobj.pulsenumTTL3,'string')),1);
+        recobj.TTL3AO = [delay; pulse; zeros(recobj.recp-size(delay,2)-size(pulse,2),1)];
+    end
+    
 end
 %% figures
 if isfield(plotUIobj, 'plot')
