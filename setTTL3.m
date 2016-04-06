@@ -2,6 +2,7 @@ function setTTL3(~, ~)
 global figUIobj
 global recobj
 
+
 TTL3freq = str2double(get(figUIobj.freqTTL3,'string'));
 
 switch get(figUIobj.TTL3_select,'value')

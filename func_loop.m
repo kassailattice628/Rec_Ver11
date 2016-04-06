@@ -4,6 +4,7 @@ function func_loop(hObject, ~, hGui, Testmode)
 global recobj
 global sobj
 global s
+global sOut
 global dio
 %global DataSave %save
 global ParamsSave %save
@@ -47,6 +48,9 @@ end
         if Testmode==0
             if s.IsRunning
                 stop(s)
+            end
+            if sOut.IsRunning
+                stop(sOut)
             end
             delete(lh)
             disp('stop daq sessions, delete event listenner')
