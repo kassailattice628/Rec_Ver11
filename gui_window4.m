@@ -89,7 +89,7 @@ hGui.lumi=uicontrol('style','popupmenu','position',[120 510 75 20],'string',[{'F
 %%% RGB %%% sobj.stimRGB
 uicontrol('style','text','position',[120,480,70,15],'string','Stim.RGB','Horizontalalignment','left');
 hGui.stimRGB = uicontrol('style','popupmenu','position',[120,455,70,25], 'string',[{'BW'},{'Blu'},{'Gre'},{'Yel'},{'Red'}]);
-set(hGui.stimRGB, 'callback', @check_stimRGB);
+set(hGui.stimRGB, 'callback', @get_stimRGB);
 
 %%% Durtion
 uicontrol('style','text','string','Stim.Duration','position',[10 480 65 15],'Horizontalalignment','left');
@@ -430,7 +430,7 @@ end
 end
 
 %%
-function check_stimRGB(hObject,~)
+function get_stimRGB(hObject,~)
 global sobj
 
 % [{'BW'},{'Blu'},{'Gre'},{'Yel'},{'Red'}];

@@ -166,9 +166,9 @@ end
 
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function TriggerDO(Testmode, dioline, value)
+function TriggerVSon(Testmode, dio, value)
 if Testmode == 0
-    outputSingleScan(dioline, value);
+    outputSingleScan(dio.VSon, value);
 end
 end
 %%
@@ -250,7 +250,7 @@ elseif recobj.cycleNum > 0 %StimON
             [sobj.vbl_2, sobj.OnsetTime_2, sobj.FlipTimeStamp_2] = ...
                 Screen('Flip', sobj.wPtr, sobj.vbl_1+sobj.delayPTB);% put some delay for PTB
             
-            TriggerDO(Testmode, dio.VSon,1)
+            TriggerVSon(Testmode, dio, 1)
             disp(['AITrig; ',sobj.pattern, ': #', num2str(recobj.cycleNum)]);
             stim_monitor;
         end
@@ -262,7 +262,7 @@ elseif recobj.cycleNum > 0 %StimON
         [sobj.vbl_3, sobj.OnsetTime_3, sobj.FlipTimeStamp_3] = ...
             Screen('Flip', sobj.wPtr, sobj.vbl_2+sobj.duration);
         
-        TriggerDO(Testmode, dio.VSon,0)
+        TriggerVSon(Testmode, dio,0)
         
         %GUI stim indicater
         stim_monitor_reset;
@@ -308,8 +308,10 @@ end
         sobj.lumi = get_condition(3, sobj.stimlumi_list, recobj.cycleNum,...
             length(sobj.stimlumi_list), flag_lumi_random, sobj.stimlumi);
         
+        sobj.stimcol = sobj.lumi * sobj.stimRGB;
+        
         %PrepScreen Screen
-        Screen(sobj.shape, sobj.wPtr, sobj.lumi, Rect, maxDiameter);
+        Screen(sobj.shape, sobj.wPtr, sobj.stimcol, Rect, maxDiameter);
     end
 
 %%
@@ -338,6 +340,8 @@ end
                 sobj.lumi = get_condition(3, sobj.stimlumi_list, recobj.cycleNum,...
                     length(sobj.stimlumi_list), flag_lumi_random, sobj.stimlumi);
                 
+                sobj.stimcol = sobj.lumi * sobj.stimRGB;
+                
             case 'B/W'
                 [conc_pos_mat, sobj.conc_index] = get_condition(4, sobj.concentric_mat, recobj.cycleNum,...
                     size(sobj.concentric_mat,1), flag_random_dir);
@@ -349,6 +353,7 @@ end
                     case 2
                         sobj.lumi = 0;
                 end
+                sobj.stimcol = sobj.lumi;
                 
         end
         
@@ -374,7 +379,7 @@ end
         Rect = CenterRectOnPointd([0,0, sobj.stim_size], sobj.stim_center(1), sobj.stim_center(2));
         
         %PrepScreen Screen
-        Screen(sobj.shape, sobj.wPtr, sobj.lumi, Rect, maxDiameter);
+        Screen(sobj.shape, sobj.wPtr, sobj.stimcol, Rect, maxDiameter);
     end
 
 %%
@@ -402,7 +407,8 @@ end
         %%% flip 1st img %%%%%%%%%%%%%%%%%%%%%%%%%%%
         [sobj.vbl_2, sobj.OnsetTime_2, sobj.FlipTimeStamp_2] =...
             Screen('Flip', sobj.wPtr, sobj.vbl_1+sobj.delayPTB);% put some delay for PTB
-        TriggerDO(Testmode, dio.VSon,1)
+        TriggerVSon(Testmode, dio,1)
+        disp(['AITrig; ',sobj.pattern, ': #', num2str(recobj.cycleNum)]);
         stim_monitor
         
         vbl=sobj.vbl_2;
@@ -463,24 +469,30 @@ end
         end
         sobj.lumi = get_condition(3, sobj.stimlumi_list, recobj.cycleNum,...
             length(sobj.stimlumi_list), flag_lumi_random, sobj.stimlumi);
+        sobj.stimcol = sobj.lumi * sobj.stimRGB;
+        
+        %use get_condition(5,~)
+        sobj.lumi2 = get_condition(5, sobj.stimlumi_list, recobj.cycleNum,...
+            length(sobj.stimlumi_list), flag_lumi_random, sobj.stimlumi2);
+        sobj.stimcol2 = sobj.lumi2 * sobj.stimRGB;
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         %PrepScreen Screen by OffscreenTexture
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % Stim1 only
         Stim1 = Screen('OpenOffscreenWindow', sobj.ScrNum, sobj.bgcol);
-        Screen(sobj.shape, Stim1, sobj.lumi, Rect, maxDiameter);
+        Screen(sobj.shape, Stim1, sobj.stimcol, Rect, maxDiameter);
         Screen('FillRect', Stim1, 180, [0 0 40 40]);
         
         % Stim2 only
         Stim2 = Screen('OpenOffscreenWindow', sobj.ScrNum, sobj.bgcol);
-        Screen(sobj.shape2, Stim2, sobj.lumi, Rect2, maxDiameter2);
+        Screen(sobj.shape2, Stim2, sobj.stimcol2, Rect2, maxDiameter2);
         Screen('FillRect', Stim2, 180, [0 0 40 40]);
         
         % Both Stim1 & Stim2
         Both_Stim1_Stim2 = Screen('OpenOffscreenWindow', sobj.ScrNum, sobj.bgcol);
-        Screen(sobj.shape, Both_Stim1_Stim2, sobj.lumi, Rect);
-        Screen(sobj.shape2, Both_Stim1_Stim2, sobj.lumi, Rect2, max([maxDiameter, maxDiameter2]));
+        Screen(sobj.shape, Both_Stim1_Stim2, sobj.stimcol, Rect);
+        Screen(sobj.shape2, Both_Stim1_Stim2, sobj.stimcol2, Rect2);
         Screen('FillRect', Both_Stim1_Stim2, 255, [0 0 40 40]);
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -511,7 +523,7 @@ end
             [sobj.vbl_3, sobj.OnsetTime_3, sobj.FlipTimeStamp_3] =...
                 Screen('Flip', sobj.wPtr, sobj.vbl_1+duration1);
             
-            TriggerDO(Testmode, dio.VSon,0)
+            TriggerVSon(Testmode, dio,0)
             
             sobj.vbl2_3 = sobj.vbl_3;
             sobj.OnsetTime2_3 = sobj.OnsetTime_3;
@@ -521,7 +533,7 @@ end
             [sobj.vbl_3, sobj.OnsetTime_3, sobj.FlipTimeStamp_3] =...
                 Screen('Flip', sobj.wPtr, sobj.vbl_1+duration1);
             
-            TriggerDO(Testmode, dio.VSon,0)
+            TriggerVSon(Testmode, dio,0)
             
             Screen('FillRect', sobj.wPtr, sobj.bgcol);
             [sobj.vbl2_3, sobj.OnsetTime2_3, sobj.FlipTimeStamp2_3] =...
@@ -531,7 +543,7 @@ end
             [sobj.vbl2_3, sobj.OnsetTime2_3, sobj.FlipTimeStamp2_3] =...
                 Screen('Flip', sobj.wPtr, sobj.vbl_1+duration2);
             
-            TriggerDO(Testmode, dio.VSon,0)
+            TriggerVSon(Testmode, dio,0)
             
             Screen('FillRect', sobj.wPtr, sobj.bgcol);
             [sobj.vbl_3, sobj.OnsetTime_3, sobj.FlipTimeStamp_3] =...
@@ -556,7 +568,8 @@ end
                 [sobj.vbl_2, sobj.OnsetTime_2, sobj.FlipTimeStamp_2] =...
                     Screen('Flip', sobj.wPtr, sobj.vbl_1 + sobj.delayPTB);
                 
-                TriggerDO(Testmode, dio.VSon,1)
+                TriggerVSon(Testmode, dio,1)
+                disp(['AITrig; ',sobj.pattern, ': #', num2str(recobj.cycleNum)]);
                 
                 Screen('DrawTexture', sobj.wPtr, Both_Stim1_Stim2)
                 [sobj.vbl2_2, sobj.OnsetTime2_2, sobj.FlipTimeStamp2_2] =...
@@ -567,7 +580,8 @@ end
                 [sobj.vbl_2, sobj.OnsetTime_2, sobj.FlipTimeStamp_2] =...
                     Screen('Flip', sobj.wPtr, sobj.vbl_1 + sobj.delayPTB);
                 
-                TriggerDO(Testmode, dio.VSon,1)
+                TriggerVSon(Testmode, dio,1)
+                disp(['AITrig; ',sobj.pattern, ': #', num2str(recobj.cycleNum)]);
                 
                 sobj.vbl2_2 = sobj.vbl_2;
                 sobj.OnsetTime2_2 = sobj.OnsetTime_2;
@@ -578,7 +592,8 @@ end
                 [sobj.vbl2_2, sobj.OnsetTime2_2, sobj.FlipTimeStamp2_2] =...
                     Screen('Flip', sobj.wPtr, sobj.vbl_1 + sobj.delayPTB2);
                 
-                TriggerDO(Testmode, dio.VSon,1)
+                TriggerVSon(Testmode, dio,1)
+                disp(['AITrig; ',sobj.pattern, ': #', num2str(recobj.cycleNum)]);
                 
                 Screen('DrawTexture', sobj.wPtr, Both_Stim1_Stim2)
                 [sobj.vbl_2, sobj.OnsetTime_2, sobj.FlipTimeStamp_2] =...
@@ -641,7 +656,6 @@ end
         
         phase = 0;
         contrast = 100;
-        %sRect = [0, 0, sobj.ScreenSize(1), sobj.ScreenSize(2)];
         base_stimRect = [0, 0, sobj.stim_size(1), sobj.stim_size(2)];
         stimRect = CenterRectOnPointd(base_stimRect, sobj.stim_center(1), sobj.stim_center(2));
         
@@ -682,8 +696,7 @@ end
         [sobj.vbl_2, sobj.OnsetTime_2, sobj.FlipTimeStamp_2] = ...
             Screen('Flip', sobj.wPtr, sobj.vbl_1+sobj.delayPTB);% put some delay for PTB
         
-        TriggerDO(Testmode, dio.VSon, 1);
-        
+        TriggerVSon(Testmode, dio, 1);
         disp(['AITrig; ',sobj.pattern, ': #', num2str(recobj.cycleNum)]);
         stim_monitor;
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

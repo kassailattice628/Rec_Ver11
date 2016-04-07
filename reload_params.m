@@ -114,9 +114,6 @@ for n = 1:num_directions
     sobj.concentric_mat_deg(sobj.concentric_mat_deg(:,2)==n, 2) = sobj.concentric_angle_deg_list(n);
 end
 
-disp(sobj.concentric_mat_deg);
-
-
 %% Select Image Set
 sobj.img_list = randperm(256);
 sobj.img_sublist = sobj.img_list(1:sobj.ImageNum)';
@@ -218,8 +215,6 @@ if Testmode == 0
         recobj.TTL3AO = [delay; pulse; zeros(recobj.recp-size(delay,2)-size(pulse,2),1)];
         recobj.TTL3AO = zeros(recobj.recp, 1);
         recobj.TTL3AO(1:size([delay;pulse],1),1)=[delay;pulse];
-        disp(size(recobj.TTL3AO))
-        disp(recobj.recp)
     end
     
 end

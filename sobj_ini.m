@@ -51,11 +51,6 @@ sobj.delayPTBflip2 = 20; %delay flip number
 sobj.delayPTB2 = 0;% PTBflip * m_int
 
 %%
-sobj.tPTBon=0;
-sobj.tPTBoff=0;
-sobj.tPTBon2=0;
-sobj.tPTBoff2=0;
-
 sobj.fixpos = 1;
 
 sobj.shiftSpd = 2;%Hz
@@ -65,21 +60,13 @@ sobj.gratFreq = 0.08;% cycle/degree
 sobj.gratFreq_list = [0.01;0.02;0.04;0.08;0.16;0.32];
 
 sobj.shiftDir = 1;%1~8:direction, 9: 8 random directions, 10: 4 random directions
-%sobj.angle = 0;%savedata—p
-%sobj.angle8_deg = linspace(0, 315,8);
-%sobj.angle16_deg = linspace(0,337.5,16);
 
 sobj.loomingSpd_list = [5; 10; 20; 40; 80; 160];
 sobj.looming_Size = 40;
 
 sobj.dist = 15; %distance(degree) for 2nd stimulus for lateral inhibition
 
-
 sobj.position = 0;
-%sobj.position_cord = zeros(1,4);
-%sobj.position_cord2 = zeros(1,4);
-%sobj.stim2_center = zeros(1,2);
-%sobj.dist_pix = 0;
 
 %Zoom and Fine mapping
 sobj.zoom_dist = 0;

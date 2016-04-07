@@ -11,12 +11,11 @@ if recobj.cycleNum > 0
     save.PTBOff_time = sobj.vbl_3 - sobj.vbl_2;
     
     save.stim1.lumi = sobj.lumi;
-    sobj.stim1.color = sobj.stimcol;
+    save.stim1.color = sobj.stimcol;
     
     %%%% Visual Stimuli %%%%
     %save.divnum = sobj.divnum; % Monitor division
     pattern = sobj.pattern;
-    
     
     %center position
     save.stim1.center_position = sobj.center_index;
@@ -26,7 +25,6 @@ if recobj.cycleNum > 0
     save.stim1.size_deg = sobj.size_deg;
     save.stim1.sizeX_pix = sobj.stim_size(1);
     save.stim1.sizeY_pix = sobj.stim_size(2);
-    
     
     switch pattern
         case 'Looming'
@@ -51,11 +49,14 @@ if recobj.cycleNum > 0
                 %size
                 save.stim2.sizeX_pix = sobj.stim_size2(1);
                 save.stim2.sizeY_pix = sobj.stim_size2(2);
+                %
+                save.stim2.lumi = sobj.lumi2;
+                save.stim2.color = sobj.stimcol2;
             end
             
         case 'Images'
             %Image
-            save.stim1.Image_index = sobj.Img_i;
+            save.stim1.Image_index = sobj.img_i;
             
         case {'Sin', 'Rect', 'Gabor'}
             %Sin, Rect, Gabor
