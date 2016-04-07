@@ -166,16 +166,10 @@ end
 
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function TriggerTTL3(Testmode, dio, value)
-global recobj
+function TriggerDO(Testmode, dioline, value)
 if Testmode == 0
-    if value == 1
-        recobj.START_TTL3 = tic;
-    end
-    outputSingleScan(dio.TTL3, value);
+    outputSingleScan(dioline, value);
 end
-
-
 end
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -239,13 +233,9 @@ elseif recobj.cycleNum > 0 %StimON
                 %Prep,
                 Uni_stim(1);
                 
-            elseif strcmp(sobj.pattern, '1P_Conc')
+            elseif strcmp(sobj.pattern, '1P_Conc') || strcmp(sobj.pattern, 'B/W')
                 %Prep,
                 Conc_1P;
-                
-            elseif strcmp(sobj.pattern, 'B/W')
-                %Prep,
-                Uni_BW;
                 
             elseif strcmp(sobj.pattern, 'Images')
                 %Prep,
@@ -260,18 +250,19 @@ elseif recobj.cycleNum > 0 %StimON
             [sobj.vbl_2, sobj.OnsetTime_2, sobj.FlipTimeStamp_2] = ...
                 Screen('Flip', sobj.wPtr, sobj.vbl_1+sobj.delayPTB);% put some delay for PTB
             
-            sobj.sFlipTimeStamp_2=toc(recobj.STARTloop);
+            TriggerDO(Testmode, dio.VSon,1)
             disp(['AITrig; ',sobj.pattern, ': #', num2str(recobj.cycleNum)]);
             stim_monitor;
         end
         
         %%% stim OFF %%%%%%%%%%%%%%%%%%%%%%%%%%%
-        % Prep BG
+        % Prep BacgGround Screen
         Screen('FillRect', sobj.wPtr, sobj.bgcol);
         % After sobj.duration, flib BG color
         [sobj.vbl_3, sobj.OnsetTime_3, sobj.FlipTimeStamp_3] = ...
             Screen('Flip', sobj.wPtr, sobj.vbl_2+sobj.duration);
-        sobj.sFlipTimeStamp_3 = toc(recobj.STARTloop);
+        
+        TriggerDO(Testmode, dio.VSon,0)
         
         %GUI stim indicater
         stim_monitor_reset;
@@ -323,17 +314,44 @@ end
 
 %%
     function Conc_1P
+        %Set concentric position and luminance
         
         if get(figUIobj.shiftDir, 'value') == 9 %ord8
             flag_random_dir = 3;%ordered
         else
             flag_random_dir = 1;%random distance, direction
         end
-        [conc_pos_mat, sobj.conc_index] = get_condition(4, sobj.concentric_mat(1:end/2,:), recobj.cycleNum,...
-            size(sobj.concentric_mat,1)/2, flag_random_dir);
         
-        %conc_pos_mat(1,i): distance(pix)
-        %conc_pos_mat(2,i): angle(rad)
+        switch sobj.pattern
+            case '1P_Conc'
+                %conc_pos_mat(1,i): distance(pix), conc_pos_mat(2,i): angle(rad)
+                [conc_pos_mat, sobj.conc_index] = get_condition(4, sobj.concentric_mat(1:end/2,:), recobj.cycleNum,...
+                    size(sobj.concentric_mat,1)/2, flag_random_dir);
+                
+                % Set Luminance
+                switch get(figUIobj.lumi,'value')
+                    case 1
+                        flag_lumi_random = 2; %fix
+                    case 2
+                        flag_lumi_random = 1; %randomize
+                end
+                sobj.lumi = get_condition(3, sobj.stimlumi_list, recobj.cycleNum,...
+                    length(sobj.stimlumi_list), flag_lumi_random, sobj.stimlumi);
+                
+            case 'B/W'
+                [conc_pos_mat, sobj.conc_index] = get_condition(4, sobj.concentric_mat, recobj.cycleNum,...
+                    size(sobj.concentric_mat,1), flag_random_dir);
+                
+                % Set Luminance
+                switch conc_pos_mat(3)
+                    case 1
+                        sobj.lumi = 255;
+                    case 2
+                        sobj.lumi = 0;
+                end
+                
+        end
+        
         [concX, concY] = pol2cart(conc_pos_mat(2),conc_pos_mat(1));
         
         % Set stim center
@@ -350,64 +368,10 @@ end
         % Set stim size
         sobj.stim_size = sobj.stimsz;
         sobj.size_deg = str2double(get(figUIobj.size, 'string'));
+        maxDiameter = max(sobj.stim_size) * 1.01;
         
         % define stim position using center and size
         Rect = CenterRectOnPointd([0,0, sobj.stim_size], sobj.stim_center(1), sobj.stim_center(2));
-        
-        % Set Luminance
-        switch get(figUIobj.lumi,'value')
-            case 1
-                flag_lumi_random = 2; %fix
-            case 2
-                flag_lumi_random = 1; %randomize
-        end
-        sobj.lumi = get_condition(3, sobj.stimlumi_list, recobj.cycleNum,...
-            length(sobj.stimlumi_list), flag_lumi_random, sobj.stimlumi);
-        
-        %PrepScreen Screen
-        Screen(sobj.shape, sobj.wPtr, sobj.lumi, Rect);
-    end
-
-%%
-    function Uni_BW
-        if get(figUIobj.shiftDir, 'value') == 9 %ord8
-            flag_random_dir = 3;%ordered
-        else
-            flag_random_dir = 1;%random distance, direction
-        end
-        [conc_pos_mat, sobj.conc_index] = get_condition(4, sobj.concentric_mat, recobj.cycleNum,...
-            size(sobj.concentric_mat,1), flag_random_dir);
-        
-        %conc_pos_mat(1,i): distance(pix)
-        %conc_pos_mat(2,i): angle(rad)
-        [concX, concY] = pol2cart(conc_pos_mat(2),conc_pos_mat(1));
-        
-        % Set stim center
-        fix_center = sobj.center_pos_list(sobj.fixpos,:);
-        [sobj.stim_center, sobj.center_index] = get_condition(1, sobj.center_pos_list, recobj.cycleNum,...
-            sobj.divnum^2, get(figUIobj.mode,'value'), fix_center);
-        if get(figUIobj.mode,'value') == 2
-            sobj.center_index = sobj.fixpos;
-        end
-        
-        % if conc_pos_mat is defined, changes stim_cneter position
-        sobj.stim_center = [sobj.stim_center(1) + concX, sobj.stim_center(2) - concY];
-        
-        % Set stim size
-        stim_size = sobj.stimsz;
-        sobj.size_deg = str2double(get(figUIobj.size, 'string'));
-        maxDiameter = max(stim_size) * 1.01;
-        
-        % define stim position using center and size
-        Rect = CenterRectOnPointd([0,0,sobj.stim_size], sobj.stim_center(1), sobj.stim_center(2));
-        
-        % Set Luminance
-        switch conc_pos_mat(3)
-            case 1
-                sobj.lumi = 255;
-            case 2
-                sobj.lumi = 0;
-        end
         
         %PrepScreen Screen
         Screen(sobj.shape, sobj.wPtr, sobj.lumi, Rect, maxDiameter);
@@ -435,13 +399,13 @@ end
         Screen(sobj.shape, sobj.wPtr, 255, Rect);
         Screen('FillRect', sobj.wPtr, 255, [0 0 40 40]);
         
-        % onscreen に １枚目提示してタイマースタート
+        %%% flip 1st img %%%%%%%%%%%%%%%%%%%%%%%%%%%
         [sobj.vbl_2, sobj.OnsetTime_2, sobj.FlipTimeStamp_2] =...
             Screen('Flip', sobj.wPtr, sobj.vbl_1+sobj.delayPTB);% put some delay for PTB
-        sobj.sFlipTimeStamp_2=toc(recobj.STARTloop);
+        TriggerDO(Testmode, dio.VSon,1)
         stim_monitor
-        vbl=sobj.vbl_2;
         
+        vbl=sobj.vbl_2;
         
         looming_timer = tic;
         %for count = 1:sobj.flipNum
@@ -499,6 +463,7 @@ end
         end
         sobj.lumi = get_condition(3, sobj.stimlumi_list, recobj.cycleNum,...
             length(sobj.stimlumi_list), flag_lumi_random, sobj.stimlumi);
+        
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         %PrepScreen Screen by OffscreenTexture
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -518,52 +483,20 @@ end
         Screen(sobj.shape2, Both_Stim1_Stim2, sobj.lumi, Rect2, max([maxDiameter, maxDiameter2]));
         Screen('FillRect', Both_Stim1_Stim2, 255, [0 0 40 40]);
         
-        
-        
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         %ScreenFlip
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         if sobj.delayPTB < sobj.delayPTB2
-            % Stim1 appears earier thant Stm1
-            
-            if (recobj.delayTTL3 + recobj.durationTTL3) <= recobj.delayPTB
-                %wait TTL3 delay
-                while toc(recobj.STARTloop) < recobj.delayTTL3
-                end
-                TriggerTTL3(Testmode, dio, 1) % TTL3 ON
-                while toc(recobj.START_TTL3) < recobj.duration
-                end
-                TriggerTTL3(Testmode, dio, 0) % TTL3 OFF
-                
-                Flip_Conc2(Stim1, Stim2, Both_Stim1_Stim2, 1);
-                
-            elseif recobj.delayTTL3 < recobj.delayPTB
-                %wait TTL3 delay
-                while toc(recobj.STARTloop) < recobj.delayTTL3
-                end
-                TriggerTTL3(Testmode, dio, 1) % TTL3 ON
-                
-                Flip_Conc2(Stim1, Stim2, Both_Stim1_Stim2, 1);
-                
-            end
-            
+            % Stim1 appears earier thant Stim2
+            Flip_Conc2(Stim1, Stim2, Both_Stim1_Stim2, 1);
+                         
         elseif sobj.delayPTB == sobj.delayPTB2
             % Stim1 and Stim2 appear at the same timing
-            Screen('DrawTexture', sobj.wPtr, Both_Stim1_Stim2)
-            [sobj.vbl_2, sobj.OnsetTime_2, sobj.FlipTimeStamp_2] =...
-                Screen('Flip', sobj.wPtr, sobj.vbl_1 + sobj.delayPTB);
-            sobj.vbl2_2 = sobj.vbl_2;
-            sobj.OnsetTime2_2 = sobj.OnsetTime_2;
-            sobj.FlipTimeStamp2_2 = sobj.FlipTimeStamp_2;
+            Flip_Conc2(Stim1, Stim2, Both_Stim1_Stim2, 2);
             
         elseif sobj.delayPTB > sobj.delayPTB2
             % Stim1 appears after Stim2
-            Screen('DrawTexture', sobj.wPtr, Stim2)
-            [sobj.vbl2_2, sobj.OnsetTime2_2, sobj.FlipTimeStamp2_2] =...
-                Screen('Flip', sobj.wPtr, sobj.vbl_1 + sobj.delayPTB2);
-            Screen('DrawTexture', sobj.wPtr, Both_Stim1_Stim2)
-            [sobj.vbl_2, sobj.OnsetTime_2, sobj.FlipTimeStamp_2] =...
-                Screen('Flip', sobj.wPtr, sobj.vbl_1 + sobj.delayPTB);
+            Flip_Conc2(Stim1, Stim2, Both_Stim1_Stim2, 3);
         end
         stim_monitor;
         
@@ -577,6 +510,9 @@ end
             Screen('FillRect', sobj.wPtr, sobj.bgcol);
             [sobj.vbl_3, sobj.OnsetTime_3, sobj.FlipTimeStamp_3] =...
                 Screen('Flip', sobj.wPtr, sobj.vbl_1+duration1);
+            
+            TriggerDO(Testmode, dio.VSon,0)
+            
             sobj.vbl2_3 = sobj.vbl_3;
             sobj.OnsetTime2_3 = sobj.OnsetTime_3;
             sobj.FlipTimeStamp2_3 = sobj.FlipTimeStamp_3;
@@ -584,6 +520,9 @@ end
             Screen('DrawTexture', sobj.wPtr, Stim2);
             [sobj.vbl_3, sobj.OnsetTime_3, sobj.FlipTimeStamp_3] =...
                 Screen('Flip', sobj.wPtr, sobj.vbl_1+duration1);
+            
+            TriggerDO(Testmode, dio.VSon,0)
+            
             Screen('FillRect', sobj.wPtr, sobj.bgcol);
             [sobj.vbl2_3, sobj.OnsetTime2_3, sobj.FlipTimeStamp2_3] =...
                 Screen('Flip', sobj.wPtr, sobj.vbl_1+duration2);
@@ -591,10 +530,14 @@ end
             Screen('DrawTexture', sobj.wPtr, Stim1);
             [sobj.vbl2_3, sobj.OnsetTime2_3, sobj.FlipTimeStamp2_3] =...
                 Screen('Flip', sobj.wPtr, sobj.vbl_1+duration2);
+            
+            TriggerDO(Testmode, dio.VSon,0)
+            
             Screen('FillRect', sobj.wPtr, sobj.bgcol);
             [sobj.vbl_3, sobj.OnsetTime_3, sobj.FlipTimeStamp_3] =...
                 Screen('Flip', sobj.wPtr, sobj.vbl_1+duration1);
         end
+        
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % Close OffscreenWindow
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -604,7 +547,7 @@ end
         stim_monitor_reset;
     end
 
-
+    %% function for Conc_2P
     function Flip_Conc2(Stim1, Stim2, Both_Stim1_Stim2, type)
         switch type
             case 1
@@ -612,6 +555,8 @@ end
                 Screen('DrawTexture', sobj.wPtr, Stim1)
                 [sobj.vbl_2, sobj.OnsetTime_2, sobj.FlipTimeStamp_2] =...
                     Screen('Flip', sobj.wPtr, sobj.vbl_1 + sobj.delayPTB);
+                
+                TriggerDO(Testmode, dio.VSon,1)
                 
                 Screen('DrawTexture', sobj.wPtr, Both_Stim1_Stim2)
                 [sobj.vbl2_2, sobj.OnsetTime2_2, sobj.FlipTimeStamp2_2] =...
@@ -621,6 +566,9 @@ end
                 Screen('DrawTexture', sobj.wPtr, Both_Stim1_Stim2)
                 [sobj.vbl_2, sobj.OnsetTime_2, sobj.FlipTimeStamp_2] =...
                     Screen('Flip', sobj.wPtr, sobj.vbl_1 + sobj.delayPTB);
+                
+                TriggerDO(Testmode, dio.VSon,1)
+                
                 sobj.vbl2_2 = sobj.vbl_2;
                 sobj.OnsetTime2_2 = sobj.OnsetTime_2;
                 sobj.FlipTimeStamp2_2 = sobj.FlipTimeStamp_2;
@@ -629,6 +577,9 @@ end
                 Screen('DrawTexture', sobj.wPtr, Stim2)
                 [sobj.vbl2_2, sobj.OnsetTime2_2, sobj.FlipTimeStamp2_2] =...
                     Screen('Flip', sobj.wPtr, sobj.vbl_1 + sobj.delayPTB2);
+                
+                TriggerDO(Testmode, dio.VSon,1)
+                
                 Screen('DrawTexture', sobj.wPtr, Both_Stim1_Stim2)
                 [sobj.vbl_2, sobj.OnsetTime_2, sobj.FlipTimeStamp_2] =...
                     Screen('Flip', sobj.wPtr, sobj.vbl_1 + sobj.delayPTB);
@@ -730,6 +681,10 @@ end
         % Flip and rap timer
         [sobj.vbl_2, sobj.OnsetTime_2, sobj.FlipTimeStamp_2] = ...
             Screen('Flip', sobj.wPtr, sobj.vbl_1+sobj.delayPTB);% put some delay for PTB
+        
+        TriggerDO(Testmode, dio.VSon, 1);
+        
+        disp(['AITrig; ',sobj.pattern, ': #', num2str(recobj.cycleNum)]);
         stim_monitor;
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         for count = 1:sobj.flipNum-1
@@ -820,16 +775,8 @@ end
 
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% end if VisStim
+% end of VisStim
 end
-
-
-
-
-
-
-
-
 
 
 

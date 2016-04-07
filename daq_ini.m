@@ -32,6 +32,7 @@ sOut.Connections(1).TriggerCondition = 'RisingEdge';
 
 
 %% Digital Output
+%P0.1:Start FV or Digidata
 dio.TrigAIFV = daq.createSession(dev.Vendor.ID);
 addDigitalChannel(dio.TrigAIFV, dev.ID, 'port0/line0:1', 'OutputOnly');
 outputSingleScan(dio.TrigAIFV,[0,0]);%reset trigger signals at Low
