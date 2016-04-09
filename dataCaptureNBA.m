@@ -17,12 +17,14 @@ function dataCaptureNBA(src, event, c, hGui, plotVI)
 % capture, a trigger condition flag (trigActive) and a corresponding
 % data timestamp (trigMoment) are used as persistent variables.
 % Persistent variables retain their values between calls to the function.
+%%
 global plotUIobj
 global recobj
 global sobj
 global DataSave
 global ParamsSave
-%%
+
+%% keep parameter during loop
 persistent dataBuffer trigActive trigMoment trigCount
 %%
 % If dataCapture is running for the first time, initialize persistent vars
@@ -34,7 +36,7 @@ if event.TimeStamps(1)==0
 end
 
 % Store continuous acquistion data in persistent FIFO buffer dataBuffer
-latestData = [event.TimeStamps, event.Data]; %after event is avairable
+latestData = [event.TimeStamps, event.Data]; %after 'event' is avairable
 dataBuffer = [dataBuffer; latestData];
 numSamplesToDiscard = size(dataBuffer,1) - c.bufferSize;
 if (numSamplesToDiscard > 0)
@@ -52,12 +54,17 @@ if isfield(plotUIobj, 'button4')
         firstPoint = size(dataBuffer, 1) - samplesToPlot + 1;
         % Update x-axis limits
         set(plotUIobj.axes4, 'XLim', [dataBuffer(firstPoint,1), dataBuffer(end,1)]);
+        
         % Live plot has one line for each acquisition channel
         for ii = 1:size(plotUIobj.button4, 2)
             if get(plotUIobj.button4{1,ii},'value')
-                set(plotUIobj.plot4(ii), 'XData', dataBuffer(firstPoint:end, 1),'YData', dataBuffer(firstPoint:end, ii+1))
+                set(plotUIobj.plot4(ii), ...
+                    'XData', dataBuffer(firstPoint:end, 1),...
+                    'YData', dataBuffer(firstPoint:end, ii+1)...
+                    )
             end
         end
+        
     end
 end
 %%
@@ -71,7 +78,6 @@ if captureRequested && (~trigActive)
     % Trigger Configuration
     trigConfig.Channel = 4; %Trigger monitor
     trigConfig.Level = 2; %(V) Trigger threshold
-    
     % Determine whether trigger condition is met in the latest acquired data
     [trigActive, trigMoment] = trigDetectNBA(latestData, trigConfig);
     
@@ -82,6 +88,7 @@ elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) > c.Tim
     
     % Find index of sample in dataBuffer with timestamp value trigMoment
     trigSampleIndex = find(dataBuffer(:,1) == trigMoment, 1, 'first');
+    
     % Find index of sample in dataBuffer to complete the capture
     lastSampleIndex = round(trigSampleIndex + c.TimeSpan * src.Rate());
     captureData = dataBuffer(trigSampleIndex:lastSampleIndex, :);
@@ -90,29 +97,30 @@ elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) > c.Tim
     % Update captured data plot (one line for each acquisition channel)
     % captureData(:,1) is timstamp
     % 2: AI1, 3: AI2, 4:AI 3=photosensor, 5: AI4=Trigger monitor, 6: RotaryEncoder
-    % plotVI = get(figUIobj.plot, 'value'): 0=V plot, 1=I plot
+    % plotVI = get(figUIobj.plot, 'value'): AI0='V plot, AI1='I plot'
+    
     if isfield(plotUIobj,'button4')
-    if get(plotUIobj.button1, 'value')
-        set(plotUIobj.plot1, 'XData', captureData(:, 1), 'YData', captureData(:,plotVI+2))
-        set(plotUIobj.axes1, 'XLim',[-inf,inf]);
+        if get(plotUIobj.button1, 'value')
+            set(plotUIobj.plot1, 'XData', captureData(:, 1), 'YData', captureData(:,plotVI+2))
+            set(plotUIobj.axes1, 'XLim',[-inf,inf]);
+        end
+        
+        if get(plotUIobj.button2, 'value')
+            set(plotUIobj.plot2, 'XData', captureData(:, 1), 'YData', captureData(:, 4))
+            set(plotUIobj.axes2, 'XLim',[-inf,inf]);
+        end
+        
+        %when Rotary ON, plot Angular Position
+        if get(plotUIobj.button3,'value')
+            %decode rotary
+            positionDataDeg = DecodeRot(captureData(:,6));
+            set(plotUIobj.axes3, 'XLim',[-inf,inf]);
+            set(plotUIobj.plot3, 'XData', captureData(:, 1), 'YData', positionDataDeg)%Decoded Angular position data
+        end
+        %update plot
+        drawnow update;
     end
-    
-    if get(plotUIobj.button2, 'value')
-        set(plotUIobj.plot2, 'XData', captureData(:, 1), 'YData', captureData(:, 4))
-        set(plotUIobj.axes2, 'XLim',[-inf,inf]);
-    end
-    
-    %when Rotary ON, plot Angular Position
-    if get(plotUIobj.button3,'value')
-        %decode rotary
-        positionDataDeg = DecodeRot(captureData(:,6));
-        set(plotUIobj.axes3, 'XLim',[-inf,inf]);
-        set(plotUIobj.plot3, 'XData', captureData(:, 1), 'YData', positionDataDeg)%Decoded Angular position data
-    end
-    %update plot
-    drawnow update;
-    end
-    trigActive = false;    
+    trigActive = false;
     
     %%%%%% save setting %%%%%%
     if get(hGui.save, 'value') == 1 % Saving
@@ -150,7 +158,6 @@ end
 %%
 function positionDataDeg = DecodeRot(CTRin)
 % Transform counter data from rotary encoder into angular position (deg).
-
 signedThreshold = 2^(32-1); %resolution 32 bit
 signedData = CTRin; % data from DAQ
 signedData(signedData > signedThreshold) = signedData(signedData > signedThreshold) - 2^32;

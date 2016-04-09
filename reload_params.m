@@ -118,6 +118,10 @@ end
 sobj.img_list = randperm(256);
 sobj.img_sublist = sobj.img_list(1:sobj.ImageNum)';
 
+%% Multi dots
+sobj.dots_density = re_write(figUIobj.dots_density);
+
+
 %% %%% stim 2 %%%%%
 sobj.shape2 = sobj.shapelist{get(figUIobj.shape2, 'value'), 1};
 sobj.stimlumi2 = re_write(figUIobj.stimlumi2);

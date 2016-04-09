@@ -6,7 +6,6 @@ recobj.NBAver = '11.0.3';
 
 %% Recording Parameters: HEADER Information
 recobj.interval = 1; %loop interval(s);
-%recobj.sampt = 200; %samplingtime(200us)
 recobj.sampf = 5000; %samoling rate (Hz)
 recobj.rect = 2*1000; %recording time (1s<-1000ms)
 recobj.recp = recobj.sampf*recobj.rect/1000;

@@ -15,8 +15,8 @@ if get(hObject, 'value')==1 % loop ON
     reload_params([], [], Testmode);
     recobj.cycleCount = 0;
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    if Testmode == 1 && get(hGui.stim,'value')
-        %open screen
+    if sobj.Num_screens == 1 && get(hGui.stim,'value')
+        %open screen in single monitor condition
         [sobj.wPtr, ~] = Screen('OpenWindow', sobj.ScrNum, sobj.bgcol);
     end
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -76,7 +76,7 @@ end
         recobj = rmfield(recobj,'STARTloop');
         
         %reset all triggers
-        ResetTTLall(Testmode, dio);
+        ResetTTLall(Testmode, dio, sobj);
     end
 
 end
@@ -120,7 +120,7 @@ try %error check
             VisStim(Testmode, dio);
     end
     
-    if Testmode == 1
+    if Testmode == 1 && get(hGui.save, 'value')==1
         ParamsSave{1, recobj.cycleCount} = get_save_params(recobj, sobj);
     end
 catch ME1
@@ -174,14 +174,17 @@ end
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-function ResetTTLall(Testmode, dio)
+function ResetTTLall(Testmode, dio, sobj)
 % Reset all TTL to zero.
 
 if Testmode == 0; %Test mode off
     outputSingleScan(dio.TrigAIFV,[0,0]);
     outputSingleScan(dio.VSon,0);
 else
-    sca;
+    if sobj.Num_screens == 1
+        %Close ScrWindow at Loop-Off
+        Screen('CloseAll')
+    end
 end
 end
 
@@ -240,7 +243,12 @@ elseif recobj.cycleNum > 0 %StimON
             elseif strcmp(sobj.pattern, 'Images')
                 %Prep,
                 Imgs_stim;
+            
+            elseif strcmp(sobj.pattern, 'Mosaic')
+                %Prep,
+                Mosaic_Dots;
             end
+
             
             %AddPhoto Sensor (Left, UP in the monitor) for the stimulus timing check
             Screen('FillRect', sobj.wPtr, 255, [0 0 40 40]);
@@ -642,6 +650,8 @@ end
         sobj.stim_size = sobj.stimsz;
         sobj.size_deg = str2double(get(figUIobj.size, 'string'));
         
+        sobj.lumi = sobj.stimlumi;
+        
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
         % get  Spatial frequency of the grating
@@ -735,7 +745,6 @@ end
         sobj.stim_center = sobj.center_pos_list(sobj.fixpos,:); %fixed position
         sobj.center_index = sobj.fixpos;
         
-        
         sobj.stim_size = sobj.stimsz;
         sobj.size_deg = str2double(get(figUIobj.size, 'string'));
         %
@@ -745,6 +754,61 @@ end
         
         Screen('DrawTexture', sobj.wPtr, imgtex, [], stimRect);
         
+    end
+
+%%
+    function Mosaic_Dots
+        
+        % Fix stim center
+        fix_center = sobj.center_pos_list(sobj.fixpos,:);
+        sobj.stim_center = fix_center;
+        sobj.center_index = sobj.fixpos;
+        
+        % Fix stim size 
+        sobj.stim_size = sobj.stimsz;
+        sobj.size_deg = str2double(get(figUIobj.size, 'string'));
+        
+        % define stim position using center and size
+        
+        % Fix stim luminance
+        sobj.lumi = sobj.stimlumi;
+        sobj.stimcol = sobj.lumi * sobj.stimRGB;
+        
+        % Set multiple dot-dotpositions
+        
+        %sobj.div_zoom = 5;
+        %sobj.dist = 15;
+        dim = sobj.dist; % degree
+        step = sobj.size_deg;
+        [x, y] = meshgrid(-dim:step:dim, -dim:step:dim);
+        x = Deg2Pix(x, sobj.MonitorDist, sobj.pixpitch);
+        y = Deg2Pix(y, sobj.MonitorDist, sobj.pixpitch);
+        numAllDots = numel(x);
+        xy = [reshape(x, 1, numAllDots); reshape(y, 1, numAllDots)];
+        disp(size(xy));
+        %randamize1
+        select = randperm(size(xy,2));
+        num_dots = round(numAllDots*sobj.dots_density/100);
+        
+        disp(size(select));
+        disp(num_dots)
+        
+        xy_select = xy(:,select(1:num_dots));
+        
+        %randamize2;
+        size_rand = step*(rand(num_dots,1));
+        dot_sizes = ceil(size_rand);
+        dot_sizes = Deg2Pix(dot_sizes, sobj.MonitorDist, sobj.pixpitch);
+        
+        % Draw multiple dots, 
+        % Usage::Screen('DrawDots', windowPtr, xy [,size] [,color] [,center] [,dot_type]);
+        % dot_type: 0 (default) squares, 1 circles (with anti-aliasing), 2 circles (with high-quality anti-aliasing, if supported by your hardware)
+        if get(figUIobj.shape, 'value') == 1
+            shape = 0; %square
+        else
+            shape = 2; %circle
+        end
+        Screen('DrawDots', sobj.wPtr, xy_select, dot_sizes, sobj.stimcol, sobj.stim_center, shape);
     end
 
 %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %%
@@ -761,8 +825,7 @@ end
         if flag_random == 2 %fixed condition
             %list_order{n} = fix * ones(1,list_size);
             index = [];
-            out = fix;
-            
+            out = fix; 
         else
             if cycleNum == 1 && n == 1
                 list_order = cell(6,1);
@@ -844,6 +907,11 @@ else % during stimulation
         case 'Images'
             bgcol = 'y';
             stim_str3 = ['Image #: ', num2str(sobj.img_i)];
+            
+        case 'Mosaic'
+            bgcol = 'm';
+            stim_str3 = 'Mosaic';
+            
     end
     %position in matrix
     

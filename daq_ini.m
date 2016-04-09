@@ -1,9 +1,9 @@
 function [varargout] = daq_ini
-% initialize daq configurations
-
+% initialize daq device configurations
+% set daq sessions
 global recobj
-global InCh
 
+%%
 dev = daq.getDevices;
 
 %% Analog Input
@@ -11,16 +11,23 @@ s = daq.createSession(dev.Vendor.ID);
 
 s.Rate = recobj.sampf;
 s.DurationInSeconds = recobj.rect/1000;%sec
+
 %when AO channel is set, s.DurationInSeconds is replaced with 's.scansqued/s.rate'.
 %s.NotifyWhenDataAvailableExceeds = recobj.recp; %10 times/sec in default
 s.IsContinuous = true;
 
-InCh = addAnalogInputChannel(s, dev.ID, 0:3, 'Voltage');%(1):Vm, (2):Im, (3):photo sensor, (4):Trigger pulse
-InCh(1).TerminalConfig = 'Differential'; % default SingleEnded, -> DifferentialÅD
-InCh(2).TerminalConfig = 'Differential';
-InCh(3).TerminalConfig = 'Differential';
-InCh(4).TerminalConfig = 'Differential'; % This channle is used for hardware timing
+%(1):AI0Vm, (2):Im, (3):photo sensor, (4):Trigger pulse
+InCh = addAnalogInputChannel(s, dev.ID, 0:3, 'Voltage');
+InCh.TerminalConfig = 'Differential';
 
+%{
+% default SingleEnded, -> DifferentialÅD
+InCh(1).TerminalConfig = 'Differential';
+InCh(2).TerminalConfig = 'Differential'; 
+InCh(3).TerminalConfig = 'Differential';
+% Channle4 is used for hardware timing.
+InCh(4).TerminalConfig = 'Differential';
+%}
 %% Analog Output
 sOut = daq.createSession(dev.Vendor.ID);
 sOut.Rate = recobj.sampf;
@@ -42,12 +49,6 @@ dio.VSon = daq.createSession(dev.Vendor.ID);
 addDigitalChannel(dio.VSon, dev.ID, 'port0/line2', 'OutputOnly');
 outputSingleScan(dio.VSon,0); %reset trigger signals at Low
 
-%P0.3:digital Trigger for other device
-%{
-dio.TTL3 = daq.createSession(dev.Vendor.ID);
-addDigitalChannel(dio.TTL3, dev.ID, 'port0/line3', 'OutputOnly');
-outputSingleScan(dio.TTL3,0); %reset trigger signals at Low
-%}
 %if other digital outputs will be needed, the code is here.
 
 %% for Rotary Encoder

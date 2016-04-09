@@ -55,7 +55,8 @@ set(hGui.mode, 'callback', @set_fig_pos);
 %%
 uicontrol('style','text','string','Stim.Pattern','position',[105 620 70 15],'Horizontalalignment','left');
 hGui.pattern=uicontrol('style','popupmenu','position',[105 600 90 20],...
-    'string',[{'Uni'},{'Size_rand'},{'1P_Conc'},{'2P_Conc'},{'B/W'},{'Looming'},{'Sin'},{'Rect'},{'Gabor'},{'Images'}]);
+    'string',[{'Uni'},{'Size_rand'},{'1P_Conc'},{'2P_Conc'},{'B/W'},...
+    {'Looming'},{'Sin'},{'Rect'},{'Gabor'},{'Images'},{'Mosaic'}]);
 set(hGui.pattern, 'callback', @check_change_params);
 % New stimulus patterns will be added this list and, change stim_pattern and "visual stimulus.m".
 
@@ -92,7 +93,7 @@ hGui.stimRGB = uicontrol('style','popupmenu','position',[120,455,70,25], 'string
 set(hGui.stimRGB, 'callback', @get_stimRGB);
 
 %%% Durtion
-uicontrol('style','text','string','Stim.Duration','position',[10 480 65 15],'Horizontalalignment','left');
+uicontrol('style','text','string','Stim.Duration','position',[10 480 80 15],'Horizontalalignment','left');
 hGui.flipNum=uicontrol('style','edit','string',sobj.flipNum,'position',[10 455 30 25],'BackGroundColor','w');
 set(hGui.flipNum,'callback', @check_change_params);
 sobj.duration = sobj.flipNum*sobj.m_int;
@@ -112,8 +113,13 @@ hGui.prestim=uicontrol('style','text','position',[45 355 100 15],...
     'string',['loops = > ',num2str(recobj.prestim * (recobj.rect/1000 + recobj.interval)),' sec'],'Horizontalalignment','left');
 
 %%% The number of Image stimli
-uicontrol('style', 'text','string','# of Imgs','position',[120 430 70 15],'HorizontalAlignment','left');
-hGui.ImageNum = uicontrol('style','edit','string', sobj.ImageNum, 'position',[120 405 40 25],'BackGroundColor','w');
+uicontrol('style', 'text','string','# of Imgs','position',[130 430 60 15],'HorizontalAlignment','left');
+hGui.ImageNum = uicontrol('style','edit','string', sobj.ImageNum, 'position',[140 405 40 25],'BackGroundColor','w');
+
+%%% Mosaic Dot Density
+uicontrol('style', 'text','string','Dots Density','position',[120 385 70 15],'HorizontalAlignment','left');
+hGui.dots_density = uicontrol('style','edit','string', sobj.dots_density, 'position',[145 360 30 25],'BackGroundColor','w');
+uicontrol('style', 'text','string','%','position',[175 360 20 15],'HorizontalAlignment','left');
 
 %%% Size %%%%
 uicontrol('style','text','position',[10 330 130 15],'string','Size (Diamiter)','Horizontalalignment','left');

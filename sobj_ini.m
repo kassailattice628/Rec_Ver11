@@ -1,11 +1,16 @@
 function sobj = sobj_ini(Testmode,pixpitch)
 % initialize sobj (PTB parameters)
 
+% get monitor information
 %scrsz=get(0,'ScreenSize');
 MP = get(0,'MonitorPosition');%position matrix for malti monitors
 screens = Screen('Screens');
-sobj.ScrNum = max(screens);% 0: main, 1,2,...: sub(stim monitorÅj, !!Windwos, 1:main,2....sub
-if sobj.ScrNum == 0
+sobj.Num_screens = size(screens, 2);
+sobj.ScrNum = max(screens);
+% OSX, main=0, sub(stim monitor) = 1,2,...
+% Windwos, main=1, sub(stim monitor) = 2,3,...
+
+if sobj.ScrNum == 0 %Single display in OSX
     sNum = sobj.ScrNum+1;
 else
     sNum = sobj.ScrNum;
@@ -24,22 +29,25 @@ sobj.shapelist = [{'FillRect'};{'FillOval'}];
 sobj.shape = 'FillOval'; % default Oval
 sobj.pattern = 'Uni'; %uniform or Grating
 sobj.mode = 'Random';
-%sobj.filter = 1; % 1: None, 2: Gabor patch
-sobj.div_zoom = 5;
+
 sobj.flipNum = 75;
-sobj.divnum = 2;
+sobj.divnum = 3;
+
 sobj.black = BlackIndex(sobj.ScrNum);
 sobj.white = WhiteIndex(sobj.ScrNum);
 sobj.gray = round((sobj.white+sobj.black)/2);
+
 sobj.stimlumi = sobj.white;
 sobj.bgcol = sobj.black;
 if sobj.gray == sobj.stimlumi
     sobj.gray = sobj.white/2;
 end
+sobj.stimRGB = [1,1,1]; % white
+sobj.stimcol = sobj.stimlumi * sobj.stimRGB;
+
 sobj.delayPTBflip = 20; %delay flip number
 sobj.delayPTB = 0;% PTBflip * m_int
-sobj.stimRGB = [1,1,1];
-sobj.stimcol = sobj.stimlumi * sobj.stimRGB;
+
 
 %% %VS2%%%%
 sobj.stimsz2 = round(ones(1,2)*Deg2Pix(1,sobj.MonitorDist, pixpitch));% default: 1 deg
@@ -64,18 +72,23 @@ sobj.shiftDir = 1;%1~8:direction, 9: 8 random directions, 10: 4 random direction
 sobj.loomingSpd_list = [5; 10; 20; 40; 80; 160];
 sobj.looming_Size = 40;
 
+sobj.div_zoom = 5;
 sobj.dist = 15; %distance(degree) for 2nd stimulus for lateral inhibition
 
-sobj.position = 0;
+%sobj.position = 0;
 
 %Zoom and Fine mapping
-sobj.zoom_dist = 0;
-sobj.zoom_ang = 0;
+
+%sobj.zoom_dist = 0;
+%sobj.zoom_ang = 0;
 
 %Image presentation
 sobj.img_i = 0;
 sobj.ImageNum = 256;
 sobj.list_img = 1:sobj.ImageNum;
+
+%Mosiac dots
+sobj.dots_density = 30;%
 
 
 end
