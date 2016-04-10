@@ -33,7 +33,7 @@ if get(hObject, 'value')==1 % loop ON
         MainLoop(dio, hGui, Testmode)
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
-        if Testmode == 1 && recobj.cycleNum == 5
+        if sobj.Num_screens == 1 && recobj.cycleNum == 5
             set(hObject, 'value', 0);
             func_Loop_Off
         end
@@ -43,6 +43,9 @@ else %loop OFF
 end
 %%
     function func_Loop_Off
+        if sobj.Num_screens==1
+            sca;
+        end
         set(hObject,'string', 'Loop-Off', 'BackGroundColor', 'r');
         % stop loop & data acquiring
         if Testmode==0

@@ -5,7 +5,7 @@ function sobj = sobj_ini(Testmode,pixpitch)
 %scrsz=get(0,'ScreenSize');
 MP = get(0,'MonitorPosition');%position matrix for malti monitors
 screens = Screen('Screens');
-sobj.Num_screens = size(screens, 2);
+sobj.Num_screens = size(screens,2);
 sobj.ScrNum = max(screens);
 % OSX, main=0, sub(stim monitor) = 1,2,...
 % Windwos, main=1, sub(stim monitor) = 2,3,...

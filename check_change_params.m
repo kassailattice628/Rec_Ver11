@@ -17,6 +17,8 @@ check_AOrange;
         pattern_list = get(figUIobj.pattern,'string');
         sobj.pattern = pattern_list{get(figUIobj.pattern,'value'),1};
         
+        map_lsit = containers.Map();
+        
         switch sobj.pattern
             case 'Uni'
                 set(figUIobj.mode, 'value', 1); % position random
@@ -215,7 +217,61 @@ check_AOrange;
                 set(figUIobj.size2,'BackGroundColor','k');
                 
                 set(figUIobj.rect, 'BackgroundColor', 'g');
+            
+            case 'Mosaic'
+                map_list = 
+                set_fig_stim_color(map_list)
+                set(figUIobj.mode, 'value', 2); % position fix
+                set(figUIobj.fixpos,'BackGroundColor','g');
+                
+                set(figUIobj.div_zoom,'BackGroundColor','k');
+                set(figUIobj.dist,'BackGroundColor','g');
+                
+                set(figUIobj.shiftDir,'BackGroundColor', 'k');
+                set(figUIobj.shiftSpd,'BackGroundColor', 'k');
+                set(figUIobj.gratFreq,'BackGroundColor', 'k');
+                
+                set(figUIobj.loomSpd,'BackGroundColor','k');
+                set(figUIobj.loomSize,'BackGroundColor','k');
+                
+                set(figUIobj.ImageNum,'BackGroundColor','w');
+                
+                set(figUIobj.shape2,'BackGroundColor','k');
+                set(figUIobj.stimlumi2,'BackGroundColor','k');
+                set(figUIobj.flipNum2,'BackGroundColor','k');
+                set(figUIobj.delayPTBflip2,'BackGroundColor','k');
+                set(figUIobj.size2,'BackGroundColor','k');
+                
+                set(figUIobj.rect, 'BackgroundColor', 'g');
         end
+    end
+%%
+    function set_fig_stim_color(map_list)
+        
+        set(figUIobj.mode, 'value', 2); % position fix
+        
+        set(figUIobj.fixpos, 'BackGroundColor', map_list{'fixpos'});
+        
+        set(figUIobj.div_zoom, 'BackGroundColor', map_list{'div_zoom'});
+        set(figUIobj.dist, 'BackGroundColor',map_list{'dist_deg'});
+        
+        set(figUIobj.shiftDir, 'BackGroundColor', map_list{'shiftDir'});
+        set(figUIobj.shiftSpd, 'BackGroundColor', map_list{'shiftSpd'});
+        set(figUIobj.gratFreq, 'BackGroundColor', map_list{'gratFreq'});
+        
+        set(figUIobj.loomSpd, 'BackGroundColor', map_list{'loomSpd'});
+        set(figUIobj.loomSize, 'BackGroundColor', map_list{'loomSize'});
+        
+        set(figUIobj.ImageNum, 'BackGroundColor', map_list{'ImageNum'});
+        
+        set(figUIobj.shape2, 'BackGroundColor', map_list{'shape2'});
+        set(figUIobj.stimlumi2, 'BackGroundColor', map_list{'stimlumi2'});
+        set(figUIobj.flipNum2, 'BackGroundColor', map_list{'flipNum2'});
+        set(figUIobj.delayPTBflip2, 'BackGroundColor', map_list{'delayPTBflip2'});
+        set(figUIobj.size2, 'BackGroundColor', map_list{'size2'});
+        
+        set(figUIobj.rect, 'BackgroundColor', map_list{'rect'});
+        
     end
 
 %%
