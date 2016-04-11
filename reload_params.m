@@ -216,7 +216,6 @@ if Testmode == 0
     % dio reset
     outputSingleScan(dio.TrigAIFV,[0,0])
     outputSingleScan(dio.VSon,0)
-    outputSingleScan(dio.TTL3,0)
     disp('reset s, dio, EventListener')
       
     %%%%%% session for TTL3 counter pulse generation %%%%%%

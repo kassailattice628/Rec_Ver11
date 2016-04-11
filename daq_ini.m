@@ -18,16 +18,14 @@ s.IsContinuous = true;
 
 %(1):AI0Vm, (2):Im, (3):photo sensor, (4):Trigger pulse
 InCh = addAnalogInputChannel(s, dev.ID, 0:3, 'Voltage');
-InCh.TerminalConfig = 'Differential';
 
-%{
 % default SingleEnded, -> DifferentialÅD
 InCh(1).TerminalConfig = 'Differential';
 InCh(2).TerminalConfig = 'Differential'; 
 InCh(3).TerminalConfig = 'Differential';
 % Channle4 is used for hardware timing.
 InCh(4).TerminalConfig = 'Differential';
-%}
+
 %% Analog Output
 sOut = daq.createSession(dev.Vendor.ID);
 sOut.Rate = recobj.sampf;

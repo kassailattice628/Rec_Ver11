@@ -6,7 +6,7 @@ global sobj
 global s
 global sOut
 global dio
-%global DataSave %save
+global DataSave %save
 global ParamsSave %save
 global lh
 
@@ -780,7 +780,7 @@ end
 
         %send rand seed
         sobj.def_seed = rng(sobj.int_seed(recobj.cycleNum),'twister');
-        
+        disp(sobj.int_seed(recobj.cycleNum))
         %randamize1
         select = randperm(size(sobj.positions_deg,2));
         if sobj.num_dots == 0;
@@ -788,9 +788,6 @@ end
         sobj.dot_position_deg = sobj.positions_deg(:, select(1:sobj.num_dots));
         end
         xy_select = Deg2Pix(sobj.dot_position_deg, sobj.MonitorDist, sobj.pixpitch);
-        disp(select);
-        disp(sobj.dot_position_deg);
-        disp(sobj.positions_deg);
         
         %set same seed
         rng(sobj.def_seed);
