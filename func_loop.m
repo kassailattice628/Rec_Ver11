@@ -220,13 +220,18 @@ elseif recobj.cycleNum > 0 %StimON
         time1 = recobj.rect/1000 - (sobj.vbl_3-sobj.vbl_1);
         time2 = recobj.rect/1000 - (sobj.vbl2_3-sobj.vbl_1);
         pause_time = min([time1,time2] + recobj.interval);
-    else
         
-        if strcmp(sobj.pattern, 'Looming')
+    elseif strcmp(sobj.pattern, 'Looming')
             %Prep, ON
             Looming;
             
-        elseif strcmp(sobj.pattern, 'Sin') || strcmp(sobj.pattern, 'Gabor') || strcmp(sobj.pattern, 'Rect')
+            %GUI stim indicater
+            stim_monitor_reset;
+            time1 = recobj.rect/1000 - (sobj.vbl_3-sobj.vbl_1);
+            pause_time = time1 + recobj.interval;
+    else
+            
+        if strcmp(sobj.pattern, 'Sin') || strcmp(sobj.pattern, 'Gabor') || strcmp(sobj.pattern, 'Rect')
             %Prep, ON
             GratingGLSL;
             
@@ -245,7 +250,7 @@ elseif recobj.cycleNum > 0 %StimON
                 
             elseif strcmp(sobj.pattern, 'Images')
                 %Prep,
-                Imgs_stim;
+                Img_stim;
             
             elseif strcmp(sobj.pattern, 'Mosaic')
                 %Prep,
@@ -395,9 +400,7 @@ end
 
 %%
     function Looming
-        %initialize Looming parameters
-        time =  0;
-        waitframes =  1;
+        % Looming parameters
         
         % Set stim center as fixed position
         sobj.stim_center = sobj.center_pos_list(sobj.fixpos,:); %fixed position
@@ -406,6 +409,10 @@ end
         stim_size =  [0, 0, sobj.loomSize_pix];% max_Stim_Size
         sobj.stim_size = sobj.loomSize_pix;
         
+        %set flipnum
+        flipnum = round(sobj.loomDuration/sobj.m_int);
+        scaleFactor = sobj.loomSize_pix./flipnum;
+         
         topPriorityLevel =  MaxPriority(sobj.wPtr);
         Priority(topPriorityLevel);
         
@@ -420,21 +427,21 @@ end
             Screen('Flip', sobj.wPtr, sobj.vbl_1+sobj.delayPTB);% put some delay for PTB
         TriggerVSon(Testmode, dio,1)
         disp(['AITrig; ',sobj.pattern, ': #', num2str(recobj.cycleNum)]);
-        stim_monitor
+        stim_monitor;
         
-        vbl=sobj.vbl_2;
-        
-        looming_timer = tic;
-        %for count = 1:sobj.flipNum
-        while toc(looming_timer) < sobj.loomDuration
-            %scaleFactor =  abs(amp * sin(angFreq * time + startPhase));
-            scaleFactor = time/sobj.loomDuration;
-            Rect = CenterRectOnPointd(stim_size .* scaleFactor, sobj.stim_center(1), sobj.stim_center(2));
+        for count = 1:flipnum
+            Rect = CenterRectOnPointd([0, 0, count .* scaleFactor], sobj.stim_center(1), sobj.stim_center(2));
             Screen(sobj.shape, sobj.wPtr, 255, Rect);
             Screen('FillRect', sobj.wPtr, 255, [0 0 40 40]);
-            vbl = Screen('Flip', sobj.wPtr, vbl + (waitframes - 0.5) * sobj. m_int);
-            time = time + sobj.m_int;
+            Screen('Flip', sobj.wPtr);
         end
+        
+        %%% stim off %%%
+        Screen('FillRect', sobj.wPtr, sobj.bgcol);
+        [sobj.vbl_3, sobj.OnsetTime_3, sobj.FlipTimeStamp_3] =...
+            Screen('Flip', sobj.wPtr, sobj.vbl_1+sobj.loomDuration);
+        
+        TriggerVSon(Testmode, dio,0)
     end
 
 %%
@@ -731,7 +738,7 @@ end
     end
 
 %%
-    function Imgs_stim
+    function Img_stim
         %Select Tiff Image from img folder.
         sobj.img_i = get_condition(6, sobj.img_sublist, recobj.cycleNum, length(sobj.img_sublist), 1);
         
@@ -760,48 +767,38 @@ end
     end
 
 %%
-    function Mosaic_Dots
-        
-        % Fix stim center
-        fix_center = sobj.center_pos_list(sobj.fixpos,:);
-        sobj.stim_center = fix_center;
+    function Mosaic_Dots 
+        % Set stim area center
+        sobj.stim_center = sobj.center_pos_list(sobj.fixpos,:);
         sobj.center_index = sobj.fixpos;
-        
-        % Fix stim size 
-        sobj.stim_size = sobj.stimsz;
-        sobj.size_deg = str2double(get(figUIobj.size, 'string'));
-        
-        % define stim position using center and size
         
         % Fix stim luminance
         sobj.lumi = sobj.stimlumi;
         sobj.stimcol = sobj.lumi * sobj.stimRGB;
         
-        % Set multiple dot-dotpositions
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+        %send rand seed
+        sobj.def_seed = rng(sobj.int_seed(recobj.cycleNum),'twister');
         
-        %sobj.div_zoom = 5;
-        %sobj.dist = 15;
-        dim = sobj.dist; % degree
-        step = sobj.size_deg;
-        [x, y] = meshgrid(-dim:step:dim, -dim:step:dim);
-        x = Deg2Pix(x, sobj.MonitorDist, sobj.pixpitch);
-        y = Deg2Pix(y, sobj.MonitorDist, sobj.pixpitch);
-        numAllDots = numel(x);
-        xy = [reshape(x, 1, numAllDots); reshape(y, 1, numAllDots)];
-        disp(size(xy));
         %randamize1
-        select = randperm(size(xy,2));
-        num_dots = round(numAllDots*sobj.dots_density/100);
+        select = randperm(size(sobj.positions_deg,2));
+        if sobj.num_dots == 0;
+        else
+        sobj.dot_position_deg = sobj.positions_deg(:, select(1:sobj.num_dots));
+        end
+        xy_select = Deg2Pix(sobj.dot_position_deg, sobj.MonitorDist, sobj.pixpitch);
+        disp(select);
+        disp(sobj.dot_position_deg);
+        disp(sobj.positions_deg);
         
-        disp(size(select));
-        disp(num_dots)
-        
-        xy_select = xy(:,select(1:num_dots));
-        
+        %set same seed
+        rng(sobj.def_seed);
         %randamize2;
-        size_rand = step*(rand(num_dots,1));
-        dot_sizes = ceil(size_rand);
-        dot_sizes = Deg2Pix(dot_sizes, sobj.MonitorDist, sobj.pixpitch);
+        sobj.size_deg = sobj.dist/sobj.div_zoom;
+        size_rand = sobj.size_deg*(rand(sobj.num_dots,1));
+        sobj.dot_sizes_deg = ceil(size_rand);
+        dot_sizes = Deg2Pix(sobj.dot_sizes_deg, sobj.MonitorDist, sobj.pixpitch);
         
         % Draw multiple dots, 
         % Usage::Screen('DrawDots', windowPtr, xy [,size] [,color] [,center] [,dot_type]);
@@ -851,7 +848,6 @@ end
             out = list_mat(index,:);
         end
     end
-
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % end of VisStim

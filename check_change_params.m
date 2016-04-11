@@ -10,268 +10,127 @@ check_stim_duration;
 change_plot;
 check_AOrange;
 
-%% 
+%%
 %%%%% define functions (nested) %%%%%
     function change_stim_pattern
         defcol = [0.9400 0.9400 0.9400];
         pattern_list = get(figUIobj.pattern,'string');
         sobj.pattern = pattern_list{get(figUIobj.pattern,'value'),1};
         
-        map_lsit = containers.Map();
+        key ={'fixpos', 'div_zoom', 'dist_deg', 'shiftDir', 'shiftSpd',...
+            'gratFreq', 'loomSpd', 'loomSize', 'ImageNum', 'dots_density',...
+            'shape2','stimlumi2', 'flipNum2', 'delayPTBflip2', 'size2', 'rect'};
         
         switch sobj.pattern
             case 'Uni'
+                val = {'w', 'k', 'k', 'k', 'k',...
+                    'k', 'k', 'k', 'k', 'k',...
+                    'k', 'k', 'k', 'k', 'k', 'g'};
+                map_list = containers.Map(key, val);
+                
                 set(figUIobj.mode, 'value', 1); % position random
-                set(figUIobj.fixpos,'BackGroundColor','w');
                 set(figUIobj.shape, 'value', 2); % circular
-                
-                set(figUIobj.div_zoom,'BackGroundColor','k');
-                set(figUIobj.dist,'BackGroundColor','k');
-                
-                set(figUIobj.shiftDir,'BackGroundColor','k');
-                set(figUIobj.shiftSpd,'BackGroundColor','k');
-                set(figUIobj.gratFreq,'BackGroundColor','k');
-                
-                set(figUIobj.loomSpd,'BackGroundColor','k');
-                set(figUIobj.loomSize,'BackGroundColor','k');
-                
-                set(figUIobj.ImageNum,'BackGroundColor','k');
-                
-                set(figUIobj.shape2,'BackGroundColor','k');
-                set(figUIobj.stimlumi2,'BackGroundColor','k');
-                set(figUIobj.flipNum2,'BackGroundColor','k');
-                set(figUIobj.delayPTBflip2,'BackGroundColor','k');
-                set(figUIobj.size2,'BackGroundColor','k');
-                
-                set(figUIobj.rect, 'BackgroundColor', 'g');
                 
             case 'Size_rand'
+                val = {'g', 'k', 'k', 'k', 'k',...
+                    'k', 'k', 'k', 'k', 'k',...
+                    'k', 'k', 'k', 'k', 'k', 'g'};
+                map_list = containers.Map(key, val);
+                
                 set(figUIobj.mode, 'value', 2); % position fix
-                set(figUIobj.fixpos,'BackGroundColor','g');
                 set(figUIobj.shape, 'value', 2); % circular
-                
-                set(figUIobj.div_zoom,'BackGroundColor','k');
-                set(figUIobj.dist,'BackGroundColor','k');
-                
-                set(figUIobj.shiftDir,'BackGroundColor','k');
-                set(figUIobj.shiftSpd,'BackGroundColor','k');
-                set(figUIobj.gratFreq,'BackGroundColor','k');
-                
-                set(figUIobj.loomSpd,'BackGroundColor','k');
-                set(figUIobj.loomSize,'BackGroundColor','k');
-                
-                set(figUIobj.ImageNum,'BackGroundColor','k');
-                
-                set(figUIobj.shape2,'BackGroundColor','k');
-                set(figUIobj.stimlumi2,'BackGroundColor','k');
-                set(figUIobj.flipNum2,'BackGroundColor','k');
-                set(figUIobj.delayPTBflip2,'BackGroundColor','k');
-                set(figUIobj.size2,'BackGroundColor','k');
-                
-                set(figUIobj.rect, 'BackgroundColor', 'g');
                 
             case '1P_Conc'
+                val = {'g', 'g', 'g', defcol, 'k',...
+                    'k', 'k', 'k', 'k', 'k',...
+                    'k', 'k', 'k', 'k', 'k', 'g'};
+                map_list = containers.Map(key, val);
+                
                 set(figUIobj.mode, 'value', 2); % position fix
-                set(figUIobj.fixpos,'BackGroundColor','g');
                 set(figUIobj.shape, 'value', 2); % circular
-                
-                set(figUIobj.div_zoom,'BackGroundColor','g');
-                set(figUIobj.dist,'BackGroundColor','g');
-                
-                set(figUIobj.shiftDir,'BackGroundColor', defcol);
-                set(figUIobj.shiftSpd,'BackGroundColor', 'k');
-                set(figUIobj.gratFreq,'BackGroundColor', 'k');
-                
-                set(figUIobj.loomSpd,'BackGroundColor','k');
-                set(figUIobj.loomSize,'BackGroundColor','k');
-                
-                set(figUIobj.ImageNum,'BackGroundColor','k');
-                
-                set(figUIobj.shape2,'BackGroundColor','k');
-                set(figUIobj.stimlumi2,'BackGroundColor','k');
-                set(figUIobj.flipNum2,'BackGroundColor','k');
-                set(figUIobj.delayPTBflip2,'BackGroundColor','k');
-                set(figUIobj.size2,'BackGroundColor','k');
-                
-                set(figUIobj.rect, 'BackgroundColor', 'g');
                 
             case '2P_Conc'
+                val = {'g', 'g', 'g', defcol, 'k',...
+                    'k', 'k', 'k', 'k', 'k',...
+                    'w', 'w', 'w', 'w', 'w', 'g'};
+                map_list = containers.Map(key, val);
+                
                 set(figUIobj.mode, 'value', 2); % position fix
-                set(figUIobj.fixpos,'BackGroundColor','g');
                 set(figUIobj.shape, 'value', 2); % circular
-                
-                set(figUIobj.div_zoom,'BackGroundColor','g');
-                set(figUIobj.dist,'BackGroundColor','g');
-                
-                set(figUIobj.shiftDir,'BackGroundColor', defcol);
-                set(figUIobj.shiftSpd,'BackGroundColor', 'k');
-                set(figUIobj.gratFreq,'BackGroundColor', 'k');
-                
-                set(figUIobj.loomSpd,'BackGroundColor','k');
-                set(figUIobj.loomSize,'BackGroundColor','k');
-                
-                set(figUIobj.ImageNum,'BackGroundColor','k');
-                
-                set(figUIobj.shape2,'BackGroundColor','w');
-                set(figUIobj.stimlumi2,'BackGroundColor','w');
-                set(figUIobj.flipNum2,'BackGroundColor','w');
-                set(figUIobj.delayPTBflip2,'BackGroundColor','w');
-                set(figUIobj.size2,'BackGroundColor','w');
-                
-                set(figUIobj.rect, 'BackgroundColor', 'g');
                 
             case 'B/W'
+                val = {'g', 'g', 'g', defcol, 'k',...
+                    'k', 'k', 'k', 'k', 'k',...
+                    'k', 'k', 'k', 'k', 'k', 'g'};
+                map_list = containers.Map(key, val);
+                
                 set(figUIobj.mode, 'value', 2); % position fix
-                set(figUIobj.fixpos,'BackGroundColor','g');
                 set(figUIobj.shape, 'value', 2); % circular
-                
-                set(figUIobj.div_zoom,'BackGroundColor','g');
-                set(figUIobj.dist,'BackGroundColor','g');
-                
-                set(figUIobj.shiftDir,'BackGroundColor', defcol);
-                set(figUIobj.shiftSpd,'BackGroundColor', 'k');
-                set(figUIobj.gratFreq,'BackGroundColor', 'k');
-                
-                set(figUIobj.loomSpd,'BackGroundColor','k');
-                set(figUIobj.loomSize,'BackGroundColor','k');
-                
-                set(figUIobj.ImageNum,'BackGroundColor','k');
-                
-                set(figUIobj.shape2,'BackGroundColor','k');
-                set(figUIobj.stimlumi2,'BackGroundColor','k');
-                set(figUIobj.flipNum2,'BackGroundColor','k');
-                set(figUIobj.delayPTBflip2,'BackGroundColor','k');
-                set(figUIobj.size2,'BackGroundColor','k');
-                
-                set(figUIobj.rect, 'BackgroundColor', 'g');
                 
             case 'Looming'
+                val = {'k', 'k', 'k', 'k', 'k',...
+                    'k', 'w', 'g', 'k', 'k',...
+                    'k', 'k', 'k', 'k', 'k', 'y'};
+                map_list = containers.Map(key, val);
+                
                 set(figUIobj.mode, 'value', 2); % position fix
-                set(figUIobj.fixpos,'BackGroundColor','g');
                 set(figUIobj.shape, 'value', 2); % circular
                 
-                set(figUIobj.div_zoom,'BackGroundColor','k');
-                set(figUIobj.dist,'BackGroundColor','k');
-                
-                set(figUIobj.shiftDir,'BackGroundColor', 'k');
-                set(figUIobj.shiftSpd,'BackGroundColor', 'k');
-                set(figUIobj.gratFreq,'BackGroundColor', 'k');
-                
-                set(figUIobj.loomSpd,'BackGroundColor','w');
-                set(figUIobj.loomSize,'BackGroundColor','w');
-                
-                set(figUIobj.ImageNum,'BackGroundColor','k');
-                
-                set(figUIobj.shape2,'BackGroundColor','k');
-                set(figUIobj.stimlumi2,'BackGroundColor','k');
-                set(figUIobj.flipNum2,'BackGroundColor','k');
-                set(figUIobj.delayPTBflip2,'BackGroundColor','k');
-                set(figUIobj.size2,'BackGroundColor','k');
-                
-                set(figUIobj.rect, 'BackgroundColor', 'y');
-                
             case {'Sin', 'Rect', 'Gabor'}
+                val = {'g', 'k', 'k', defcol, defcol,...
+                    defcol, 'w', 'w', 'k', 'k',...
+                    'k', 'k', 'k', 'k', 'k', 'g'};
+                map_list = containers.Map(key, val);
+                
                 set(figUIobj.mode, 'value', 2); % position fix
-                set(figUIobj.fixpos,'BackGroundColor','g');
-                
-                set(figUIobj.div_zoom,'BackGroundColor','k');
-                set(figUIobj.dist,'BackGroundColor','k');
-                
-                set(figUIobj.shiftDir,'BackGroundColor', defcol);
-                set(figUIobj.shiftSpd,'BackGroundColor', defcol);
-                set(figUIobj.gratFreq,'BackGroundColor', defcol);
-                
-                set(figUIobj.loomSpd,'BackGroundColor','k');
-                set(figUIobj.loomSize,'BackGroundColor','k');
-                
-                set(figUIobj.ImageNum,'BackGroundColor','k');
-                
-                set(figUIobj.shape2,'BackGroundColor','k');
-                set(figUIobj.stimlumi2,'BackGroundColor','k');
-                set(figUIobj.flipNum2,'BackGroundColor','k');
-                set(figUIobj.delayPTBflip2,'BackGroundColor','k');
-                set(figUIobj.size2,'BackGroundColor','k');
-                
-                set(figUIobj.rect, 'BackgroundColor', 'g');
                 
             case 'Images'
+                val = {'g', 'k', 'k', 'k', 'k',...
+                    'k', 'k', 'k', 'g', 'k',...
+                    'k', 'k', 'k', 'k', 'k', 'g'};
+                map_list = containers.Map(key, val);
+                
                 set(figUIobj.mode, 'value', 2); % position fix
-                set(figUIobj.fixpos,'BackGroundColor','g');
                 
-                set(figUIobj.div_zoom,'BackGroundColor','k');
-                set(figUIobj.dist,'BackGroundColor','k');
-                
-                set(figUIobj.shiftDir,'BackGroundColor', 'k');
-                set(figUIobj.shiftSpd,'BackGroundColor', 'k');
-                set(figUIobj.gratFreq,'BackGroundColor', 'k');
-                
-                set(figUIobj.loomSpd,'BackGroundColor','k');
-                set(figUIobj.loomSize,'BackGroundColor','k');
-                
-                set(figUIobj.ImageNum,'BackGroundColor','w');
-                
-                set(figUIobj.shape2,'BackGroundColor','k');
-                set(figUIobj.stimlumi2,'BackGroundColor','k');
-                set(figUIobj.flipNum2,'BackGroundColor','k');
-                set(figUIobj.delayPTBflip2,'BackGroundColor','k');
-                set(figUIobj.size2,'BackGroundColor','k');
-                
-                set(figUIobj.rect, 'BackgroundColor', 'g');
-            
             case 'Mosaic'
-                map_list = 
-                set_fig_stim_color(map_list)
+                val = {'g', 'g', 'g', 'k', 'k',...
+                    'k', 'k', 'k', 'k', 'g',...
+                    'k', 'k', 'k', 'k', 'k', 'g'};
+                map_list = containers.Map(key, val);
+                
                 set(figUIobj.mode, 'value', 2); % position fix
-                set(figUIobj.fixpos,'BackGroundColor','g');
-                
-                set(figUIobj.div_zoom,'BackGroundColor','k');
-                set(figUIobj.dist,'BackGroundColor','g');
-                
-                set(figUIobj.shiftDir,'BackGroundColor', 'k');
-                set(figUIobj.shiftSpd,'BackGroundColor', 'k');
-                set(figUIobj.gratFreq,'BackGroundColor', 'k');
-                
-                set(figUIobj.loomSpd,'BackGroundColor','k');
-                set(figUIobj.loomSize,'BackGroundColor','k');
-                
-                set(figUIobj.ImageNum,'BackGroundColor','w');
-                
-                set(figUIobj.shape2,'BackGroundColor','k');
-                set(figUIobj.stimlumi2,'BackGroundColor','k');
-                set(figUIobj.flipNum2,'BackGroundColor','k');
-                set(figUIobj.delayPTBflip2,'BackGroundColor','k');
-                set(figUIobj.size2,'BackGroundColor','k');
-                
-                set(figUIobj.rect, 'BackgroundColor', 'g');
+                set(figUIobj.shape, 'value', 1); % rectangle
         end
+        
+        set_fig_stim_color(map_list)
     end
 %%
     function set_fig_stim_color(map_list)
         
         set(figUIobj.mode, 'value', 2); % position fix
         
-        set(figUIobj.fixpos, 'BackGroundColor', map_list{'fixpos'});
+        set(figUIobj.fixpos, 'BackGroundColor', map_list('fixpos'));
         
-        set(figUIobj.div_zoom, 'BackGroundColor', map_list{'div_zoom'});
-        set(figUIobj.dist, 'BackGroundColor',map_list{'dist_deg'});
+        set(figUIobj.div_zoom, 'BackGroundColor', map_list('div_zoom'));
+        set(figUIobj.dist, 'BackGroundColor',map_list('dist_deg'));
         
-        set(figUIobj.shiftDir, 'BackGroundColor', map_list{'shiftDir'});
-        set(figUIobj.shiftSpd, 'BackGroundColor', map_list{'shiftSpd'});
-        set(figUIobj.gratFreq, 'BackGroundColor', map_list{'gratFreq'});
+        set(figUIobj.shiftDir, 'BackGroundColor', map_list('shiftDir'));
+        set(figUIobj.shiftSpd, 'BackGroundColor', map_list('shiftSpd'));
+        set(figUIobj.gratFreq, 'BackGroundColor', map_list('gratFreq'));
         
-        set(figUIobj.loomSpd, 'BackGroundColor', map_list{'loomSpd'});
-        set(figUIobj.loomSize, 'BackGroundColor', map_list{'loomSize'});
+        set(figUIobj.loomSpd, 'BackGroundColor', map_list('loomSpd'));
+        set(figUIobj.loomSize, 'BackGroundColor', map_list('loomSize'));
         
-        set(figUIobj.ImageNum, 'BackGroundColor', map_list{'ImageNum'});
+        set(figUIobj.ImageNum, 'BackGroundColor', map_list('ImageNum'));
+        set(figUIobj.dots_density, 'BackGroundColor', map_list('dots_density'));
         
-        set(figUIobj.shape2, 'BackGroundColor', map_list{'shape2'});
-        set(figUIobj.stimlumi2, 'BackGroundColor', map_list{'stimlumi2'});
-        set(figUIobj.flipNum2, 'BackGroundColor', map_list{'flipNum2'});
-        set(figUIobj.delayPTBflip2, 'BackGroundColor', map_list{'delayPTBflip2'});
-        set(figUIobj.size2, 'BackGroundColor', map_list{'size2'});
+        set(figUIobj.shape2, 'BackGroundColor', map_list('shape2'));
+        set(figUIobj.stimlumi2, 'BackGroundColor', map_list('stimlumi2'));
+        set(figUIobj.flipNum2, 'BackGroundColor', map_list('flipNum2'));
+        set(figUIobj.delayPTBflip2, 'BackGroundColor', map_list('delayPTBflip2'));
+        set(figUIobj.size2, 'BackGroundColor', map_list('size2'));
         
-        set(figUIobj.rect, 'BackgroundColor', map_list{'rect'});
-        
+        set(figUIobj.rect, 'BackgroundColor', map_list('rect'));
     end
 
 %%
@@ -477,31 +336,45 @@ check_AOrange;
             rect_in_sec = (sobj.loomDuration + 1) * 10; % add 1 sec
             recobj.rect = 100 * round(rect_in_sec);
             
-            set(figUIobj.rect, 'string', recobj.rect, 'BackgroundColor', 'y');
-            set(figUIobj.loomSize, 'BackgroundColor', 'g');
-            
+            set(figUIobj.rect, 'string', recobj.rect)
         else
-            set(figUIobj.loomSize, 'BackgroundColor', 'w');
-            set(figUIobj.rect, 'BackgroundColor', 'g');
             recobj.rect = re_write(figUIobj.rect);
-            if rectime < dur1+delay1 || rectime < dur2+delay2
-                errordlg('Stim. Duration is longer than Recording Time!!');
-                
-                set(figUIobj.flipNum, 'string',75);
-                set(figUIobj.delayPTBflip, 'string',20);
-                
-                set(figUIobj.flipNum2, 'string', 75);
-                set(figUIobj.delayPTBflip2, 'string',20);
-                
-                set(figUIobj.rect, 'string', 2000);
-                
-                dur1 = 75*sobj.m_int;
-                delay1 = 20*sobj.m_int;
-                dur2 = 75*sobj.m_int;
-                delay2 = 20*sobj.m_int;
+            if strcmp(sobj.pattern, '2P_conc')
+                if rectime < dur1+delay1 || rectime < dur2+delay2
+                    errordlg('Stim. Duration is longer than Recording Time!!');
+                    
+                    set(figUIobj.flipNum, 'string',75);
+                    set(figUIobj.delayPTBflip, 'string',20);
+                    
+                    set(figUIobj.flipNum2, 'string', 75);
+                    set(figUIobj.delayPTBflip2, 'string',20);
+                    
+                    set(figUIobj.rect, 'string', 2000);
+                    
+                    dur1 = 75*sobj.m_int;
+                    delay1 = 20*sobj.m_int;
+                    dur2 = 75*sobj.m_int;
+                    delay2 = 20*sobj.m_int;
+                end
+            else
+                if rectime < dur1+delay1
+                    errordlg('Stim. Duration is longer than Recording Time!!');
+                    
+                    set(figUIobj.flipNum, 'string',75);
+                    set(figUIobj.delayPTBflip, 'string',20);
+                    
+                    set(figUIobj.flipNum2, 'string', 75);
+                    set(figUIobj.delayPTBflip2, 'string',20);
+                    
+                    set(figUIobj.rect, 'string', 2000);
+                    
+                    dur1 = 75*sobj.m_int;
+                    delay1 = 20*sobj.m_int;
+                    dur2 = 75*sobj.m_int;
+                    delay2 = 20*sobj.m_int;
+                end
             end
         end
-        
         % update GUI
         set(figUIobj.stimDur,'string',['flips = ',num2str(floor(dur1*1000)),' ms']);
         set(figUIobj.delayPTB,'string',['flips = ',num2str(floor(delay1*1000)),' ms']);
@@ -545,12 +418,10 @@ check_AOrange;
                     set(hGui.Vstep,'string',recobj.stepCV(2,3));
                 end
         end
-        
     end
 
+%%
 end
-
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function y = re_write(h)
 y = str2double(get(h,'string'));

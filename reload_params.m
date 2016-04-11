@@ -119,8 +119,19 @@ sobj.img_list = randperm(256);
 sobj.img_sublist = sobj.img_list(1:sobj.ImageNum)';
 
 %% Multi dots
-sobj.dots_density = re_write(figUIobj.dots_density);
+rng('shuffle');
+sobj.int_seed = randperm(1000);
 
+dim = sobj.dist; % deg
+div = sobj.div_zoom; % deg
+div_step = dim/div;
+[x_deg, y_deg] = meshgrid(-(dim-1)/2:div_step:(dim-1)/2,...
+    -(dim-1)/2:div_step:(dim-1)/2); % deg
+numAllDots = numel(x_deg);
+sobj.positions_deg = [reshape(x_deg, 1, numAllDots); reshape(y_deg, 1, numAllDots)];
+
+sobj.dots_density = re_write(figUIobj.dots_density);
+sobj.num_dots = round(numAllDots * sobj.dots_density/100);
 
 %% %%% stim 2 %%%%%
 sobj.shape2 = sobj.shapelist{get(figUIobj.shape2, 'value'), 1};

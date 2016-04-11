@@ -68,7 +68,7 @@ hGui.shape=uicontrol('style','popupmenu','position',[10 555 75 20],...
 set(hGui.shape, 'value', 2); % default: 'FillOval'
 
 %%% the nubmer of division for concentric positions
-uicontrol('style','text','string','Div.Zoom','position',[90 575 45 15],'Horizontalalignment','left');
+uicontrol('style','text','string','Division','position',[90 575 45 15],'Horizontalalignment','left');
 hGui.div_zoom = uicontrol('style','edit','string',sobj.div_zoom,'position',[90 550 40 25],'BackGroundColor','w');
 
 %%% distance from the center position
@@ -117,9 +117,11 @@ uicontrol('style', 'text','string','# of Imgs','position',[130 430 60 15],'Horiz
 hGui.ImageNum = uicontrol('style','edit','string', sobj.ImageNum, 'position',[140 405 40 25],'BackGroundColor','w');
 
 %%% Mosaic Dot Density
-uicontrol('style', 'text','string','Dots Density','position',[120 385 70 15],'HorizontalAlignment','left');
-hGui.dots_density = uicontrol('style','edit','string', sobj.dots_density, 'position',[145 360 30 25],'BackGroundColor','w');
-uicontrol('style', 'text','string','%','position',[175 360 20 15],'HorizontalAlignment','left');
+uicontrol('style', 'text','string','Density','position',[140 380 50 15],'HorizontalAlignment','left');
+hGui.dots_density = uicontrol('style','edit','string', sobj.dots_density, 'position',[145 355 30 25],'BackGroundColor','w');
+set(hGui.dots_density, 'callback', {@check_mosaic, hGui});
+uicontrol('style', 'text','string','%','position',[175 355 20 15],'HorizontalAlignment','left');
+
 
 %%% Size %%%%
 uicontrol('style','text','position',[10 330 130 15],'string','Size (Diamiter)','Horizontalalignment','left');
@@ -163,7 +165,7 @@ set(hGui.loomSpd,'callback', @check_change_params);
 uicontrol('style','text','position',[160 120 35 15],'string','deg/s','Horizontalalignment','left');
 
 % Looming Max Size
-hGui.loomSize = uicontrol('style','edit','position',[105 90 50 25],'string',sobj.looming_Size,'BackGroundColor','w');
+hGui.loomSize = uicontrol('style','edit','position',[125 90 30 25],'string',sobj.looming_Size,'BackGroundColor','w');
 set(hGui.loomSize,'callback',  @check_change_params);
 uicontrol('style','text','position',[160 90 35 15],'string','deg','Horizontalalignment','left');
 
@@ -474,8 +476,24 @@ elseif get(hObject,'value')==0
     sobj.stimsz = round(ones(1,2)*Deg2Pix(1, sobj.MonitorDist, sobj.pixpitch));
     set(hGui.size,'string', 1);
 end
-
 ch_ButtonColor(hObject,[],'g')
+end
+
+function check_mosaic(hObject, ~, hGui)
+%the number of dots is zero, use default settings.
+div_zoom = str2double(get(hGui.div_zoom,'string'));
+dist = str2double(get(hGui.dist,'string'));
+step = dist/div_zoom;
+total_dots = length(-(dist-1)/2:step:(dist-1)/2);
+select_dots = round(total_dots * str2double(get(hObject, 'string'))/100);
+
+if strcmp(sobj.pattern, 'Mosaic') && select_dots == 0
+    errordlg('the number of dots is less than 1');
+    set(hGui.div_zoom, 'string', 5);
+    set(hGui.dist, 'string', 15);
+    set(hObject, 'string', 30);
+end
+
 end
 
 %%
