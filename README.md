@@ -21,9 +21,9 @@ DAQ 以外の機能（PTB, GUI, data save など）がテストできる（は�
 ---
 ## Visual Stimuli
 視覚刺激は，以下のものが使える．
-1. "Uni": 丸，四角 の刺激  
-2. "Size_rand": サイズ変更  
-3. "1P_Conc": 中心点から, dist(deg) まで div_zoom(個）分割した場所に刺激を１点だす．傾きは Direction(deg)．  
+* Uni 丸，四角 の刺激  
+* Size_rand サイズ変更  
+* "1P_Conc": 中心点から, dist(deg) まで div_zoom(個）分割した場所に刺激を１点だす．傾きは Direction(deg)．  
 4. "2P_Conc": ２点刺激 "1P_Conc" プラス 中心点にも刺激を出す．  
 5. "B/W": gray 背景に 1P_Conc で White または Black で刺激出す．  
 6. "Looming": Looming speed(deg/s) で 最大 LoonmingSize まで動く．  
