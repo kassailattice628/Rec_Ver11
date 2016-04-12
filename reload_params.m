@@ -259,10 +259,10 @@ end
 %%
 function centerXY_list= get_stim_center_mat
 global sobj
-sizeX = sobj.ScreenSize(1)/sobj.divnum;
-sizeY = sobj.ScreenSize(2)/sobj.divnum;
-center_div = floor([sizeX/2:sizeX:(sobj.ScreenSize(1)-sizeX/2);...
-    sizeY/2:sizeY:(sobj.ScreenSize(2)-sizeY/2)]);
+sizeX = sobj.RECT(3)/sobj.divnum;
+sizeY = sobj.RECT(4)/sobj.divnum;
+center_div = floor([sizeX/2:sizeX:(sobj.RECT(3)-sizeX/2);...
+    sizeY/2:sizeY:(sobj.RECT(4)-sizeY/2)]);
 
 centerXY_list = zeros(sobj.divnum^2,2);
 

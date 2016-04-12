@@ -110,7 +110,7 @@ hGui.delayPTB = uicontrol('style','text','position',[45 405 75 15],'string',['fl
 uicontrol('style','text','position',[10 380 70 15],'string','Set Blank','Horizontalalignment','left');
 hGui.prestimN=uicontrol('style','edit','position',[10 355 30 25],'string',recobj.prestim,'BackGroundColor','w');
 hGui.prestim=uicontrol('style','text','position',[45 355 100 15],...
-    'string',['loops = > ',num2str(recobj.prestim * (recobj.rect/1000 + recobj.interval)),' sec'],'Horizontalalignment','left');
+    'string',['loops=',num2str(recobj.prestim * (recobj.rect/1000 + recobj.interval)),' sec'],'Horizontalalignment','left');
 
 %%% The number of Image stimli
 uicontrol('style', 'text','string','# of Imgs','position',[130 430 60 15],'HorizontalAlignment','left');
@@ -127,7 +127,7 @@ uicontrol('style', 'text','string','%','position',[175 355 20 15],'HorizontalAli
 uicontrol('style','text','position',[10 330 130 15],'string','Size (Diamiter)','Horizontalalignment','left');
 hGui.size=uicontrol('style','edit','position',[10 305 50 25],'string','1','BackGroundColor','w');
 uicontrol('style','text','position',[65 305 30 15],'string','deg','Horizontalalignment','left');
-%Auto-Fill
+% Auto-Fill
 hGui.auto_size=uicontrol('style','togglebutton','position',[105 300 70 30],'string','Auto OFF','Horizontalalignment','center');
 set(hGui.auto_size, 'callback', {@autosizing, hGui});
 
@@ -136,12 +136,16 @@ set(hGui.auto_size, 'callback', {@autosizing, hGui});
 uicontrol('style','text','position',[10 280 70 15],'string','Monitor Div.','Horizontalalignment','left');
 hGui.divnum=uicontrol('style','edit','position',[10 255 50 25],'string',sobj.divnum,'BackGroundColor','w');
 set(hGui.divnum, 'callback', {@reload_params, Testmode});
-hGui.divnumN = uicontrol('style','text','position',[65 255 130 15],'string',['(=> ' num2str(sobj.divnum) ' x ' num2str(sobj.divnum) ' Matrix)'],'Horizontalalignment','left');
+hGui.divnumN = uicontrol('style','text','position',[65 255 70 15],'string',['(' num2str(sobj.divnum) 'x' num2str(sobj.divnum) 'Mat)'],'Horizontalalignment','left');
 
 uicontrol('style','text','position',[10 230 70 15],'string','Fixed Pos.','Horizontalalignment','left');
 hGui.fixpos=uicontrol('style','edit','position',[10 205 50 25],'string',sobj.fixpos,'BackGroundColor','w');
 set(hGui.fixpos,'callback', {@reload_params, Testmode});
-hGui.fixposN = uicontrol('style','text','position',[65 205 130 15],'string',['(<= ' num2str(sobj.divnum) ' x ' num2str(sobj.divnum) ' Matrix)'],'Horizontalalignment','left');
+hGui.fixposN = uicontrol('style','text','position',[65 205 70 15],'string',['(in ' num2str(sobj.divnum) 'x' num2str(sobj.divnum) 'Mat)'],'Horizontalalignment','left');
+
+% Get fine position
+hGui.get_fine_pos=uicontrol('style','togglebutton','position',[130 250 60 30],'string','get Pos','Horizontalalignment','center');
+set(hGui.get_fine_pos, 'callback', {@get_fine_pos, hGui});
 
 %%% Direction for grating stimulis or concentirc positions
 uicontrol('style','text','position',[10 180 180 15],'string','Direction (Grating, Concentric)','Horizontalalignment','left');
@@ -423,6 +427,26 @@ else
         close(plotUIobj.fig)
         clearvars -global plotUIobj
     end
+end
+ch_ButtonColor(hObject,[],'g')
+end
+
+%%
+function get_fine_pos(hObject, ~, hGui)
+global getfineUIobj
+global sobj
+if strcmp(sobj.pattern, '1P_Conc')
+    if get(hObject, 'value')
+        getfineUIobj = open_get_fine_pos(hGui);
+        disp('get fine pos from concentric grid');
+    else
+        if isfield(getfineUIobj,'fig')
+            close(getfineUIobj.fig)
+            clearvars -global getfineUIobj
+        end
+    end
+else
+    set(hObject, 'value', 0)  
 end
 ch_ButtonColor(hObject,[],'g')
 end

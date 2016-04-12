@@ -2,32 +2,32 @@ function sobj = sobj_ini(Testmode,pixpitch)
 % initialize sobj (PTB parameters)
 
 % get monitor information
-%scrsz=get(0,'ScreenSize');
-MP = get(0,'MonitorPosition');%position matrix for malti monitors
+% scrsz=get(0,'ScreenSize');
+MP = get(0,'MonitorPosition'); %position matrix for malti monitors
 screens = Screen('Screens');
 sobj.Num_screens = size(screens,2);
 sobj.ScrNum = max(screens);
 % OSX, main=0, sub(stim monitor) = 1,2,...
 % Windwos, main=1, sub(stim monitor) = 2,3,...
 
-if sobj.ScrNum == 0 %Single display in OSX
+if sobj.ScrNum == 0 % Single display in OSX
     sNum = sobj.ScrNum+1;
 else
     sNum = sobj.ScrNum;
 end
 
-if Testmode == 1 %Test Mac
-    sobj.ScreenSize = [MP(sNum,3)-MP(sNum,1)+1, MP(sNum,4)-MP(sNum,2)+1];%monitor size of stim monitor
+if Testmode == 1 % Test Mac
+    sobj.ScreenSize = [MP(sNum,3)-MP(sNum,1)+1, MP(sNum,4)-MP(sNum,2)+1]; % monitor size of stim monitor
 elseif Testmode == 0
-    sobj.ScreenSize = [MP(sNum,3),MP(sNum,4)];%for Windows8
+    sobj.ScreenSize = [MP(sNum,3),MP(sNum,4)]; % for Windows8
 end
 
 sobj.pixpitch = pixpitch;
-sobj.MonitorDist = 300;%(mm) = distance from moniter to eye, => sobj.MonitorDist*tan(1*2*pi/360)/sobj.pixpitch (pixel/degree)
-sobj.stimsz = round(ones(1,2)*Deg2Pix(1,sobj.MonitorDist, pixpitch));% default: 1 deg
+sobj.MonitorDist = 300; % (mm) = distance from moniter to eye, => sobj.MonitorDist*tan(1*2*pi/360)/sobj.pixpitch (pixel/degree)
+sobj.stimsz = round(ones(1,2)*Deg2Pix(1,sobj.MonitorDist, pixpitch)); % default: 1 deg
 sobj.shapelist = [{'FillRect'};{'FillOval'}];
 sobj.shape = 'FillOval'; % default Oval
-sobj.pattern = 'Uni'; %uniform or Grating
+sobj.pattern = 'Uni'; % uniform or Grating
 sobj.mode = 'Random';
 
 sobj.flipNum = 75;
@@ -50,30 +50,30 @@ sobj.delayPTB = 0;% PTBflip * m_int
 
 
 %% %VS2%%%%
-sobj.stimsz2 = round(ones(1,2)*Deg2Pix(1,sobj.MonitorDist, pixpitch));% default: 1 deg
+sobj.stimsz2 = round(ones(1,2)*Deg2Pix(1,sobj.MonitorDist, pixpitch)); % default: 1 deg
 sobj.shape2 = 'FillOval'; % default Oval
 sobj.stimlumi2 = sobj.white;
 sobj.stimcol2 = sobj.stimlumi2 * sobj.stimRGB;
 sobj.flipNum2 = 75;
-sobj.delayPTBflip2 = 20; %delay flip number
-sobj.delayPTB2 = 0;% PTBflip * m_int
+sobj.delayPTBflip2 = 20; % delay flip number
+sobj.delayPTB2 = 0; % PTBflip * m_int
 
 %%
 sobj.fixpos = 1;
 
-sobj.shiftSpd = 2;%Hz
-sobj.shiftSpd_list = [0.5; 1; 2; 4; 8];%Hz
+sobj.shiftSpd = 2; % Hz
+sobj.shiftSpd_list = [0.5; 1; 2; 4; 8]; % Hz
 
-sobj.gratFreq = 0.08;% cycle/degree
+sobj.gratFreq = 0.08; % cycle/degree
 sobj.gratFreq_list = [0.01;0.02;0.04;0.08;0.16;0.32];
 
-sobj.shiftDir = 1;%1~8:direction, 9: 8 random directions, 10: 4 random directions
+sobj.shiftDir = 1; % 1~8:direction, 9: 8 random directions, 10: 4 random directions
 
 sobj.loomingSpd_list = [5; 10; 20; 40; 80; 160];
 sobj.looming_Size = 40;
 
 sobj.div_zoom = 5;
-sobj.dist = 15; %distance(degree) for 2nd stimulus for lateral inhibition
+sobj.dist = 15; % distance(degree) for 2nd stimulus for lateral inhibition
 
 %sobj.position = 0;
 
@@ -82,6 +82,7 @@ sobj.dist = 15; %distance(degree) for 2nd stimulus for lateral inhibition
 %sobj.zoom_dist = 0;
 %sobj.zoom_ang = 0;
 
+%%
 %Image presentation
 sobj.img_i = 0;
 sobj.ImageNum = 256;
