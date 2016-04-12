@@ -1,4 +1,4 @@
-# NoneButAir_Rec_Ver11.03
+# NoneButAir_Rec_Ver11.4
 
 MATLAB, Psychtoolbox3 を使っての視覚刺激制御と  
 DAQ toolbox (session-based), NIDAQmx ドライバ で NI DAQを制御．
