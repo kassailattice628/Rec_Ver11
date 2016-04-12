@@ -72,6 +72,11 @@ if recobj.cycleNum > 0
             % tentative
             save.position_deg_mat = sobj.dot_position_deg;
             save.size_deg_mat = sobj.dot_position_deg;
+            
+        case {'FineMap'}
+            % Fine mapping by using small area
+            save.stim1.center_position_FineMap = sobj.center_index_FineMap;
+
     end
 end
 

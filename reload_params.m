@@ -20,16 +20,16 @@ sobj.dist = re_write(figUIobj.dist);
 sobj.bgcol = re_write(figUIobj.bgcol);
 
 sobj.divnum = re_write(figUIobj.divnum);
-set(figUIobj.divnumN, 'string', ['(=> ' num2str(sobj.divnum) ' x ' num2str(sobj.divnum) ' Matrix)']);
+set(figUIobj.divnumN, 'string', ['(' num2str(sobj.divnum) 'x' num2str(sobj.divnum) 'mat)']);
 
-sobj.center_pos_list = get_stim_center_mat;
+sobj.center_pos_list = get_stim_center_mat(sobj.RECT, sobj.divnum);
 
 sobj.fixpos = re_write(figUIobj.fixpos);
-set(figUIobj.fixposN,'string',['(<= ' num2str(sobj.divnum) ' x ' num2str(sobj.divnum) ' Matrix)']);
+set(figUIobj.fixposN,'string',['(in' num2str(sobj.divnum) 'x' num2str(sobj.divnum) 'mat)']);
 
 recobj.prestim = re_write(figUIobj.prestimN);
 recobj.cycleNum = 0- recobj.prestim;
-set(figUIobj.prestim,'string',['loops = > ',num2str(recobj.prestim * (recobj.rect/1000 + recobj.interval)),' sec'],'Horizontalalignment','left');
+set(figUIobj.prestim,'string',['loops=',num2str(recobj.prestim * (recobj.rect/1000 + recobj.interval)),'sec'],'Horizontalalignment','left');
 
 %% %%% stim 1 %%%%%
 modelist = get(figUIobj.mode,'string'); % {'Random', 'Fix_Rep', 'Ordered'};
@@ -132,6 +132,25 @@ sobj.positions_deg = [reshape(x_deg, 1, numAllDots); reshape(y_deg, 1, numAllDot
 
 sobj.dots_density = re_write(figUIobj.dots_density);
 sobj.num_dots = round(numAllDots * sobj.dots_density/100);
+
+
+%% Fine Mapping
+if strcmp(sobj.pattern, 'FineMap')
+    
+    % get small area for fine mapping 
+    FineMapArea_deg = [0, 0, sobj.dist, sobj.dist]; % deg
+    FineMapArea = Deg2Pix(FineMapArea_deg, sobj.MonitorDist, sobj.pixpitch);
+    
+    % get center position in pixel
+    center = sobj.center_pos_list(sobj.fixpos,:);
+    
+    % get corner positions in pixel
+    RECT = CenterRectOnPointd(FineMapArea, center(1), center(2));
+    
+    sobj.center_pos_list_FineMap = get_stim_center_mat(RECT, sobj.div_zoom);
+    disp(sobj.center_pos_list_FineMap)
+
+end
 
 %% %%% stim 2 %%%%%
 sobj.shape2 = sobj.shapelist{get(figUIobj.shape2, 'value'), 1};
@@ -257,7 +276,24 @@ y = str2double(get(h,'string'));
 end
 
 %%
-function centerXY_list= get_stim_center_mat
+function centerXY_list= get_stim_center_mat(RECT, divnum)
+RECT_x = RECT(3) - RECT(1);
+RECT_y = RECT(4) - RECT(2);
+
+step_x = RECT_x / divnum;
+step_y = RECT_y / divnum;
+
+center_div = floor([RECT(1) + step_x/2 : step_x : RECT(3) - step_x/2;...
+    RECT(2) + step_y/2 : step_y : RECT(4) - step_y/2]);
+
+centerXY_list = zeros(divnum^2, 2);
+
+for m = 1:divnum
+    centerXY_list(divnum*(m-1)+1:divnum*m, 1) = center_div(1, m);
+    centerXY_list((1:divnum:divnum^2)+(m-1), 2) = center_div(2, m);
+end
+
+%{
 global sobj
 sizeX = sobj.RECT(3)/sobj.divnum;
 sizeY = sobj.RECT(4)/sobj.divnum;
@@ -270,6 +306,7 @@ for m = 1:sobj.divnum
     centerXY_list(sobj.divnum*(m-1)+1:sobj.divnum*m,1) = center_div(1,m);
     centerXY_list((1:sobj.divnum:sobj.divnum^2)+(m-1),2) = center_div(2,m);
 end
+%}
 end
 
 %%

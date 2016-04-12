@@ -56,7 +56,7 @@ set(hGui.mode, 'callback', @set_fig_pos);
 uicontrol('style','text','string','Stim.Pattern','position',[105 620 70 15],'Horizontalalignment','left');
 hGui.pattern=uicontrol('style','popupmenu','position',[105 600 90 20],...
     'string',[{'Uni'},{'Size_rand'},{'1P_Conc'},{'2P_Conc'},{'B/W'},...
-    {'Looming'},{'Sin'},{'Rect'},{'Gabor'},{'Images'},{'Mosaic'}]);
+    {'Looming'},{'Sin'},{'Rect'},{'Gabor'},{'Images'},{'Mosaic'},{'FineMap'}]);
 set(hGui.pattern, 'callback', @check_change_params);
 % New stimulus patterns will be added this list and, change stim_pattern and "visual stimulus.m".
 
@@ -110,7 +110,7 @@ hGui.delayPTB = uicontrol('style','text','position',[45 405 75 15],'string',['fl
 uicontrol('style','text','position',[10 380 70 15],'string','Set Blank','Horizontalalignment','left');
 hGui.prestimN=uicontrol('style','edit','position',[10 355 30 25],'string',recobj.prestim,'BackGroundColor','w');
 hGui.prestim=uicontrol('style','text','position',[45 355 100 15],...
-    'string',['loops=',num2str(recobj.prestim * (recobj.rect/1000 + recobj.interval)),' sec'],'Horizontalalignment','left');
+    'string',['loops=',num2str(recobj.prestim * (recobj.rect/1000 + recobj.interval)),'sec'],'Horizontalalignment','left');
 
 %%% The number of Image stimli
 uicontrol('style', 'text','string','# of Imgs','position',[130 430 60 15],'HorizontalAlignment','left');
@@ -136,12 +136,12 @@ set(hGui.auto_size, 'callback', {@autosizing, hGui});
 uicontrol('style','text','position',[10 280 70 15],'string','Monitor Div.','Horizontalalignment','left');
 hGui.divnum=uicontrol('style','edit','position',[10 255 50 25],'string',sobj.divnum,'BackGroundColor','w');
 set(hGui.divnum, 'callback', {@reload_params, Testmode});
-hGui.divnumN = uicontrol('style','text','position',[65 255 70 15],'string',['(' num2str(sobj.divnum) 'x' num2str(sobj.divnum) 'Mat)'],'Horizontalalignment','left');
+hGui.divnumN = uicontrol('style','text','position',[65 255 70 15],'string',['(' num2str(sobj.divnum) 'x' num2str(sobj.divnum) 'mat)'],'Horizontalalignment','left');
 
 uicontrol('style','text','position',[10 230 70 15],'string','Fixed Pos.','Horizontalalignment','left');
 hGui.fixpos=uicontrol('style','edit','position',[10 205 50 25],'string',sobj.fixpos,'BackGroundColor','w');
 set(hGui.fixpos,'callback', {@reload_params, Testmode});
-hGui.fixposN = uicontrol('style','text','position',[65 205 70 15],'string',['(in ' num2str(sobj.divnum) 'x' num2str(sobj.divnum) 'Mat)'],'Horizontalalignment','left');
+hGui.fixposN = uicontrol('style','text','position',[65 205 70 15],'string',['(in' num2str(sobj.divnum) 'x' num2str(sobj.divnum) 'mat)'],'Horizontalalignment','left');
 
 % Get fine position
 hGui.get_fine_pos=uicontrol('style','togglebutton','position',[130 250 60 30],'string','get Pos','Horizontalalignment','center');
@@ -392,6 +392,8 @@ function quit_NBA(~, ~, s)
 global sobj
 global dev
 global plotUIobj
+global getfineUIobj
+
 delete(s)
 
 if isempty(dev)
@@ -410,6 +412,11 @@ if isstruct(plotUIobj)
     end
 end
 
+if isstruct(getfineUIobj)
+    if isfield(getfineUIobj, 'fig')
+        close(getfineUIobj.fig)
+    end
+end
 sca;
 close all hidden;
 
@@ -435,7 +442,8 @@ end
 function get_fine_pos(hObject, ~, hGui)
 global getfineUIobj
 global sobj
-if strcmp(sobj.pattern, '1P_Conc')
+
+if strcmp(sobj.pattern, '1P_Conc') || strcmp(sobj.pattern, 'FineMap')
     if get(hObject, 'value')
         getfineUIobj = open_get_fine_pos(hGui);
         disp('get fine pos from concentric grid');
@@ -446,8 +454,13 @@ if strcmp(sobj.pattern, '1P_Conc')
         end
     end
 else
+    if isfield(getfineUIobj,'fig')
+        close(getfineUIobj.fig)
+        clearvars -global getfineUIobj
+    end
     set(hObject, 'value', 0)  
 end
+
 ch_ButtonColor(hObject,[],'g')
 end
 

@@ -31,6 +31,15 @@ check_AOrange;
                 set(figUIobj.mode, 'value', 1); % position random
                 set(figUIobj.shape, 'value', 2); % circular
                 
+            case 'FineMap'
+                val = {'g', 'g', 'g', 'k', 'k',...
+                    'k', 'k', 'k', 'k', 'k',...
+                    'k', 'k', 'k', 'k', 'k', 'g'};
+                map_list = containers.Map(key, val);
+                
+                set(figUIobj.mode, 'value', 2); % position random
+                set(figUIobj.shape, 'value', 2); % circular
+                
             case 'Size_rand'
                 val = {'g', 'k', 'k', 'k', 'k',...
                     'k', 'k', 'k', 'k', 'k',...

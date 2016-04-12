@@ -30,6 +30,9 @@ DAQ 以外の機能 \(PTB, GUI, data save など\) がテストできる\(はず
 * "Sin", "Rect", "Gabor" グレーティング, direction, temporal frequency, spatial frequency を設定．
 * "Images", 256 種類の画像ファイルから # of Image \(ランダムに\)選んで繰り返し提示
 * "Mosaic", 視野角 dist \(deg\) で Density \(%\) 個ランダムな場所に複数ドット \(丸 or 四角\) を出す．
+* "FineMapp", Fixed position を中心に，sobj.dist\^2 の小領域を sobj.div_zoom∧２ に分割して刺激をだす．
+
+"1P\_Conc" と "FineMap" のときは 刺激モニタを 200^2 分割した 場所に対応する場所を検索して Fixed position として反映できる．
 
 ---
 ## save data & parameters

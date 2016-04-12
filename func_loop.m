@@ -255,6 +255,10 @@ elseif recobj.cycleNum > 0 %StimON
             elseif strcmp(sobj.pattern, 'Mosaic')
                 %Prep,
                 Mosaic_Dots;
+            
+            elseif strcmp(sobj.pattern, 'FineMap')
+                %Prep
+                Fine_Mapping;
             end
 
             
@@ -767,7 +771,7 @@ end
     end
 
 %%
-    function Mosaic_Dots 
+    function Mosaic_Dots
         % Set stim area center
         sobj.stim_center = sobj.center_pos_list(sobj.fixpos,:);
         sobj.center_index = sobj.fixpos;
@@ -778,21 +782,20 @@ end
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-        %send rand seed
+        % Set seed
         sobj.def_seed = rng(sobj.int_seed(recobj.cycleNum),'twister');
         disp(sobj.int_seed(recobj.cycleNum))
-        %randamize1
         select = randperm(size(sobj.positions_deg,2));
+        
         if sobj.num_dots == 0;
         else
         sobj.dot_position_deg = sobj.positions_deg(:, select(1:sobj.num_dots));
         end
         xy_select = Deg2Pix(sobj.dot_position_deg, sobj.MonitorDist, sobj.pixpitch);
         
+        sobj.size_deg = sobj.dist/sobj.div_zoom;
         %set same seed
         rng(sobj.def_seed);
-        %randamize2;
-        sobj.size_deg = sobj.dist/sobj.div_zoom;
         size_rand = sobj.size_deg*(rand(sobj.num_dots,1));
         sobj.dot_sizes_deg = ceil(size_rand);
         dot_sizes = Deg2Pix(sobj.dot_sizes_deg, sobj.MonitorDist, sobj.pixpitch);
@@ -808,6 +811,42 @@ end
         Screen('DrawDots', sobj.wPtr, xy_select, dot_sizes, sobj.stimcol, sobj.stim_center, shape);
     end
 
+%%
+    function Fine_Mapping
+        % Set stim center for Fine Mapping, centered at fixed position
+        fix_center = sobj.center_pos_list(sobj.fixpos,:);
+        [sobj.stim_center, sobj.center_index_FineMap] = get_condition(7, sobj.center_pos_list_FineMap, recobj.cycleNum,...
+            sobj.div_zoom^2, get(figUIobj.mode,'value'), fix_center);
+        sobj.center_index = sobj.fixpos;
+        if get(figUIobj.mode,'value') == 2
+            sobj.center_index_FineMap = 0;
+        end
+        
+        % Set stim size
+        sobj.stim_size = sobj.stimsz;
+        sobj.size_deg = str2double(get(figUIobj.size, 'string'));
+        maxDiameter = max(sobj.stim_size) * 1.01;
+        % define stim position using center and size
+        Rect = CenterRectOnPointd([0,0,sobj.stim_size], sobj.stim_center(1), sobj.stim_center(2));
+        
+        % Set Luminance
+        switch get(figUIobj.lumi,'value')
+            case 1
+                flag_lumi_random = 2; %fix
+            case 2
+                flag_lumi_random = 1; %randomize
+        end
+        sobj.lumi = get_condition(3, sobj.stimlumi_list, recobj.cycleNum,...
+            length(sobj.stimlumi_list), flag_lumi_random, sobj.stimlumi);
+        
+        sobj.stimcol = sobj.lumi * sobj.stimRGB;
+        
+        %PrepScreen Screen
+        Screen(sobj.shape, sobj.wPtr, sobj.stimcol, Rect, maxDiameter);
+        
+    end
+
+
 %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %%
     function [out, index] = get_condition(n, list_mat, cycleNum, list_size, flag_random, fix)
         % generate list order
@@ -816,6 +855,7 @@ end
         % 4: concentric_angle & distance matrix
         % 5: grating angle
         % 6: tif images
+        % 7: stimulus center for Fine Mapping
         
         persistent list_order %keep in this function
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -907,6 +947,11 @@ else % during stimulation
         case 'Mosaic'
             bgcol = 'm';
             stim_str3 = 'Mosaic';
+            
+        case 'FineMap'
+            bgcol = 'm';
+            stim_str3 = ['FinePos: ', num2str(sobj.center_index_FineMap),...
+                '/', num2str(sobj.div_zoom^2)];
             
     end
     %position in matrix
