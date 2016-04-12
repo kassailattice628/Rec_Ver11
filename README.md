@@ -11,6 +11,22 @@ DAQ toolbox (session-based), NIDAQmx ドライバ で NI DAQを制御．
 外部 TTL pulse 出力として AO0 を使用．
 
 ---
+## Requirement
+Windows7 64bit, 8 でも動くが Psychtoolbox3 の同期，タイミング制御が不安．Windows10 は試したことない．
+MATLAB 64bit R2015b をメインで使用．その前後でも大丈夫だと思う．  
+Data acquisition toolbox が必要．
+\(イメージングの解析には Image Processing toolbox も\)．．
+NIDAQmx は，NI から直接ダウンロードした．  
+R2016 以降は, MATLAB のメニュー，アドオン　＞　ハードウェアサポートパッケージの入手 から．  
+[Psychtoolbox3]("http://psychtoolbox.org/download/") から指示に従って最新版を入れる．  
+NI の DAQ としては，USB 接続の BNC コネクタ付きのものを使用している \(USB6341BNC\)．  
+USB6001 等では TTL3 に設定した AO パルスが同時に使えない．
+
+###注意  
+DAQ は 使用する PC に 1 台だけつなげばその認識してくれる．  
+複数使用する場合は，daq_ini.m の中で機器名を指定する必要あり．
+
+---
 ## Usage
 OpenNBA.m を実行．  
 開いたウィンドウから "Start NBA" ボタンを押すと起動．
@@ -38,3 +54,9 @@ DAQ 以外の機能 \(PTB, GUI, data save など\) がテストできる\(はず
 ## save data & parameters
 初回は File name を押して保存先フォルダ，ファイル名を選択．  
 ２回目以降は，ファイル名の後に連番で数字が 1 ずつ足されていく．
+
+---
+## information about parameters
+1. recobj
+2. sobj
+3. save
