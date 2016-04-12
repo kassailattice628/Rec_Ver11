@@ -94,18 +94,11 @@ global s
 global recobj
 global sobj
 global ParamsSave
-global sOut
 
 % ready to start DAQ
 if Testmode == 0
     if s.IsRunning==false
         s.startBackground; %session start, listener ON, *** Waiting Analog Trigger (AI3)
-    end
-    
-    if get(hGui.TTL3,'value')==1
-        %TTLpulse
-        queueOutputData(sOut, 5 * recobj.TTL3AO); %max 10V
-        sOut.startBackground
     end
 end
 
@@ -140,6 +133,7 @@ function Trigger(Testmode, dio)
 
 global recobj
 global sobj
+global figUIobj
 
 %start timer & Trigger AI & FV
 Screen('FillRect', sobj.wPtr, sobj.bgcol); %presenting background
@@ -163,6 +157,9 @@ generate_trigger([0,0]);
     function generate_trigger(pattern)
         if Testmode == 0
             outputSingleScan(dio.TrigAIFV, pattern)
+            if get(figUIobj.TTL3,'value')
+                outputSingleScan(dio.TTL3, pattern(1))
+            end
         end
     end
 end

@@ -310,6 +310,7 @@ set(hGui.yaxis,'callback',@ch_yaxis);
 
 uipanel('Title','TTL3','FontSize',12,'Units', 'Pixels', 'Position',[205 10 195 230]);
 %% DIO3 (outer TTL);
+%{
 uicontrol('style','text','position',[210 165 60 15],'string','Delay','Horizontalalignment','left');
 hGui.delayTTL3=uicontrol('style','edit','position',[210,140,40,25],'string', recobj.TTL3.delay*1000,'BackGroundColor','w');
 set(hGui.delayTTL3,'callback',@check_change_params);
@@ -336,12 +337,13 @@ set(hGui.dutycycleTTL3, 'callback', @setTTL3);
 uicontrol('style','text','position',[285 75 100 15],'string','Single Pulse Width','Horizontalalignment','left');
 hGui.widthTTL3=uicontrol('style','text','position',[285 50 40 15],'string', recobj.TTL3.DutyCycle/recobj.TTL3.Freq*1000,'Horizontalalignment','center');
 uicontrol('style','text','position',[325 50 20 15],'string','ms','Horizontalalignment','left');
+%}
 
 hGui.TTL3=uicontrol('style','togglebutton','position',[210 185 65 30],'string','TTL-OFF','Horizontalalignment','left');
 set(hGui.TTL3, 'Callback',{@TTL3, Testmode})
 
-hGui.TTL3_select=uicontrol('style','togglebutton','position',[285 185 90 30],'string','Fix:Duration','Horizontalalignment','left');
-set(hGui.TTL3_select, 'Callback',{@TTL3_select, hGui})
+%hGui.TTL3_select=uicontrol('style','togglebutton','position',[285 185 90 30],'string','Fix:Duration','Horizontalalignment','left');
+%set(hGui.TTL3_select, 'Callback',{@TTL3_select, hGui})
 
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

@@ -1,14 +1,16 @@
-# NoneButAir_Rec_Ver11.4
+# NoneButAir_Rec_Ver11.4--w/o Rot, AO
 
 MATLAB, Psychtoolbox3 を使っての視覚刺激制御と  
 DAQ toolbox (session-based), NIDAQmx ドライバ で NI DAQを制御．
 
-3チャンネル AI, ロータリィエンコーダ から記録．  
+3チャンネル AI, ．  
 毎回ループのはじめに P0.0 から TTL 出力．  
 １番はじめの Loop Start タイミングで P0.1 から TTL 出力．  
 視覚刺激のタイミングにあわせて P0.2 の TTL ON/OFF．
+TTL3 を ON にしてる場合， P0.0 と同じタイミングで TTL 出力．
 
-外部 TTL pulse 出力として AO0 を使用．
+ロータリィエンコーダ 使用しない
+外部 TTL pulse 出力として AO0 を使用しない．
 
 ---
 ## Requirement
@@ -19,8 +21,7 @@ Data acquisition toolbox が必要．
 NIDAQmx は，NI から直接ダウンロードした．  
 R2016 以降は, MATLAB のメニュー，アドオン　＞　ハードウェアサポートパッケージの入手 から．  
 [Psychtoolbox3]("http://psychtoolbox.org/download/") から指示に従って最新版を入れる．  
-NI の DAQ としては，USB 接続の BNC コネクタ付きのものを使用している \(USB6341BNC\)．  
-USB6001 等では TTL3 に設定した AO パルスが同時に使えない．
+USB6001 を使った機能制限版．
 
 ###注意  
 DAQ は 使用する PC に 1 台だけつなげばその認識してくれる．  
