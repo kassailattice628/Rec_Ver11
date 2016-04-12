@@ -585,10 +585,11 @@ if Testmode == 0
 end
 
 ch_ButtonColor(hObject,[], 'g')
-setTTL3;
+%setTTL3;
 end
 
 %%
+%{
 function TTL3_select(hObject, ~, hGui)
 switch get(hObject,'value')
     case 0
@@ -601,7 +602,7 @@ switch get(hObject,'value')
         set(hGui.pulsenumTTL3, 'style','text', 'position', [285 95 60 15],'BackGroundColor',[0.9400 0.9400 0.9400])
 end
 end
-
+%}
 %%
 function ch_yaxis(hObject, ~)
 global figUIobj
