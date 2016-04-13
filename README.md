@@ -32,8 +32,9 @@ OpenNBA.m を実行．
 開いたウィンドウから "Start NBA" ボタンを押すと起動．
 
 NI 機器につながっていない，DAQ toolbox が使えない環境では，"Testmode" を ON にして "START NBA" を起動すると
-DAQ 以外の機能 \(PTB, GUI, data save など\) がテストできる\(はず\)．．
-
+DAQ 以外の機能 \(PTB, GUI, data save など\) がテストできる\(はず\)．．．  
+dual-display 環境では Loop ボタンで視覚刺激の スタート/ストップを制御．  
+Single-display 環境では ５回 刺激出したら Screen('Close') を読んで 画面をもどる．
 ---
 ## Visual Stimuli
 視覚刺激は，以下のものが使える．
