@@ -9,23 +9,27 @@ save.cycleNum = recobj.cycleNum; % > Visual Stim ON
 save.RecStartTime = recobj.tRec; % AI trigger time from the first AI Trigger.
 
 if recobj.cycleNum > 0
-    save.stim1.On_time = sobj.vbl_2-sobj.vbl_1;
+    %%% Stimi ON %%%
+    save.stim1.On_time = sobj.vbl_2 - sobj.vbl_1;
+    
+    %%% Stimi OFF %%%
     save.stim1.Off_time = sobj.vbl_3 - sobj.vbl_2;
     
+    %%% Luminance & Color %%%
     save.stim1.lumi = sobj.lumi;
     save.stim1.color = sobj.stimcol;
     
-    %%%% Visual Stimuli %%%%
-    
-    % center position
+    %%% Center Position %%%
     save.stim1.center_position = sobj.center_index;
     save.stim1.centerX_pix = sobj.stim_center(1);
     save.stim1.centerY_pix = sobj.stim_center(2);
-    % size
+    
+    %%% Size %%%
     save.stim1.size_deg = sobj.size_deg;
     %save.stim1.sizeX_pix = sobj.stim_size(1);
     %save.stim1.sizeY_pix = sobj.stim_size(2);
     
+    %%% Stim.Pattern Specific Parameters %%%
     switch pattern
         case 'Looming'
             % looming speed and maximum size
@@ -76,7 +80,6 @@ if recobj.cycleNum > 0
         case {'FineMap'}
             % Fine mapping by using small area
             save.stim1.center_position_FineMap = sobj.center_index_FineMap;
-
     end
 end
 

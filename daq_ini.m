@@ -30,7 +30,7 @@ InCh(4).TerminalConfig = 'Differential';
 sOut = daq.createSession(dev.Vendor.ID);
 sOut.Rate = recobj.sampf;
 addAnalogOutputChannel(sOut, dev.ID, 0, 'Voltage');
-%(1):
+%(1): 
 %(2): Curretn Pulse (C clamp), Voltage Pulse (V clamp)
 addTriggerConnection(sOut,'External',[dev.ID,'/PFI0'],'StartTrigger');
 sOut.Connections(1).TriggerCondition = 'RisingEdge';
@@ -52,20 +52,6 @@ outputSingleScan(dio.VSon,0); %reset trigger signals at Low
 %% for Rotary Encoder
 sRot = addCounterInputChannel(s, dev.ID, 'ctr0', 'Position');
 sRot.EncoderType='X4'; %decode mode:X1, X2, X4, 'X4' is the most fine mode.
-
-%{
-%% for TTL3
-sTTL = daq.createSession(dev.Vendor.ID);
-sTTL.Rate = recobj.sampf;
-recobj.delayTTL3 = 0.5;
-TTL_duration = 0.1;
-sTTL.DurationInSeconds = recobj.rect/1000 - recobj.delayTTL3 - TTL_duration;
-
-CtrCh = addCounterOutputChannel(sTTL, dev.ID, 'ctr1','Pulsegeneration');
-CtrCh.Frequency = 100;
-CtrCh.InitialDelay = recobj.delayTTL3;
-CtrCh.DutyCycle = 0.5;
-%}
 
 %% DAQ capture settings
 % Specify triggered capture timespan, in seconds

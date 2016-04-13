@@ -176,7 +176,6 @@ end
 end
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 function ResetTTLall(Testmode, dio, sobj)
 % Reset all TTL to zero.
 
@@ -190,7 +189,6 @@ else
     end
 end
 end
-
 
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -624,7 +622,7 @@ end
         end
     end
 
-%%
+%% function to generate shifting grating stimulus
     function GratingGLSL
         if strcmp(sobj.pattern, 'Sin')
             flag_gabor = 0;
@@ -741,7 +739,7 @@ end
         
     end
 
-%%
+%% Simple simbols, alphabet 
     function Img_stim
         %Select Tiff Image from img folder.
         sobj.img_i = get_condition(6, sobj.img_sublist, recobj.cycleNum, length(sobj.img_sublist), 1);
@@ -827,7 +825,7 @@ end
         sobj.size_deg = str2double(get(figUIobj.size, 'string'));
         maxDiameter = max(sobj.stim_size) * 1.01;
         % define stim position using center and size
-        Rect = CenterRectOnPointd([0,0,sobj.stim_size], sobj.stim_center(1), sobj.stim_center(2));
+        Rect = CenterRectOnPointd([0, 0, sobj.stim_size], sobj.stim_center(1), sobj.stim_center(2));
         
         % Set Luminance
         switch get(figUIobj.lumi,'value')
