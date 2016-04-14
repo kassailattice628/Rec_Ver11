@@ -16,8 +16,6 @@ global sOut
 % general %
 sobj.MonitorDist = re_write(figUIobj.MonitorDist);
 sobj.div_zoom = re_write(figUIobj.div_zoom);
-sobj.dist = re_write(figUIobj.dist);
-sobj.bgcol = re_write(figUIobj.bgcol);
 
 sobj.divnum = re_write(figUIobj.divnum);
 set(figUIobj.divnumN, 'string', ['(' num2str(sobj.divnum) 'x' num2str(sobj.divnum) 'mat)']);
@@ -31,12 +29,17 @@ recobj.prestim = re_write(figUIobj.prestimN);
 recobj.cycleNum = 0- recobj.prestim;
 set(figUIobj.prestim,'string',['loops=',num2str(recobj.prestim * (recobj.rect/1000 + recobj.interval)),'sec'],'Horizontalalignment','left');
 
-%% %%% stim 1 %%%%%
 modelist = get(figUIobj.mode,'string'); % {'Random', 'Fix_Rep', 'Ordered'};
 sobj.mode = modelist{get(figUIobj.mode,'value')};
 
 pattern_list = get(figUIobj.pattern,'string');
 sobj.pattern = pattern_list{get(figUIobj.pattern,'value'),1};
+
+
+%% %%% stim 1 %%%%%
+sobj.dist = re_write(figUIobj.dist);
+sobj.bgcol = re_write(figUIobj.bgcol);
+
 switch sobj.pattern
     case {'B/W', 'Gabor'}
         sobj.bgcol = sobj.gray;
@@ -49,8 +52,11 @@ sobj.stimcol = sobj.stimlumi * sobj.stimRGB;
 
 sobj.stimlumi_list = linspace(sobj.bgcol, sobj.stimlumi, 5)';
 
-sobj.flipNum = re_write(figUIobj.flipNum);
-sobj.duration = sobj.flipNum*sobj.m_int;
+if strcmp(sobj.pattern, 'Looming')
+else
+    sobj.flipNum = re_write(figUIobj.flipNum);
+    sobj.duration = sobj.flipNum*sobj.m_int;
+end
 
 sobj.delayPTBflip = re_write(figUIobj.delayPTBflip);
 sobj.delayPTB = sobj.delayPTBflip*sobj.m_int;
@@ -208,7 +214,6 @@ if Testmode == 0
     end
     s.Rate = recobj.sampf;
     sOut.Rate = recobj.sampf;
-    %s.DurationInSeconds = recobj.rect/1000;%sec
     
     %%%%%% data capture settings %%%%%%
     % Specify triggered capture timespan, in seconds

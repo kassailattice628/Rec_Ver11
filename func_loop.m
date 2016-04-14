@@ -116,8 +116,8 @@ try %error check
             % start timer and start FV
             Trigger(Testmode, dio);
             % loop interval %
-            pause(recobj.rect/1000 + recobj.interval); 
-        %%%%%%%%%%%%%%%%%%%% Visual Stimulus ON %%%%%%%%%%%%%%%%%%%%%
+            pause(recobj.rect/1000 + recobj.interval);
+            %%%%%%%%%%%%%%%%%%%% Visual Stimulus ON %%%%%%%%%%%%%%%%%%%%%
         case 1
             % start timer, start FV and start Stim
             VisStim(Testmode, dio);
@@ -220,15 +220,15 @@ elseif recobj.cycleNum > 0 %StimON
         pause_time = min([time1,time2] + recobj.interval);
         
     elseif strcmp(sobj.pattern, 'Looming')
-            %Prep, ON
-            Looming;
-            
-            %GUI stim indicater
-            stim_monitor_reset;
-            time1 = recobj.rect/1000 - (sobj.vbl_3-sobj.vbl_1);
-            pause_time = time1 + recobj.interval;
+        %Prep, ON
+        Looming;
+        
+        %GUI stim indicater
+        stim_monitor_reset;
+        time1 = recobj.rect/1000 - (sobj.vbl_3-sobj.vbl_1);
+        pause_time = time1 + recobj.interval;
     else
-            
+        
         if strcmp(sobj.pattern, 'Sin') || strcmp(sobj.pattern, 'Gabor') || strcmp(sobj.pattern, 'Rect')
             %Prep, ON
             GratingGLSL;
@@ -249,16 +249,16 @@ elseif recobj.cycleNum > 0 %StimON
             elseif strcmp(sobj.pattern, 'Images')
                 %Prep,
                 Img_stim;
-            
+                
             elseif strcmp(sobj.pattern, 'Mosaic')
                 %Prep,
                 Mosaic_Dots;
-            
+                
             elseif strcmp(sobj.pattern, 'FineMap')
                 %Prep
                 Fine_Mapping;
             end
-
+            
             
             %AddPhoto Sensor (Left, UP in the monitor) for the stimulus timing check
             Screen('FillRect', sobj.wPtr, 255, [0 0 40 40]);
@@ -414,7 +414,7 @@ end
         %set flipnum
         flipnum = round(sobj.loomDuration/sobj.m_int);
         scaleFactor = sobj.loomSize_pix./flipnum;
-         
+        
         topPriorityLevel =  MaxPriority(sobj.wPtr);
         Priority(topPriorityLevel);
         
@@ -521,7 +521,7 @@ end
         if sobj.delayPTB < sobj.delayPTB2
             % Stim1 appears earier thant Stim2
             Flip_Conc2(Stim1, Stim2, Both_Stim1_Stim2, 1);
-                         
+            
         elseif sobj.delayPTB == sobj.delayPTB2
             % Stim1 and Stim2 appear at the same timing
             Flip_Conc2(Stim1, Stim2, Both_Stim1_Stim2, 2);
@@ -579,7 +579,7 @@ end
         stim_monitor_reset;
     end
 
-    %% function for Conc_2P
+%% function for Conc_2P
     function Flip_Conc2(Stim1, Stim2, Both_Stim1_Stim2, type)
         switch type
             case 1
@@ -670,7 +670,7 @@ end
         % cycles/deg
         gratFreq_list_deg = get(figUIobj.gratFreq, 'string');
         sobj.gratFreq_deg = str2double(gratFreq_list_deg(get(figUIobj.gratFreq,'value')));
-        % deg/cyclesca
+        % deg/cycles
         deg_per_cycle = 1/sobj.gratFreq_deg;
         % deg/cycle -> pix/cycle
         pix_per_cycle = Deg2Pix(deg_per_cycle, sobj.MonitorDist, sobj.pixpitch);
@@ -739,7 +739,7 @@ end
         
     end
 
-%% Simple simbols, alphabet 
+%% Simple simbols, alphabet
     function Img_stim
         %Select Tiff Image from img folder.
         sobj.img_i = get_condition(6, sobj.img_sublist, recobj.cycleNum, length(sobj.img_sublist), 1);
@@ -779,26 +779,32 @@ end
         sobj.stimcol = sobj.lumi * sobj.stimRGB;
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-        % Set seed
-        sobj.def_seed = rng(sobj.int_seed(recobj.cycleNum),'twister');
-        disp(sobj.int_seed(recobj.cycleNum))
+        
+        % Set seed1
+        sobj.def_seed1 = sobj.int_seed(recobj.cycleNum);
+        disp(sobj.def_seed1)
+        rng(sobj.def_seed1);
+        
         select = randperm(size(sobj.positions_deg,2));
         
         if sobj.num_dots == 0;
         else
-        sobj.dot_position_deg = sobj.positions_deg(:, select(1:sobj.num_dots));
+            sobj.dot_position_deg = sobj.positions_deg(:, select(1:sobj.num_dots));
         end
         xy_select = Deg2Pix(sobj.dot_position_deg, sobj.MonitorDist, sobj.pixpitch);
         
         sobj.size_deg = sobj.dist/sobj.div_zoom;
-        %set same seed
-        rng(sobj.def_seed);
+        
+        % Set seed2
+        sobj.def_seed2 = sobj.int_seed(end - recobj.cycleNum);
+        disp(sobj.def_seed2)
+        rng(sobj.def_seed2);
+        
         size_rand = sobj.size_deg*(rand(sobj.num_dots,1));
         sobj.dot_sizes_deg = ceil(size_rand);
         dot_sizes = Deg2Pix(sobj.dot_sizes_deg, sobj.MonitorDist, sobj.pixpitch);
         
-        % Draw multiple dots, 
+        % Draw multiple dots,
         % Usage::Screen('DrawDots', windowPtr, xy [,size] [,color] [,center] [,dot_type]);
         % dot_type: 0 (default) squares, 1 circles (with anti-aliasing), 2 circles (with high-quality anti-aliasing, if supported by your hardware)
         if get(figUIobj.shape, 'value') == 1
@@ -860,7 +866,7 @@ end
         if flag_random == 2 %fixed condition
             %list_order{n} = fix * ones(1,list_size);
             index = [];
-            out = fix; 
+            out = fix;
         else
             if cycleNum == 1 && n == 1
                 list_order = cell(6,1);

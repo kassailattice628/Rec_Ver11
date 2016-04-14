@@ -501,8 +501,8 @@ global sobj
 
 if get(hObject, 'value')==1
     set(hObject,'string','Auto FILL');
-    Rx = floor((sobj.ScreenSize(1)/sobj.divnum));
-    Ry = floor((sobj.ScreenSize(2)/sobj.divnum));
+    Rx = floor((sobj.RECT(3)/sobj.divnum));
+    Ry = floor((sobj.RECT(4)/sobj.divnum));
     sobj.stimsz = [Rx,Ry];
     stimsz_deg = round(Pix2Deg([sobj.stimsz], sobj.MonitorDist));
     set(hGui.size,'string',[num2str(stimsz_deg(1)), ' x ', num2str(stimsz_deg(2))]);
@@ -517,6 +517,7 @@ ch_ButtonColor(hObject,[],'g')
 end
 
 function check_mosaic(hObject, ~, hGui)
+global sobj
 %the number of dots is zero, use default settings.
 div_zoom = str2double(get(hGui.div_zoom,'string'));
 dist = str2double(get(hGui.dist,'string'));

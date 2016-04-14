@@ -1,6 +1,7 @@
 function save = get_save_params(recobj, sobj)
-% save parameters for Ver11.03
+% save parameters for Ver11
 % these paraemters are updated in evely loop and saved in a cell.
+global figUIobj
 
 pattern = sobj.pattern;
 
@@ -9,11 +10,13 @@ save.cycleNum = recobj.cycleNum; % > Visual Stim ON
 save.RecStartTime = recobj.tRec; % AI trigger time from the first AI Trigger.
 
 if recobj.cycleNum > 0
-    %%% Stimi ON %%%
-    save.stim1.On_time = sobj.vbl_2 - sobj.vbl_1;
-    
-    %%% Stimi OFF %%%
-    save.stim1.Off_time = sobj.vbl_3 - sobj.vbl_2;
+    if get(figUIobj.stim,'value')
+        %%% Stimi ON %%%
+        save.stim1.On_time = sobj.vbl_2 - sobj.vbl_1;
+        
+        %%% Stimi OFF %%%
+        save.stim1.Off_time = sobj.vbl_3 - sobj.vbl_2;
+    end
     
     %%% Luminance & Color %%%
     save.stim1.lumi = sobj.lumi;
@@ -63,19 +66,19 @@ if recobj.cycleNum > 0
             save.stim1.Image_index = sobj.img_i;
             
         case {'Sin', 'Rect', 'Gabor'}
-            % Sin, Rect, Gabor
-            % Grating pramas
+            % Sin, Rect, Gabor, Grating pramas
             save.stim1.gratingSF_cyc_deg = sobj.gratFreq;
             save.stim1.gratingSpd_Hz = sobj.shiftSpd;
             save.stim1.gratingAngle_deg = sobj.angle;
             
         case {'Mosaic'}
             % Mosaic Dot pattern
-            save.seed = sobj.def_seed;
+            save.stim1.seed1 = sobj.def_seed1;
+            save.stim1.seed2 = sobj.def_seed2;
             
             % tentative
             save.position_deg_mat = sobj.dot_position_deg;
-            save.size_deg_mat = sobj.dot_position_deg;
+            save.size_deg_mat = sobj.dot_sizes_deg;
             
         case {'FineMap'}
             % Fine mapping by using small area

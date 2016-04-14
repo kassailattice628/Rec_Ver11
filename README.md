@@ -6,16 +6,17 @@ DAQ toolbox (session-based), NIDAQmx ドライバ で NI DAQを制御．
 3チャンネル AI, ロータリィエンコーダ から記録．  
 毎回ループのはじめに P0.0 から TTL 出力．  
 １番はじめの Loop Start タイミングで P0.1 から TTL 出力．  
-視覚刺激のタイミングにあわせて P0.2 の TTL ON/OFF．
+視覚刺激のタイミングにあわせて P0.2 の TTL ON/OFF．  
 
 外部 TTL pulse 出力として AO0 を使用．
 
 ---
 ## Requirement
-Windows7 64bit, 8 でも動くが Psychtoolbox3 の同期，タイミング制御が不安．Windows10 は試したことない．
+Windows7 64bit, 8 でも動くが Psychtoolbox3 の同期，タイミング制御が不安．  
+Windows10 は試したことない．  
 MATLAB 64bit R2015b をメインで使用．その前後でも大丈夫だと思う．  
-Data acquisition toolbox が必要．
-\(イメージングの解析には Image Processing toolbox も\)．．
+Data acquisition toolbox が必要．  
+\(イメージングの解析には Image Processing toolbox も\)．  
 NIDAQmx は，NI から直接ダウンロードした．  
 R2016 以降は, MATLAB のメニュー，アドオン　＞　ハードウェアサポートパッケージの入手 から．  
 [Psychtoolbox3]("http://psychtoolbox.org/download/") から指示に従って最新版を入れる．  
@@ -33,8 +34,10 @@ OpenNBA.m を実行．
 
 NI 機器につながっていない，DAQ toolbox が使えない環境では，"Testmode" を ON にして "START NBA" を起動すると
 DAQ 以外の機能 \(PTB, GUI, data save など\) がテストできる\(はず\)．．．  
-dual-display 環境では Loop ボタンで視覚刺激の スタート/ストップを制御．  
+dual-display 環境では Loop ボタンで視覚刺激の スタート\/ストップを制御．  
+
 Single-display 環境では ５回 刺激出したら Screen('Close') を読んで 画面をもどる．
+
 ---
 ## Visual Stimuli
 視覚刺激は，以下のものが使える．
