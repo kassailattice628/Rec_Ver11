@@ -1,4 +1,4 @@
-function dataCaptureNBA(src, event, c, hGui, plotVI, Recmode)
+function dataCaptureNBA(src, event, c, hGui, Recmode)
 %dataCapture Process DAQ acquired data when called by DataAvailable event.
 %  dataCapture (SRC, EVENT, C, HGUI) processes latest acquired data (EVENT.DATA)
 %  and timestamps (EVENT.TIMESTAMPS) from session (SRC), and, based on specified
@@ -23,6 +23,7 @@ global recobj
 global sobj
 global DataSave
 global ParamsSave
+
 
 %% keep parameter during loop
 persistent dataBuffer trigActive trigMoment trigCount
@@ -107,6 +108,7 @@ elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) > c.Tim
                 set(plotUIobj.axes1, 'XLim',[-inf,inf]);
             end
         else
+            plotVI = get(hGui.plot,'value');
             if get(plotUIobj.button1, 'value') % V or I plot
                 set(plotUIobj.plot1, 'XData', captureData(:, 1), 'YData', captureData(:,plotVI+2))
                 set(plotUIobj.axes1, 'XLim',[-inf,inf]);

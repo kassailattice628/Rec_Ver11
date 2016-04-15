@@ -237,7 +237,7 @@ if Testmode == 0
     delete(lh)% <-- important!!!
     DataSave =[]; %reset save data
     ParamsSave =[]; % reset save parameters
-    lh = addlistener(s, 'DataAvailable', @(src,event) dataCaptureNBA(src, event, capture, figUIobj, get(figUIobj.plot,'value'), Recmode));
+    lh = addlistener(s, 'DataAvailable', @(src,event) dataCaptureNBA(src, event, capture, figUIobj, Recmode));
     
     % dio reset
     outputSingleScan(dio.TrigAIFV,[0,0])
