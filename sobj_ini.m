@@ -3,7 +3,7 @@ function sobj = sobj_ini(pixpitch)
 
 % get monitor information
 MP = get(0,'MonitorPosition'); %position matrix for malti monitors
-screens = Screen('Screens');
+sobj.screens = Screen('Screens');
 
 % the number of displays connected
 sobj.Num_screens = size(sobj.screens,2);
