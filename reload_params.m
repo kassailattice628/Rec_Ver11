@@ -25,9 +25,10 @@ sobj.center_pos_list = get_stim_center_mat(sobj.RECT, sobj.divnum);
 sobj.fixpos = re_write(figUIobj.fixpos);
 set(figUIobj.fixposN,'string',['(in' num2str(sobj.divnum) 'x' num2str(sobj.divnum) 'mat)']);
 
+recobj.cycleNum = 0 - recobj.prestim;
+
 recobj.prestim = re_write(figUIobj.prestimN);
-recobj.cycleNum = 0- recobj.prestim;
-set(figUIobj.prestim,'string',['loops=',num2str(recobj.prestim * (recobj.rect/1000 + recobj.interval)),'sec'],'Horizontalalignment','left');
+set(figUIobj.prestim,'string',['loops=',num2str(recobj.prestim * (recobj.rect/1000 + recobj.interval)),'sec']);
 
 modelist = get(figUIobj.mode,'string'); % {'Random', 'Fix_Rep', 'Ordered'};
 sobj.mode = modelist{get(figUIobj.mode,'value')};

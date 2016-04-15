@@ -144,7 +144,6 @@ end
     end
 
 %%
-
     function change_plot
         switch get(figUIobj.plot,'value')
             case 0%V-plot
@@ -391,7 +390,6 @@ end
         set(figUIobj.delayPTB,'string',['flips = ',num2str(floor(delay1*1000)),' ms']);
         set(figUIobj.stimDur2,'string',['flips = ',num2str(floor(dur2*1000)),' ms']);
         set(figUIobj.delayPTB2, 'string',['flips = ',num2str(floor(delay2*1000)),' ms']);
-        
     end
 
 %%
