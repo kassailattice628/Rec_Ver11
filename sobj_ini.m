@@ -2,25 +2,20 @@ function sobj = sobj_ini(Testmode,pixpitch)
 % initialize sobj (PTB parameters)
 
 % get monitor information
-% scrsz=get(0,'ScreenSize');
-MP = get(0,'MonitorPosition'); %position matrix for malti monitors
+%MP = get(0,'MonitorPosition'); %position matrix for malti monitors
 screens = Screen('Screens');
 sobj.Num_screens = size(screens,2);
+
+%select stim-presentatin monitor
+
+% Set 2nd display for stim presentation
 sobj.ScrNum = max(screens);
+
+% Set Primally monitor for stim preseintation
+%sobj.ScrNum = min(screens);
+
 % OSX, main=0, sub(stim monitor) = 1,2,...
 % Windwos, main=1, sub(stim monitor) = 2,3,...
-
-if sobj.ScrNum == 0 % Single display in OSX
-    sNum = sobj.ScrNum+1;
-else
-    sNum = sobj.ScrNum;
-end
-
-if Testmode == 1 % Test Mac
-    sobj.ScreenSize = [MP(sNum,3)-MP(sNum,1)+1, MP(sNum,4)-MP(sNum,2)+1]; % monitor size of stim monitor
-elseif Testmode == 0
-    sobj.ScreenSize = [MP(sNum,3),MP(sNum,4)]; % for Windows8
-end
 
 sobj.pixpitch = pixpitch;
 sobj.MonitorDist = 300; % (mm) = distance from moniter to eye, => sobj.MonitorDist*tan(1*2*pi/360)/sobj.pixpitch (pixel/degree)
@@ -75,12 +70,6 @@ sobj.looming_Size = 40;
 sobj.div_zoom = 5;
 sobj.dist = 15; % distance(degree) for 2nd stimulus for lateral inhibition
 
-%sobj.position = 0;
-
-%Zoom and Fine mapping
-
-%sobj.zoom_dist = 0;
-%sobj.zoom_ang = 0;
 
 %%
 %Image presentation

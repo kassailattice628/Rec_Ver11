@@ -1,4 +1,4 @@
-function NoneButAir11_03(Testmode)
+function NoneButAir11(Testmode)
 % %%%%%%%%%%%%%%%%%%%%%%%%
 % %%%% None But Air %%%%%%
 % %%%%%%%%%%%%%%%%%%%%%%%%
@@ -44,7 +44,7 @@ end
 %PsychDefaultSetup(2);
 
 %[sobj.wPtr, sobj.RECT] = Screen('OpenWindow', sobj.ScrNum,sobj.bgcol);
-[sobj.wPtr, sobj.RECT] = PsychImaging('OpenWindow', sobj.ScrNum,sobj.bgcol);
+[sobj.wPtr, sobj.RECT] = PsychImaging('OpenWindow', sobj.ScrNum, sobj.bgcol);
 [sobj.ScrCenterX, sobj.ScrCenterY] = RectCenter(sobj.RECT);% center positionof of stim monitor
 sobj.m_int = Screen('GetFlipInterval', sobj.wPtr);
 sobj.frameRate = Screen('FrameRate',sobj.ScrNum);

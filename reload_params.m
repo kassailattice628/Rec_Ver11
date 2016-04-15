@@ -190,11 +190,12 @@ plotnum = get(figUIobj.plot, 'value')+1;
 recobj.stepAmp = recobj.stepCV(plotnum,1):recobj.stepCV(plotnum,3):recobj.stepCV(plotnum,2);
 
 % TTL
+%{
 recobj.TTL3.duration = re_write(figUIobj.durationTTL3); % ms
 recobj.TTL3.delay = re_write(figUIobj.delayTTL3); % ms
 recobj.TTL3.Freq = re_write(figUIobj.freqTTL3);
 recobj.TTL3.DutyCycle = re_write(figUIobj.dutycycleTTL3);
-
+%}
 %% DAQ
 if Testmode == 0
     % DAQ sessions are not defined in the TEST-mode

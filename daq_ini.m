@@ -78,7 +78,8 @@ capture.bufferSize =  round(capture.bufferTimeSpan * s.Rate);
 
 %%
 varargout{1,1} = s;
-varargout{1,2} = sOut;
+%varargout{1,2} = sOut;
+varargout{1,2} =[];
 varargout{1,3} = dio;
 varargout{1,4} = capture;
 varargout{1,5} = dev;

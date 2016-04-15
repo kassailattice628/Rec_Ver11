@@ -1,6 +1,7 @@
 function save = get_save_params(recobj, sobj)
 % save parameters for Ver11.03
 % these paraemters are updated in evely loop and saved in a cell.
+global figUIobj
 
 pattern = sobj.pattern;
 
@@ -9,14 +10,15 @@ save.cycleNum = recobj.cycleNum; % > Visual Stim ON
 save.RecStartTime = recobj.tRec; % AI trigger time from the first AI Trigger.
 
 if recobj.cycleNum > 0
-    save.stim1.On_time = sobj.vbl_2-sobj.vbl_1;
-    save.stim1.Off_time = sobj.vbl_3 - sobj.vbl_2;
+    if get(figUIobj.stim,'value')
+        save.stim1.On_time = sobj.vbl_2-sobj.vbl_1;
+        save.stim1.Off_time = sobj.vbl_3 - sobj.vbl_2;
+    end
     
     save.stim1.lumi = sobj.lumi;
     save.stim1.color = sobj.stimcol;
     
     %%%% Visual Stimuli %%%%
-    
     % center position
     save.stim1.center_position = sobj.center_index;
     save.stim1.centerX_pix = sobj.stim_center(1);
@@ -40,8 +42,10 @@ if recobj.cycleNum > 0
             if strcmp(pattern, '2P_Conc')
                 % params for stim2
                 % timing
-                save.stim2.On_time = sobj.vbl2_2-sobj.vbl_1;
-                save.stim2.Off_time = sobj.vbl2_3 - sobj.vbl2_2;
+                if get(figUIobj.stim,'value')
+                    save.stim2.On_time = sobj.vbl2_2-sobj.vbl_1;
+                    save.stim2.Off_time = sobj.vbl2_3 - sobj.vbl2_2;
+                end
                 % center position
                 save.stim2.centerX_pix = sobj.stim_center2(1);
                 save.stim2.centerY_pix = sobj.stim_center2(2);
@@ -76,7 +80,7 @@ if recobj.cycleNum > 0
         case {'FineMap'}
             % Fine mapping by using small area
             save.stim1.center_position_FineMap = sobj.center_index_FineMap;
-
+            
     end
 end
 
