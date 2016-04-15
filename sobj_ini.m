@@ -4,15 +4,20 @@ function sobj = sobj_ini(pixpitch)
 % get monitor information
 MP = get(0,'MonitorPosition'); %position matrix for malti monitors
 sobj.screens = Screen('Screens');
+
+% the number of displays connected
 sobj.Num_screens = size(sobj.screens,2);
-%select stim-presentatin monitor
 
-
+%% select stim-presentatin monitor
 % Set 2nd display for stim presentation
 %sobj.ScrNum = max(sobj.screens);
 % Set Primally monitor for stim preseintation
 sobj.ScrNum = min(sobj.screens);
 
+% OSX, main=0, sub(stim monitor) = 1,2,...
+% Windwos, main=1, sub(stim monitor) = 2,3,...
+
+%% Set horizontal cordinate for GUI Controler
 if sobj.Num_screens > 1
     if sobj.ScrNum == 0;
         sobj.GUI_Display_x = MP(3) + 1;
@@ -23,9 +28,7 @@ else %single display
     sobj.GUI_Display_x = 0;
 end
 
-% OSX, main=0, sub(stim monitor) = 1,2,...
-% Windwos, main=1, sub(stim monitor) = 2,3,...
-
+%%
 sobj.pixpitch = pixpitch;
 sobj.MonitorDist = 300; % (mm) = distance from moniter to eye, => sobj.MonitorDist*tan(1*2*pi/360)/sobj.pixpitch (pixel/degree)
 sobj.stimsz = round(ones(1,2)*Deg2Pix(1,sobj.MonitorDist, pixpitch)); % default: 1 deg
@@ -79,8 +82,6 @@ sobj.looming_Size = 40;
 sobj.div_zoom = 5;
 sobj.dist = 15; % distance(degree) for 2nd stimulus for lateral inhibition
 
-
-%%
 %Image presentation
 sobj.img_i = 0;
 sobj.ImageNum = 256;
