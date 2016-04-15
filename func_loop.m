@@ -41,7 +41,6 @@ if get(hObject, 'value')==1 % loop ON
 else %loop OFF
     func_Loop_Off;
 end
-
 %%
     function func_Loop_Off
         if sobj.Num_screens==1

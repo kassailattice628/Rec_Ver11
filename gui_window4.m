@@ -10,7 +10,7 @@ global s
 
 %% %---------- Create GUI window ----------%
 %open GUI window
-hGui.fig = figure('Position',[10, 20, 750, 750], 'Name','None But Air11', 'NumberTitle', 'off', 'Menubar','none', 'Resize', 'off');
+hGui.fig = figure('Position',[sobj.GUI_Display_x + 10, 20, 750, 750], 'Name','None But Air11', 'NumberTitle', 'off', 'Menubar','none', 'Resize', 'off');
 
 %GUI components
 hGui.ONSCR = uicontrol('style','pushbutton','string','OpenScreen','position',[5 705 80 30],'Horizontalalignment','center');

@@ -1,18 +1,27 @@
-function sobj = sobj_ini(Testmode,pixpitch)
+function sobj = sobj_ini(pixpitch)
 % initialize sobj (PTB parameters)
 
 % get monitor information
-%MP = get(0,'MonitorPosition'); %position matrix for malti monitors
-screens = Screen('Screens');
-sobj.Num_screens = size(screens,2);
-
+MP = get(0,'MonitorPosition'); %position matrix for malti monitors
+sobj.screens = Screen('Screens');
+sobj.Num_screens = size(sobj.screens,2);
 %select stim-presentatin monitor
 
-% Set 2nd display for stim presentation
-sobj.ScrNum = max(screens);
 
+% Set 2nd display for stim presentation
+%sobj.ScrNum = max(sobj.screens);
 % Set Primally monitor for stim preseintation
-%sobj.ScrNum = min(screens);
+sobj.ScrNum = min(sobj.screens);
+
+if sobj.Num_screens > 1
+    if sobj.ScrNum == 0;
+        sobj.GUI_Display_x = MP(3) + 1;
+    else
+        sobj.GUI_Display_x = 0;
+    end
+else %single display
+    sobj.GUI_Display_x = 0;
+end
 
 % OSX, main=0, sub(stim monitor) = 1,2,...
 % Windwos, main=1, sub(stim monitor) = 2,3,...

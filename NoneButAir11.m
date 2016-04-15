@@ -31,7 +31,7 @@ recobj.cycleNum = 0 - recobj.prestim; %loop cycle number
 
 % monitor dependent prameter (DeLL 19-inch)
 pixpitch = 0.264;%(mm)
-sobj = sobj_ini(Testmode, pixpitch); %i=0:test, i=1:working
+sobj = sobj_ini(pixpitch); %i=0:test, i=1:working
 
 %% Initialize DAQ params
 if Testmode == 0
@@ -54,8 +54,7 @@ end
 sobj.duration = sobj.flipNum * sobj.m_int;% sec
 
 %% open GUI window
-if sobj.Num_screens == 1
-    %Single monitor condition
+if sobj.Num_screens == 1 %Single monitor condition
     Screen('Close', sobj.wPtr);
 end
 figUIobj = gui_window4(Testmode);
