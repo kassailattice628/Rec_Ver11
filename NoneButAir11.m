@@ -31,7 +31,7 @@ recobj.cycleNum = 0 - recobj.prestim; %loop cycle number
 
 % monitor dependent prameter (DeLL 19-inch)
 pixpitch = 0.264;%(mm)
-sobj = sobj_ini(Testmode, pixpitch); %i=0:test, i=1:working
+sobj = sobj_ini(pixpitch);
 
 %% Initialize DAQ params
 if Testmode == 0

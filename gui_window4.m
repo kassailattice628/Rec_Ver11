@@ -10,7 +10,7 @@ global s
 
 %% %---------- Create GUI window ----------%
 %open GUI window
-hGui.fig = figure('Position',[10, 20, 750, 750], 'Name','None But Air11', 'NumberTitle', 'off', 'Menubar','none', 'Resize', 'off');
+hGui.fig = figure('Position',[sobj.GUI_Display_x + 10, 20, 750, 750], 'Name','None But Air11', 'NumberTitle', 'off', 'Menubar','none', 'Resize', 'off');
 
 %GUI components
 hGui.ONSCR = uicontrol('style','pushbutton','string','OpenScreen','position',[5 705 80 30],'Horizontalalignment','center');
@@ -458,7 +458,7 @@ else
         close(getfineUIobj.fig)
         clearvars -global getfineUIobj
     end
-    set(hObject, 'value', 0)  
+    set(hObject, 'value', 0)
 end
 
 ch_ButtonColor(hObject,[],'g')
@@ -506,7 +506,7 @@ if get(hObject, 'value')==1
     sobj.stimsz = [Rx,Ry];
     stimsz_deg = round(Pix2Deg([sobj.stimsz], sobj.MonitorDist));
     set(hGui.size,'string',[num2str(stimsz_deg(1)), ' x ', num2str(stimsz_deg(2))]);
-    
+
 elseif get(hObject,'value')==0
     set(hObject,'string','Auto OFF');
     % seg to 1 deg
@@ -541,20 +541,20 @@ if get(hObject, 'value')==1
     %Stim.Shape2
     set(hGui.shape2,'value', get(hGui.shape,'value'));
     sobj.shape2 = sobj.shapelist{get(hGui.shape2,'value'),1};
-    
+
     %Stim.Lumi2
     set(hGui.stimlumi2, 'string', get(hGui.stimlumi,'string'));
     sobj.stimlumi2 = str2double(get(hGui.stimlumi2,'string'));
-    
+
     %Stim.Duration2
     set(hGui.flipNum2,'string',get(hGui.flipNum,'string'));
     sobj.flipNum2 = str2double(get(hGui.flipNum2,'string'));
-    
+
     %PTB delay2
     set(hGui.delayPTBflip2,'string', get(hGui.delayPTBflip,'string'));
     sobj.delayPTBflip2 = str2double(get(hGui.delayPTBflip2,'string'));
     sobj.delayPTB2 = sobj.delayPTBflip2*sobj.m_int;
-    
+
     %Stim.Size2
     set(hGui.size2,'string', get(hGui.size,'string'));
     sobj.stimsz2 = sobj.stimsz;
@@ -703,7 +703,6 @@ switch get(figUIobj.plot, 'value')
                 set(figUIobj.pulseAmp, 'string', '10')
                 recobj.pulseAmp = 10;
         end
-        
-end
-end
 
+end
+end

@@ -7,7 +7,7 @@ grid_size = 200;
 str = [num2str(grid_size),' x ',num2str(grid_size),' mat<='];
 
 %open window
-h.fig = figure('Position',[50, 770, 250, 100], 'Name','Get Fine Pos', 'NumberTitle', 'off', 'Menubar','none', 'Resize', 'off');
+h.fig = figure('Position',[sobj.GUI_Display_x+50, 770, 250, 100], 'Name','Get Fine Pos', 'NumberTitle', 'off', 'Menubar','none', 'Resize', 'off');
 set(h.fig, 'DeleteFcn', {@close_Plot, figUIobj});
 
 uicontrol('style', 'text', 'string', 'Division', 'position', [5 80 60 20], 'FontSize', 13, 'BackGroundColor', [0.9400 0.9400 0.9400]);
@@ -76,7 +76,7 @@ else
 
     % get position in 100x100 matrix
     index = find_gird_mat(grid_size, h);
-    
+
     set(h.trans_pos, 'string', num2str(index), 'BackGroundColor','y');
 end
 end
@@ -107,14 +107,14 @@ switch sobj.pattern
         %sobj.concentric_mat_deg:::distaince(deg), angle(deg), luminace
         select_pos_pol = sobj.concentric_mat(select_pos, 1:2);
         [select_pos_xy(1), select_pos_xy(2)] = pol2cart(select_pos_pol(2), select_pos_pol(1));
-        
+
         %get_stim_position in Concentric grid (offset center)
         center = sobj.center_pos_list(sobj.fixpos,:);
         conc_X = center(1) + select_pos_xy(1);
         conc_Y = center(2) - select_pos_xy(2); % minus for upward direction
         [~, index_x] = min(abs(centerXY_list(:,1) - conc_X));
         [~, index_y] = min(abs(centerXY_list(:,2) - conc_Y));
-        
+
     case 'FineMap'
         center = sobj.center_pos_list_FineMap(select_pos,:);
         disp(sobj.center_pos_list_FineMap)

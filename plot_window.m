@@ -4,7 +4,7 @@ function hGui = plot_window(figUIobj)
 
 %% %---------- Create plot window ----------%
 %open plot window
-hGui.fig = figure('Position',[680, 20, 600, 750], 'Name','Plot Window NBA11', 'NumberTitle', 'off', 'Menubar','none', 'Resize', 'off');
+hGui.fig = figure('Position',[sobj.GUI_Display_x+680, 20, 600, 750], 'Name','Plot Window NBA11', 'NumberTitle', 'off', 'Menubar','none', 'Resize', 'off');
 set(hGui.fig, 'DeleteFcn', {@close_Plot, figUIobj});
 %% Axes, Plot
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%

@@ -1,27 +1,34 @@
-function sobj = sobj_ini(Testmode,pixpitch)
+function sobj = sobj_ini(pixpitch)
 % initialize sobj (PTB parameters)
 
 % get monitor information
-% scrsz=get(0,'ScreenSize');
 MP = get(0,'MonitorPosition'); %position matrix for malti monitors
 screens = Screen('Screens');
-sobj.Num_screens = size(screens,2);
-sobj.ScrNum = max(screens);
+
+% the number of displays connected
+sobj.Num_screens = size(sobj.screens,2);
+
+%% select stim-presentatin monitor
+% Set 2nd display for stim presentation
+sobj.ScrNum = max(sobj.screens);
+% Set Primally monitor for stim preseintation
+%sobj.ScrNum = min(sobj.screens);
+
 % OSX, main=0, sub(stim monitor) = 1,2,...
 % Windwos, main=1, sub(stim monitor) = 2,3,...
 
-if sobj.ScrNum == 0 % Single display in OSX
-    sNum = sobj.ScrNum+1;
-else
-    sNum = sobj.ScrNum;
+%% Set horizontal cordinate for GUI Controler
+if sobj.Num_screens > 1
+    if sobj.ScrNum == 0;
+        sobj.GUI_Display_x = MP(3) + 1;
+    else
+        sobj.GUI_Display_x = 0;
+    end
+else %single display
+    sobj.GUI_Display_x = 0;
 end
 
-if Testmode == 1 % Test Mac
-    sobj.ScreenSize = [MP(sNum,3)-MP(sNum,1)+1, MP(sNum,4)-MP(sNum,2)+1]; % monitor size of stim monitor
-elseif Testmode == 0
-    sobj.ScreenSize = [MP(sNum,3),MP(sNum,4)]; % for Windows8
-end
-
+%%
 sobj.pixpitch = pixpitch;
 sobj.MonitorDist = 300; % (mm) = distance from moniter to eye, => sobj.MonitorDist*tan(1*2*pi/360)/sobj.pixpitch (pixel/degree)
 sobj.stimsz = round(ones(1,2)*Deg2Pix(1,sobj.MonitorDist, pixpitch)); % default: 1 deg
@@ -65,7 +72,7 @@ sobj.shiftSpd = 2; % Hz
 sobj.shiftSpd_list = [0.5; 1; 2; 4; 8]; % Hz
 
 sobj.gratFreq = 0.08; % cycle/degree
-sobj.gratFreq_list = [0.01;0.02;0.04;0.08;0.16;0.32];
+sobj.gratFreq_list = [0.01; 0.02; 0.04; 0.08; 0.16; 0.32];
 
 sobj.shiftDir = 1; % 1~8:direction, 9: 8 random directions, 10: 4 random directions
 
@@ -75,14 +82,6 @@ sobj.looming_Size = 40;
 sobj.div_zoom = 5;
 sobj.dist = 15; % distance(degree) for 2nd stimulus for lateral inhibition
 
-%sobj.position = 0;
-
-%Zoom and Fine mapping
-
-%sobj.zoom_dist = 0;
-%sobj.zoom_ang = 0;
-
-%%
 %Image presentation
 sobj.img_i = 0;
 sobj.ImageNum = 256;
