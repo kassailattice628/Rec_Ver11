@@ -1,4 +1,4 @@
-function check_change_params(~, ~)
+function check_change_params(~, ~, Recmode)
 global figUIobj
 global plotUIobj
 global sobj
@@ -7,9 +7,10 @@ global recobj
 change_stim_pattern;
 check_stim_lumi;
 check_stim_duration;
+if Recmode == 2
 change_plot;
 check_AOrange;
-
+end
 %%
 %%%%% define functions (nested) %%%%%
     function change_stim_pattern
@@ -143,6 +144,7 @@ check_AOrange;
     end
 
 %%
+
     function change_plot
         switch get(figUIobj.plot,'value')
             case 0%V-plot

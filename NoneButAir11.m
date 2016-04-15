@@ -1,4 +1,4 @@
-function NoneButAir11_03(Testmode)
+function NoneButAir11(Testmode, Recmode)
 % %%%%%%%%%%%%%%%%%%%%%%%%
 % %%%% None But Air %%%%%%
 % %%%%%%%%%%%%%%%%%%%%%%%%
@@ -58,8 +58,8 @@ if sobj.Num_screens == 1
     %Single monitor condition
     Screen('Close', sobj.wPtr);
 end
-figUIobj = gui_window4(Testmode);
-plotUIobj = plot_window(figUIobj);
+figUIobj = gui_window4(Testmode, Recmode);
+plotUIobj = plot_window(figUIobj, Recmode);
 
 %% DAQ Event Listener used in AI rec
 if Testmode == 0

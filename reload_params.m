@@ -1,4 +1,4 @@
-function reload_params(~, ~, Testmode)
+function reload_params(~, ~, Testmode, Recmode)
 % reload all paraemter and settings if changes from GUI
 global figUIobj
 global plotUIobj
@@ -143,7 +143,7 @@ sobj.num_dots = round(numAllDots * sobj.dots_density/100);
 %% Fine Mapping
 if strcmp(sobj.pattern, 'FineMap')
     
-    % get small area for fine mapping 
+    % get small area for fine mapping
     FineMapArea_deg = [0, 0, sobj.dist, sobj.dist]; % deg
     FineMapArea = Deg2Pix(FineMapArea_deg, sobj.MonitorDist, sobj.pixpitch);
     
@@ -155,7 +155,7 @@ if strcmp(sobj.pattern, 'FineMap')
     
     sobj.center_pos_list_FineMap = get_stim_center_mat(RECT, sobj.div_zoom);
     disp(sobj.center_pos_list_FineMap)
-
+    
 end
 
 %% %%% stim 2 %%%%%
@@ -181,21 +181,23 @@ recobj.interval = re_write(figUIobj.interval);
 recobj.sampf = str2double(get(figUIobj.sampf,'string'))*1000;
 recobj.recp = recobj.sampf*recobj.rect/1000;
 
-recobj.pulseDuration = re_write(figUIobj.pulseDuration);
-recobj.pulseDelay = re_write(figUIobj.pulseDelay);
-recobj.pulseAmp = re_write(figUIobj.pulseAmp);
+if Recmode == 2
+    recobj.pulseDuration = re_write(figUIobj.pulseDuration);
+    recobj.pulseDelay = re_write(figUIobj.pulseDelay);
+    recobj.pulseAmp = re_write(figUIobj.pulseAmp);
+    
+    recobj.stepCV(1,1) = re_write(figUIobj.Cstart);
+    recobj.stepCV(1,2) = re_write(figUIobj.Cend);
+    recobj.stepCV(1,3) = re_write(figUIobj.Cstep);
+    recobj.stepCV(2,1) = re_write(figUIobj.Vstart);
+    recobj.stepCV(2,2) = re_write(figUIobj.Vend);
+    recobj.stepCV(2,3) = re_write(figUIobj.Vstep);
+    
+    plotnum = get(figUIobj.plot, 'value')+1;
+    recobj.stepAmp = recobj.stepCV(plotnum,1):recobj.stepCV(plotnum,3):recobj.stepCV(plotnum,2);
+end
 
-recobj.stepCV(1,1) = re_write(figUIobj.Cstart);
-recobj.stepCV(1,2) = re_write(figUIobj.Cend);
-recobj.stepCV(1,3) = re_write(figUIobj.Cstep);
-recobj.stepCV(2,1) = re_write(figUIobj.Vstart);
-recobj.stepCV(2,2) = re_write(figUIobj.Vend);
-recobj.stepCV(2,3) = re_write(figUIobj.Vstep);
-
-plotnum = get(figUIobj.plot, 'value')+1;
-recobj.stepAmp = recobj.stepCV(plotnum,1):recobj.stepCV(plotnum,3):recobj.stepCV(plotnum,2);
-
-% TTL
+%% TTL
 recobj.TTL3.duration = re_write(figUIobj.durationTTL3); % ms
 recobj.TTL3.delay = re_write(figUIobj.delayTTL3); % ms
 recobj.TTL3.Freq = re_write(figUIobj.freqTTL3);
@@ -235,13 +237,13 @@ if Testmode == 0
     delete(lh)% <-- important!!!
     DataSave =[]; %reset save data
     ParamsSave =[]; % reset save parameters
-    lh = addlistener(s, 'DataAvailable', @(src,event) dataCaptureNBA(src, event, capture, figUIobj, get(figUIobj.plot,'value')));
+    lh = addlistener(s, 'DataAvailable', @(src,event) dataCaptureNBA(src, event, capture, figUIobj, get(figUIobj.plot,'value'), Recmode));
     
     % dio reset
     outputSingleScan(dio.TrigAIFV,[0,0])
     outputSingleScan(dio.VSon,0)
     disp('reset s, dio, EventListener')
-      
+    
     %%%%%% session for TTL3 counter pulse generation %%%%%%
     if get(figUIobj.TTL3, 'value')
         delay = zeros(recobj.sampf*recobj.TTL3.delay/1000,1);
@@ -298,20 +300,6 @@ for m = 1:divnum
     centerXY_list((1:divnum:divnum^2)+(m-1), 2) = center_div(2, m);
 end
 
-%{
-global sobj
-sizeX = sobj.RECT(3)/sobj.divnum;
-sizeY = sobj.RECT(4)/sobj.divnum;
-center_div = floor([sizeX/2:sizeX:(sobj.RECT(3)-sizeX/2);...
-    sizeY/2:sizeY:(sobj.RECT(4)-sizeY/2)]);
-
-centerXY_list = zeros(sobj.divnum^2,2);
-
-for m = 1:sobj.divnum
-    centerXY_list(sobj.divnum*(m-1)+1:sobj.divnum*m,1) = center_div(1,m);
-    centerXY_list((1:sobj.divnum:sobj.divnum^2)+(m-1),2) = center_div(2,m);
-end
-%}
 end
 
 %%

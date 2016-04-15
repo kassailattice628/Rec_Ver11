@@ -1,6 +1,9 @@
-function hGui = plot_window(figUIobj)
+function hGui = plot_window(figUIobj, Recmode)
 %plot_window creates plot window for  None But Air
 % plotUIobj = plot_window
+
+global sobj
+
 
 %% %---------- Create plot window ----------%
 %open plot window
@@ -11,16 +14,26 @@ set(hGui.fig, 'DeleteFcn', {@close_Plot, figUIobj});
 %%%%%%%%%%%%   AI1, AI2 plot    %%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 hGui.axes1 = axes('Units','Pixels', 'Position',[50,530,500,200], 'XLimMode', 'manual','YlimMode', 'Auto');
-hGui.plot1 = plot(0, NaN,'b');
-ylabel('mV');
-title('V-DATA');
+
+if Recmode == 2 %Electrophsyilogy
+    hGui.plot1 = plot(0, NaN,'b');
+    ylabel('mV');
+    title('V-DATA');
+    
+    
+elseif Recmode == 1 % record eye position
+    hGui.plot1 = plot(0, NaN(1,2));
+    ylabel('V');
+    title('EYE-Position');
+end
 
 hGui.button1 = uicontrol('style','togglebutton','string', 'ON', 'position',[555 700 45 30],...
     'callback', {@ch_ButtonColor, 'g'}, 'Horizontalalignment','center');
 set(hGui.button1,'value',1, 'BackGroundColor','g')
+
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%   Rotary Encoder   %%%%%%%%%%%%%%%%
+%%%%%%%%%%%%     Photosensor    %%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 hGui.axes2 = axes('Units','Pixels', 'Position',[50,370,500,120], 'XLimMode', 'manual','YlimMode', 'Auto');
 hGui.plot2 = plot(0, NaN);

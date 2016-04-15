@@ -1,4 +1,4 @@
-function func_loop(hObject, ~, hGui, Testmode)
+function func_loop(hObject, ~, hGui, Testmode, Recmode)
 % Loop start and stop
 
 global recobj
@@ -12,7 +12,7 @@ global lh
 
 %%
 if get(hObject, 'value')==1 % loop ON
-    reload_params([], [], Testmode);
+    reload_params([], [], Testmode, Recmode);
     recobj.cycleCount = 0;
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     if sobj.Num_screens == 1 && get(hGui.stim,'value')
@@ -25,8 +25,6 @@ if get(hObject, 'value')==1 % loop ON
         recobj.cycleCount = recobj.cycleCount + 1; % for ParamsSave
         recobj.cycleNum = recobj.cycleNum + 1;
         set(hObject,'string', 'Looping', 'BackGroundColor', 'g');
-        % report the cycle number
-        disp(['Loop#: ',num2str(recobj.cycleNum)])
         
         %%%%%%%%%%%%%% loop contentes %%%%%%%%%%%%%%%
         % start loop (Trigger + Visual Stimulus)

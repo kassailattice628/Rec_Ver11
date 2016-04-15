@@ -1,4 +1,4 @@
-function dataCaptureNBA(src, event, c, hGui, plotVI)
+function dataCaptureNBA(src, event, c, hGui, plotVI, Recmode)
 %dataCapture Process DAQ acquired data when called by DataAvailable event.
 %  dataCapture (SRC, EVENT, C, HGUI) processes latest acquired data (EVENT.DATA)
 %  and timestamps (EVENT.TIMESTAMPS) from session (SRC), and, based on specified
@@ -100,11 +100,20 @@ elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) > c.Tim
     % plotVI = get(figUIobj.plot, 'value'): AI0='V plot, AI1='I plot'
     
     if isfield(plotUIobj,'button4')
-        if get(plotUIobj.button1, 'value')
-            set(plotUIobj.plot1, 'XData', captureData(:, 1), 'YData', captureData(:,plotVI+2))
-            set(plotUIobj.axes1, 'XLim',[-inf,inf]);
+        if Recmode == 1
+            if get(plotUIobj.button1, 'value') % Eye Position from iRecHS2
+                set(plotUIobj.plot1(1), 'XData', captureData(:, 1), 'YData', captureData(:,2))
+                set(plotUIobj.plot1(2), 'XData', captureData(:, 1), 'YData', captureData(:,3))
+                set(plotUIobj.axes1, 'XLim',[-inf,inf]);
+            end
+        else
+            if get(plotUIobj.button1, 'value') % V or I plot
+                set(plotUIobj.plot1, 'XData', captureData(:, 1), 'YData', captureData(:,plotVI+2))
+                set(plotUIobj.axes1, 'XLim',[-inf,inf]);
+            end
         end
         
+        % photo sencer
         if get(plotUIobj.button2, 'value')
             set(plotUIobj.plot2, 'XData', captureData(:, 1), 'YData', captureData(:, 4))
             set(plotUIobj.axes2, 'XLim',[-inf,inf]);
