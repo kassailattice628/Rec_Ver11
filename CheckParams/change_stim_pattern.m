@@ -66,6 +66,7 @@ switch sobj.pattern
         set(figUIobj.shape, 'value', 2); % circular
         
     case 'Looming'
+        change_looming_params([],[]);
         val = {'g', 'k', 'k', 'k', 'k',...
             'k', 'w', 'g', 'k', 'k',...
             'k', 'k', 'k', 'k', 'k', 'y'};
