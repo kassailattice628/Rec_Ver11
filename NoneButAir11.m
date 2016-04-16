@@ -22,7 +22,7 @@ global capture % Continuous plot params
 global lh % Event listener handle of AI recording
 
 %% Initialize recording params
-recobj = recobj_ini;
+recobj = recobj_ini(Recmode);
 
 % cycle number counter set 0
 recobj.cycleNum = 0 - recobj.prestim; %loop cycle number

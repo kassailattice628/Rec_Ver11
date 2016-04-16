@@ -57,7 +57,7 @@ uicontrol('style', 'text', 'string', 'Stim.Pattern', 'position', [105 620 70 15]
 hGui.pattern = uicontrol('style', 'popupmenu', 'position', [105 600 90 20],...
     'string', [{'Uni'}, {'Size_rand'}, {'1P_Conc'}, {'2P_Conc'}, {'B/W'},...
     {'Looming'}, {'Sin'}, {'Rect'}, {'Gabor'}, {'Images'}, {'Mosaic'}, {'FineMap'}]);
-set(hGui.pattern, 'callback', {@check_change_params, Recmode});
+set(hGui.pattern, 'callback', @change_stim_pattern);
 % New stimulus patterns will be added this list and, change stim_pattern and "visual stimulus.m".
 
 %%
@@ -77,11 +77,11 @@ hGui.dist = uicontrol('style', 'edit', 'string', sobj.dist, 'position', [140 550
 %%% Luminance %%%
 uicontrol('style', 'text', 'string', 'Stim.Lumi', 'position', [10 530 55 15], 'Horizontalalignment', 'left');
 hGui.stimlumi = uicontrol('style', 'edit', 'string', sobj.stimlumi, 'position', [10 505 45 25], 'BackGroundColor', 'w');
-set(hGui.stimlumi, 'callback', {@check_change_params, Recmode});
+set(hGui.stimlumi, 'callback', @check_stim_lumi);
 
 uicontrol('style', 'text', 'string', 'BG.Lumi', 'position', [65 530 45 15], 'Horizontalalignment', 'left');
 hGui.bgcol = uicontrol('style', 'edit', 'string', sobj.bgcol, 'position', [65 505 45 25], 'BackGroundColor', 'w');
-set(hGui.bgcol, 'callback', {@check_change_params, Recmode});
+set(hGui.bgcol, 'callback', @check_stim_lumi);
 
 uicontrol('style', 'text', 'string', 'Lumi', 'position', [120 530 40 15], 'Horizontalalignment', 'left');
 hGui.lumi = uicontrol('style', 'popupmenu', 'position', [120 510 75 20], 'string', [{'Fix'}, {'Rand'}]);
@@ -94,7 +94,7 @@ set(hGui.stimRGB, 'callback', @get_stimRGB);
 %%% Durtion
 uicontrol('style', 'text', 'string', 'Stim.Duration', 'position', [10 480 80 15], 'Horizontalalignment', 'left');
 hGui.flipNum = uicontrol('style', 'edit', 'string', sobj.flipNum, 'position', [10 455 30 25], 'BackGroundColor', 'w');
-set(hGui.flipNum, 'callback', {@check_change_params, Recmode});
+set(hGui.flipNum, 'callback', @check_stim_duration);
 
 sobj.duration = sobj.flipNum*sobj.m_int;
 hGui.stimDur = uicontrol('style', 'text', 'position', [45 455 75 15],...
@@ -103,7 +103,7 @@ hGui.stimDur = uicontrol('style', 'text', 'position', [45 455 75 15],...
 %%% Delay Frames
 uicontrol('style', 'text', 'string', 'PTB delay flip', 'position', [10 430 75 15], 'Horizontalalignment', 'left');
 hGui.delayPTBflip = uicontrol('style', 'edit', 'position', [10 405 30 25], 'string', sobj.delayPTBflip, 'BackGroundColor', 'w');
-set(hGui.delayPTBflip, 'callback', {@check_change_params, Recmode});
+set(hGui.delayPTBflip, 'callback', @check_stim_duration);
 
 sobj.delayPTB = sobj.delayPTBflip*sobj.m_int;
 hGui.delayPTB = uicontrol('style', 'text', 'position', [45 405 75 15],...
@@ -181,14 +181,12 @@ uicontrol('style', 'text', 'string', 'cycle/deg', 'position', [110 70 60 15], 'H
 uicontrol('style', 'text', 'string', 'Loom Spd/Size', 'position', [95 140 100 15], 'Horizontalalignment', 'left');
 hGui.loomSpd = uicontrol('style', 'popupmenu', 'position', [95, 115, 70, 25],...
     'string', [{'5'}, {'10'}, {'20'}, {'40'}, {'80'}, {'160'}]);
-set(hGui.loomSpd, 'callback', {@check_change_params, Recmode});
-
+set(hGui.loomSpd, 'callback', @change_looming_params);
 uicontrol('style', 'text', 'string', 'deg/s', 'position', [160 120 35 15], 'Horizontalalignment', 'left');
 
 % Looming Max Size
 hGui.loomSize = uicontrol('style', 'edit', 'string', sobj.looming_Size, 'position', [125 90 30 25], 'BackGroundColor', 'w');
-set(hGui.loomSize, 'callback',  {@check_change_params, Recmode});
-
+set(hGui.loomSize, 'callback',  @change_looming_params);
 uicontrol('style', 'text', 'string', 'deg', 'position', [160 90 35 15], 'Horizontalalignment', 'left');
 
 %%% Distance b/w the LCD monitor and eye
@@ -209,12 +207,12 @@ set(hGui.shape2, 'value', 2);
 %%% Luminace
 uicontrol('style', 'text', 'string', 'Stim.Lumi2', 'position', [210 575 60 15], 'Horizontalalignment', 'left');
 hGui.stimlumi2 = uicontrol('style', 'edit', 'string', sobj.stimlumi2, 'position', [210 550 50 25], 'BackGroundColor', 'w');
-set(hGui.stimlumi2, 'callback', {@check_change_params, Recmode});
+set(hGui.stimlumi2, 'callback', @check_stim_lumi);
 
 %%% Duration
 uicontrol('style', 'text', 'string', 'Stim.Duration2', 'position', [210 525 85 15], 'Horizontalalignment', 'left');
 hGui.flipNum2 = uicontrol('style', 'edit', 'string', sobj.flipNum2, 'position', [210 500 30 25], 'BackGroundColor', 'w');
-set(hGui.flipNum2, 'callback', {@check_change_params, Recmode});
+set(hGui.flipNum2, 'callback', @check_stim_duration);
 
 sobj.duration2 = sobj.flipNum2*sobj.m_int;
 hGui.stimDur2 = uicontrol('style', 'text', 'position', [245 500 75 15],...
@@ -223,7 +221,7 @@ hGui.stimDur2 = uicontrol('style', 'text', 'position', [245 500 75 15],...
 %%% Delay flip
 uicontrol('style', 'text', 'string', 'PTB delay flip2', 'position', [210 475 85 15], 'Horizontalalignment', 'left');
 hGui.delayPTBflip2 = uicontrol('style', 'edit', 'string', sobj.delayPTBflip2, 'position', [210 450 30 25], 'BackGroundColor', 'w');
-set(hGui.delayPTBflip2, 'callback', {@check_change_params, Recmode});
+set(hGui.delayPTBflip2, 'callback', @check_stim_duration);
 
 sobj.delayPTB2 = sobj.delayPTBflip2*sobj.m_int;
 hGui.delayPTB2 = uicontrol('style', 'text', 'position', [245 450 75 15],...
@@ -251,7 +249,7 @@ uicontrol('style', 'text', 'string', 'kHz', 'position', [465 600 25 15], 'Horizo
 
 uicontrol('style', 'text', 'string', 'Rec.Time', 'position', [495 625 50 15], 'Horizontalalignment', 'left');
 hGui.rect = uicontrol('style', 'edit', 'string', recobj.rect, 'position', [495 600 50 25], 'BackGroundColor', 'g');
-set(hGui.rect, 'callback', {@check_change_params, Recmode});
+set(hGui.rect, 'callback', {@check_duration, Recmode});
 uicontrol('style', 'text', 'string', 'ms', 'position', [550 600 20 15], 'Horizontalalignment', 'left');
 
 uicontrol('style', 'text', 'string', 'Loop Interval', 'position', [580 625 80 15], 'Horizontalalignment', 'left');
@@ -271,18 +269,20 @@ if Recmode == 2
     %% pulse %%%
     %Duration
     uicontrol('style', 'text', 'position', [485 530 60 15], 'string', 'Duration', 'Horizontalalignment', 'left');
-    hGui.pulseDuration = uicontrol('style', 'edit', 'position', [485 505 40 25], 'string', recobj.pulseDuration, 'BackGroundColor', 'w');
+    hGui.pulseDuration = uicontrol('style', 'edit', 'position', [485 505 40 25],...
+        'string', recobj.pulseDuration, 'callback', @check_pulse_duration, 'BackGroundColor', 'w');
     uicontrol('style', 'text', 'position', [525 505 25 15], 'string', 'sec', 'Horizontalalignment', 'left');
     
     %Delay
     uicontrol('style', 'text', 'position', [555 530 60 15], 'string', 'Delay', 'Horizontalalignment', 'left');
-    hGui.pulseDelay = uicontrol('style', 'edit', 'position', [555 505 40 25], 'string', recobj.pulseDelay, 'BackGroundColor', 'w');
+    hGui.pulseDelay = uicontrol('style', 'edit', 'position', [555 505 40 25],...
+        'string', recobj.pulseDelay, 'callback', @check_pulse_duration, 'BackGroundColor', 'w');
     uicontrol('style', 'text', 'position', [595 505 25 15], 'string', 'sec', 'Horizontalalignment', 'left');
     
     %Amplitude
     uicontrol('style', 'text', 'position', [625 530 60 15], 'string', 'Amp.', 'Horizontalalignment', 'left');
     hGui.pulseAmp = uicontrol('style', 'edit', 'position', [625 505 40 25], 'string', recobj.pulseAmp, 'BackGroundColor', 'w');
-    set(hGui.pulseAmp, 'callback', {@check_change_params, Recmode});
+    set(hGui.pulseAmp, 'callback', @check_pulse_Amp);
     hGui.ampunit = uicontrol('style', 'text', 'position', [665 505 25 15], 'string', 'nA', 'Horizontalalignment', 'left');
     
     %Step
@@ -292,34 +292,36 @@ if Recmode == 2
     
     %for Current Clamp
     uicontrol('style', 'text', 'position', [410 460 40 15], 'string', 'C (nA)', 'Horizontalalignment', 'left');
-    hGui.Cstart = uicontrol('style', 'edit', 'position', [450 460 30 25], 'string', recobj.stepCV(1,1), 'callback', {@check_change_params, Recmode}, 'BackGroundColor', 'w');
-    hGui.Cend = uicontrol('style', 'edit', 'position', [485 460 30 25], 'string', recobj.stepCV(1,2), 'callback', {@check_change_params, Recmode}, 'BackGroundColor', 'w');
-    hGui.Cstep = uicontrol('style', 'edit', 'position', [520 460 30 25], 'string', recobj.stepCV(1,3), 'callback', {@check_change_params, Recmode}, 'BackGroundColor', 'w');
+    hGui.Cstart = uicontrol('style', 'edit', 'position', [450 460 30 25], 'string', recobj.stepCV(1,1), 'callback', @check_pulse_Amp, 'BackGroundColor', 'w');
+    hGui.Cend = uicontrol('style', 'edit', 'position', [485 460 30 25], 'string', recobj.stepCV(1,2), 'callback', @check_pulse_Amp, 'BackGroundColor', 'w');
+    hGui.Cstep = uicontrol('style', 'edit', 'position', [520 460 30 25], 'string', recobj.stepCV(1,3), 'callback', @check_pulse_Amp, 'BackGroundColor', 'w');
     
     %for Voltage Clamp
     uicontrol('style', 'text', 'position', [410 430 40 15], 'string', 'V (mV)', 'Horizontalalignment', 'left');
-    hGui.Vstart = uicontrol('style', 'edit', 'position', [450 430 30 25], 'string', recobj.stepCV(2,1), 'callback', {@check_change_params, Recmode}, 'BackGroundColor', 'w');
-    hGui.Vend = uicontrol('style', 'edit', 'position', [485 430 30 25], 'string', recobj.stepCV(2,2), 'callback', {@check_change_params, Recmode}, 'BackGroundColor', 'w');
-    hGui.Vstep = uicontrol('style', 'edit', 'position', [520 430 30 25], 'string', recobj.stepCV(2,3), 'callback', {@check_change_params, Recmode}, 'BackGroundColor', 'w');
+    hGui.Vstart = uicontrol('style', 'edit', 'position', [450 430 30 25], 'string', recobj.stepCV(2,1), 'callback', @check_pulse_Amp, 'BackGroundColor', 'w');
+    hGui.Vend = uicontrol('style', 'edit', 'position', [485 430 30 25], 'string', recobj.stepCV(2,2), 'callback', @check_pulse_Amp, 'BackGroundColor', 'w');
+    hGui.Vstep = uicontrol('style', 'edit', 'position', [520 430 30 25], 'string', recobj.stepCV(2,3), 'callback', @check_pulse_Amp, 'BackGroundColor', 'w');
     
-    hGui.stepf = uicontrol('style', 'togglebutton', 'position', [555 455 40 30], 'string', 'step', 'callback', {@check_change_params, Recmode});
-    hGui.pulse = uicontrol('style', 'togglebutton', 'position', [410 505 70 30], 'string', 'Pulse ON', 'callback', {@check_change_params, Recmode});
+    hGui.stepf = uicontrol('style', 'togglebutton', 'position', [555 455 40 30], 'string', 'step', 'callback', @change_plot);
+    hGui.pulse = uicontrol('style', 'togglebutton', 'position', [410 505 70 30], 'string', 'Pulse ON', 'callback', @change_plot);
     
     % preset_Testpulse Amplitude
     uicontrol('style', 'text', 'position', [695 530 40 15], 'string', 'Preset', 'Horizontalalignment', 'left');
     hGui.presetAmp = uicontrol('style', 'togglebutton', 'position', [690 505 50 25], 'string', '10 mV');
     set(hGui.presetAmp, 'Callback', @preset_pulseAmp);
     
-    % DAQ range
+    % DAQ range:: TTL3 out put is 5V, iRecHS2 is +-10 V input.
+    %{
     uicontrol('style', 'text', 'position', [410 405 80 15], 'string', 'Daq Range (V)', 'Horizontalalignment', 'left');
     hGui.DAQrange = uicontrol('style', 'popupmenu', 'position', [410 380 160 25],...
         'string', [{'x1: [-10,10]'}, {'x10: [-1,1]'}, {'x50: [-0.2,0.2]'}, {'x100: [-0.1,0.1]'}], 'value',1);
     set(hGui.DAQrange, 'callback', @ch_DaqRange);
+    %}
     
     %% select plot channel %%
     uicontrol('style', 'text', 'position', [410 580 55 15], 'string', 'Plot Type ', 'Horizontalalignment', 'left');
     hGui.plot = uicontrol('style', 'togglebutton', 'position', [410 550 60 30], 'string', 'V-plot', 'ForegroundColor', 'white', 'BackGroundColor', 'b');
-    set(hGui.plot, 'callback', {@check_change_params, Recmode});
+    set(hGui.plot, 'callback', @change_plot);
     
     uicontrol('style', 'text', 'position', [475 580 55 15], 'string', 'Y-axis', 'Horizontalalignment', 'left');
     hGui.yaxis = uicontrol('style', 'togglebutton', 'position', [475 550 60 30], 'value',0, 'string', [{'Auto'}, {'Fix'}]);
@@ -337,7 +339,7 @@ uipanel('Title', 'TTL3', 'FontSize',12, 'Units', 'Pixels', 'Position', [205 10 1
 %% DIO3 (outer TTL);
 uicontrol('style', 'text', 'position', [210 165 60 15], 'string', 'Delay', 'Horizontalalignment', 'left');
 hGui.delayTTL3 = uicontrol('style', 'edit', 'position', [210,140,40,25], 'string', recobj.TTL3.delay*1000, 'BackGroundColor', 'w');
-set(hGui.delayTTL3, 'callback', {@check_change_params, Recmode});
+set(hGui.delayTTL3, 'callback', @setTTL3);
 uicontrol('style', 'text', 'position', [250 140 20 15], 'string', 'ms', 'Horizontalalignment', 'left');
 
 uicontrol('style', 'text', 'position', [285 165 60 15], 'string', 'Duration', 'Horizontalalignment', 'left');
@@ -531,7 +533,7 @@ if get(hObject, 'value')==1
     sobj.stimsz = [Rx,Ry];
     stimsz_deg = round(Pix2Deg([sobj.stimsz], sobj.MonitorDist));
     set(hGui.size, 'string', [num2str(stimsz_deg(1)), ' x ', num2str(stimsz_deg(2))]);
-
+    
 elseif get(hObject, 'value')==0
     set(hObject, 'string', 'Auto OFF');
     % seg to 1 deg
@@ -541,6 +543,7 @@ end
 ch_ButtonColor(hObject, [], 'g')
 end
 
+%%
 function check_mosaic(hObject, ~, hGui)
 global sobj
 %the number of dots is zero, use default settings.
@@ -566,20 +569,20 @@ if get(hObject, 'value')==1
     %Stim.Shape2
     set(hGui.shape2, 'value', get(hGui.shape, 'value'));
     sobj.shape2 = sobj.shapelist{get(hGui.shape2, 'value'),1};
-
+    
     %Stim.Lumi2
     set(hGui.stimlumi2, 'string', get(hGui.stimlumi, 'string'));
     sobj.stimlumi2 = str2double(get(hGui.stimlumi2, 'string'));
-
+    
     %Stim.Duration2
     set(hGui.flipNum2, 'string',get(hGui.flipNum, 'string'));
     sobj.flipNum2 = str2double(get(hGui.flipNum2, 'string'));
-
+    
     %PTB delay2
     set(hGui.delayPTBflip2, 'string', get(hGui.delayPTBflip, 'string'));
     sobj.delayPTBflip2 = str2double(get(hGui.delayPTBflip2, 'string'));
     sobj.delayPTB2 = sobj.delayPTBflip2*sobj.m_int;
-
+    
     %Stim.Size2
     set(hGui.size2, 'string', get(hGui.size, 'string'));
     sobj.stimsz2 = sobj.stimsz;
@@ -587,6 +590,7 @@ end
 end
 
 %%
+%{
 function ch_DaqRange(hObject, ~)
 global InCh
 i = get(hObject, 'value');
@@ -596,6 +600,7 @@ InCh(1).Range = Ranges(i,:);
 InCh(2).Range = Ranges(i,:);
 InCh(3).Range = [-10 10];
 end
+%}
 
 %%
 function TTL3(hObject, ~, Testmode)
@@ -671,6 +676,35 @@ end
 end
 
 %%
+function preset_pulseAmp(hObject, ~)
+global recobj
+global figUIobj
+
+switch get(figUIobj.plot, 'value')
+    case 0 %Vplot::preset 1 nA
+        switch get(hObject, 'value')
+            case 1
+                set(figUIobj.pulseAmp, 'string', '1')
+                recobj.pulseAmp = 1;
+            case 0
+        end
+    case 1%Iplot
+        switch get(hObject, 'value')
+            case 1
+                set(figUIobj.pulseAmp, 'string', '10')
+                recobj.pulseAmp = 10;
+        end
+        
+end
+end
+
+%%
+function check_duration(~, ~, Recmode)
+check_stim_duration([], []);
+if Recmode == 2
+    check_pulse_duration([], []);
+end
+end
 
 %%%%%%%%%%%%% save setting %%%%%%%%%%%%%%
 %%
@@ -707,27 +741,4 @@ switch get(hObject, 'value')
 end
 
 ch_ButtonColor(hObject, [], 'g');
-end
-
-%%
-function preset_pulseAmp(hObject, ~)
-global recobj
-global figUIobj
-
-switch get(figUIobj.plot, 'value')
-    case 0 %Vplot::preset 1 nA
-        switch get(hObject, 'value')
-            case 1
-                set(figUIobj.pulseAmp, 'string', '1')
-                recobj.pulseAmp = 1;
-            case 0
-        end
-    case 1%Iplot
-        switch get(hObject, 'value')
-            case 1
-                set(figUIobj.pulseAmp, 'string', '10')
-                recobj.pulseAmp = 10;
-        end
-
-end
 end

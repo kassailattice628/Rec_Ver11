@@ -33,8 +33,7 @@ set(figUIobj.prestim,'string',['loops=',num2str(recobj.prestim * (recobj.rect/10
 modelist = get(figUIobj.mode,'string'); % {'Random', 'Fix_Rep', 'Ordered'};
 sobj.mode = modelist{get(figUIobj.mode,'value')};
 
-pattern_list = get(figUIobj.pattern,'string');
-sobj.pattern = pattern_list{get(figUIobj.pattern,'value'),1};
+% sobj.pattern is reloaded in ./Check_params/change_stim_pattern.m
 
 
 %% %%% stim 1 %%%%%
