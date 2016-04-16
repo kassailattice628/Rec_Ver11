@@ -1,4 +1,4 @@
-function func_loop(hObject, ~, hGui, Testmode, Recmode)
+function main_loop(hObject, ~, hGui, Testmode, Recmode)
 % Loop start and stop
 
 global recobj

@@ -376,7 +376,7 @@ set(hGui.TTL3_select, 'Callback', {@TTL3_select, hGui})
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %main_loopingtest
 hGui.loop = uicontrol('style', 'togglebutton', 'position', [110 670 100 30],...
-    'string', 'Loop-OFF', 'callback', {@func_loop, hGui, Testmode, Recmode}, 'BackGroundColor', 'r');
+    'string', 'Loop-OFF', 'callback', {@main_loop, hGui, Testmode, Recmode}, 'BackGroundColor', 'r');
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -700,6 +700,7 @@ end
 
 %%
 function check_duration(~, ~, Recmode)
+
 check_stim_duration([], []);
 if Recmode == 2
     check_pulse_duration([], []);

@@ -15,7 +15,6 @@ global sOut
 %% visual stimulus settings %%
 % general %
 sobj.MonitorDist = re_write(figUIobj.MonitorDist);
-sobj.div_zoom = re_write(figUIobj.div_zoom);
 
 sobj.divnum = re_write(figUIobj.divnum);
 set(figUIobj.divnumN, 'string', ['(' num2str(sobj.divnum) 'x' num2str(sobj.divnum) 'mat)']);
@@ -37,7 +36,9 @@ sobj.mode = modelist{get(figUIobj.mode,'value')};
 
 
 %% %%% stim 1 %%%%%
+sobj.div_zoom = re_write(figUIobj.div_zoom);
 sobj.dist = re_write(figUIobj.dist);
+
 sobj.bgcol = re_write(figUIobj.bgcol);
 
 switch sobj.pattern
@@ -53,6 +54,7 @@ sobj.stimcol = sobj.stimlumi * sobj.stimRGB;
 sobj.stimlumi_list = linspace(sobj.bgcol, sobj.stimlumi, 5)';
 
 if strcmp(sobj.pattern, 'Looming')
+    %stimu duration is automatically set in Looming mode
 else
     sobj.flipNum = re_write(figUIobj.flipNum);
     sobj.duration = sobj.flipNum*sobj.m_int;
@@ -61,7 +63,6 @@ end
 sobj.delayPTBflip = re_write(figUIobj.delayPTBflip);
 sobj.delayPTB = sobj.delayPTBflip*sobj.m_int;
 
-sobj.stimsz_deg_list = [0.5; 1; 3; 5; 10];
 sobj.size_pix_list = repmat(round(Deg2Pix(sobj.stimsz_deg_list, sobj.MonitorDist, sobj.pixpitch)),1,2);
 
 if get(figUIobj.auto_size,'value')==1
@@ -82,8 +83,6 @@ conc_dist_pix_list = Deg2Pix(sobj.concentric_dist_deg_list, sobj.MonitorDist, so
 if get(figUIobj.shiftDir, 'value') < 9
     % when angle is fixed
     prep_mat = [[0,1:sobj.div_zoom]; [0, get(figUIobj.shiftDir, 'value')*ones(1, sobj.div_zoom)]];
-    %deg_list = linspace(0, 315, 8);
-    %sobj.concentric_angle_deg_list = deg_list(get(figUIobj.shiftDir, 'value'));
     sobj.concentric_angle_deg_list = linspace(0, 315, 8);
     conc_angle_rad_list = linspace(0, 2*pi- 2*pi/8, 8);
     num_directions = get(figUIobj.shiftDir, 'value');
@@ -178,7 +177,7 @@ sobj.stimsz2 = stim_size(sobj.MonitorDist,figUIobj.size2, sobj.pixpitch);
 %%
 
 recobj.interval = re_write(figUIobj.interval);
-recobj.sampf = str2double(get(figUIobj.sampf,'string'))*1000;
+recobj.sampf = re_write(figUIobj.sampf)*1000;
 recobj.recp = recobj.sampf*recobj.rect/1000;
 
 if Recmode == 2
@@ -237,8 +236,7 @@ if Testmode == 0
     delete(lh)% <-- important!!!
     DataSave =[]; %reset save data
     ParamsSave =[]; % reset save parameters
-    lh = addlistener(s, 'DataAvailable', @(src,event) dataCaptureNBA(src, event, capture, figUIobj, Recmode));
-    
+    lh = addlistener(s, 'DataAvailable', @(src,event) dataCaptureNBA(src, event, capture, figUIobj, Recmode)); 
     % dio reset
     outputSingleScan(dio.TrigAIFV,[0,0])
     outputSingleScan(dio.VSon,0)
@@ -268,7 +266,6 @@ if isfield(plotUIobj, 'plot')
     end
     set(plotUIobj.plot1, 'Color', col);
 end
-
 
 %% check vars
 

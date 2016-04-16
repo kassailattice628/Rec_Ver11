@@ -11,7 +11,8 @@ set(h.SelectTest, 'Callback', {@ch_ButtonColor, 'g'});
 h.Start=uicontrol('style','pushbutton','string','Open NBA','position',[10 50 100 50],'FontSize',12,'Horizontalalignment','center');
 set(h.Start,'Callback', {@start, h});
 
-addpath('Check_params')
+addpath('CheckParams')
+addpath('ComFunc')
 
 
 end

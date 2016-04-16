@@ -2,7 +2,7 @@ function recobj = recobj_ini(Recmode)
 % initialize recobj
 
 %% version
-recobj.NBAver = '11.4';
+recobj.NBAver = '11.4.1';
 
 %% Recording Parameters: HEADER Information
 recobj.interval = 1; %loop interval(s);
@@ -12,19 +12,19 @@ recobj.recp = recobj.sampf*recobj.rect/1000;
 
 recobj.prestim = 2; % recobj.prestim * recobj.rect (ms) blank loop
 
-%open flag for saving file
-recobj.fopenflag = 0;
 %
 %AO output
 if Recmode == 2
-    recobj.OutData = zeros(recobj.recp,2); %矩形波データ
+    % AO pulse out is under developping
+    %recobj.OutData = zeros(recobj.recp,2); %矩形波データ
 end
+
 recobj.pulseAmp = 0.1; %stim amp(nA)
 recobj.pulseDelay = 0.2; %sec
 recobj.pulseDuration = 0.2; %sec
 
 %step
-recobj.stepCV = [0,0.5,0.1;0,100,10];%[Cstart,Cend,Cstep;Vstart,Vend,Vstep]; (nA) and (mV)
+recobj.stepCV = [0, 0.5, 0.1; 0, 100, 10];%[Cstart, Cend, Cstep; Vstart, Vend, Vstep]; (nA) and (mV)
 recobj.stepAmp = 0:0.1:0.5;%Cstep
 
 %DAQoutput gain Axoclamp2B, head stage gain (H) = *0.1

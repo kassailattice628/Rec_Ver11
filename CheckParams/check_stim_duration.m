@@ -3,7 +3,8 @@ global figUIobj
 global sobj
 global recobj
 
-rectime = re_write(figUIobj.rect)/1000; %ms -> s
+recobj.rect = re_write(figUIobj.rect);% ms
+rectime = recobj.rect/1000;% ms -> s
 
 flipNum1 = re_write(figUIobj.flipNum);
 dur1 = flipNum1*sobj.m_int;
