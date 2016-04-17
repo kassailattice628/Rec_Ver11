@@ -22,15 +22,15 @@ set(figUIobj.divnumN, 'string', ['(' num2str(sobj.divnum) 'x' num2str(sobj.divnu
 sobj.center_pos_list = get_stim_center_mat(sobj.RECT, sobj.divnum);
 
 sobj.fixpos = re_write(figUIobj.fixpos);
-set(figUIobj.fixposN,'string',['(in' num2str(sobj.divnum) 'x' num2str(sobj.divnum) 'mat)']);
+set(figUIobj.fixposN, 'string',['(in' num2str(sobj.divnum) 'x' num2str(sobj.divnum) 'mat)']);
 
 recobj.cycleNum = 0 - recobj.prestim;
 
 recobj.prestim = re_write(figUIobj.prestimN);
-set(figUIobj.prestim,'string',['loops=',num2str(recobj.prestim * (recobj.rect/1000 + recobj.interval)),'sec']);
+set(figUIobj.prestim, 'string',['loops=',num2str(recobj.prestim * (recobj.rect/1000 + recobj.interval)), 'sec']);
 
-modelist = get(figUIobj.mode,'string'); % {'Random', 'Fix_Rep', 'Ordered'};
-sobj.mode = modelist{get(figUIobj.mode,'value')};
+modelist = get(figUIobj.mode, 'string'); % {'Random', 'Fix_Rep', 'Ordered'};
+sobj.mode = modelist{get(figUIobj.mode, 'value')};
 
 % sobj.pattern is reloaded in ./Check_params/change_stim_pattern.m
 
@@ -65,14 +65,14 @@ sobj.delayPTB = sobj.delayPTBflip*sobj.m_int;
 
 sobj.size_pix_list = repmat(round(Deg2Pix(sobj.stimsz_deg_list, sobj.MonitorDist, sobj.pixpitch)),1,2);
 
-if get(figUIobj.auto_size,'value')==1
-    %set(figUIobj.auto_size,'value',0,'string','Auto OFF')
+if get(figUIobj.auto_size, 'value')==1
+    %set(figUIobj.auto_size, 'value',0, 'string', 'Auto OFF')
 else
     sobj.stimsz = stim_size(sobj.MonitorDist, figUIobj.size, sobj.pixpitch);
 end
 
-sobj.shiftDir = get(figUIobj.shiftDir,'value');
-sobj.shiftSpd = sobj.shiftSpd_list(get(figUIobj.shiftSpd,'value'));
+sobj.shiftDir = get(figUIobj.shiftDir, 'value');
+sobj.shiftSpd = sobj.shiftSpd_list(get(figUIobj.shiftSpd, 'value'));
 sobj.gratFreq = sobj.gratFreq_list(get(figUIobj.gratFreq, 'value'));
 sobj.ImageNum = re_write(figUIobj.ImageNum);
 
@@ -249,7 +249,7 @@ if Testmode == 0
         pulseON = ones(size_pulseON, 1);
         size_pulseOFF = round(recobj.sampf/recobj.TTL3.Freq*(1-recobj.TTL3.DutyCycle));
         pulseOFF = zeros(size_pulseOFF, 1);
-        pulse = repmat([pulseON;pulseOFF], str2double(get(figUIobj.pulsenumTTL3,'string')),1);
+        pulse = repmat([pulseON;pulseOFF], str2double(get(figUIobj.pulsenumTTL3, 'string')),1);
         recobj.TTL3AO = [delay; pulse; zeros(recobj.recp-size(delay,2)-size(pulse,2),1)];
         recobj.TTL3AO = zeros(recobj.recp, 1);
         recobj.TTL3AO(1:size([delay;pulse],1),1)=[delay;pulse];
@@ -276,7 +276,7 @@ end
 %% %%%%%%%%%%%%%%%%%%%%   sub functions   %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%
 function y = re_write(h)
-y = str2double(get(h,'string'));
+y = str2double(get(h, 'string'));
 end
 
 %%
@@ -301,7 +301,7 @@ end
 
 %%
 function size = stim_size(dist , h, pixpitch)
-size = round(ones(1,2)*Deg2Pix(str2double(get(h,'string')), dist, pixpitch));
+size = round(ones(1,2)*Deg2Pix(str2double(get(h, 'string')), dist, pixpitch));
 end
 
 

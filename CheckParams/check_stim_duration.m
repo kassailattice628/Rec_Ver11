@@ -36,10 +36,10 @@ else % Error Reset
     end
 end
 % update GUI
-set(figUIobj.stimDur, 'string',['flips=',num2str(floor(dur1*1000)), 'ms']);
-set(figUIobj.delayPTB, 'string',['flips=',num2str(floor(delay1*1000)), 'ms']);
-set(figUIobj.stimDur2, 'string',['flips=',num2str(floor(dur2*1000)), 'ms']);
-set(figUIobj.delayPTB2, 'string',['flips=',num2str(floor(delay2*1000)), 'ms']);
+set(figUIobj.stimDur, 'string', ['flips=',num2str(floor(dur1*1000)), 'ms']);
+set(figUIobj.delayPTB, 'string', ['flips=',num2str(floor(delay1*1000)), 'ms']);
+set(figUIobj.stimDur2, 'string', ['flips=',num2str(floor(dur2*1000)), 'ms']);
+set(figUIobj.delayPTB2, 'string', ['flips=',num2str(floor(delay2*1000)), 'ms']);
 
 %%
     function reset_stim_duration

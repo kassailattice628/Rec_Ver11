@@ -44,10 +44,10 @@ end
 %PsychDefaultSetup(2);
 
 %[sobj.wPtr, sobj.RECT] = Screen('OpenWindow', sobj.ScrNum,sobj.bgcol);
-[sobj.wPtr, sobj.RECT] = PsychImaging('OpenWindow', sobj.ScrNum,sobj.bgcol);
+[sobj.wPtr, sobj.RECT] = PsychImaging('OpenWindow', sobj.ScrNum, sobj.bgcol);
 [sobj.ScrCenterX, sobj.ScrCenterY] = RectCenter(sobj.RECT);% center positionof of stim monitor
 sobj.m_int = Screen('GetFlipInterval', sobj.wPtr);
-sobj.frameRate = Screen('FrameRate',sobj.ScrNum);
+sobj.frameRate = Screen('FrameRate', sobj.ScrNum);
 if sobj.frameRate == 0
     sobj.frameRate = 75;
 end
@@ -63,7 +63,7 @@ plotUIobj = plot_window(figUIobj, Recmode);
 
 %% DAQ Event Listener used in AI rec
 if Testmode == 0
-    lh = addlistener(s, 'DataAvailable', @(src,event)dataCaptureNBA(src, event, capture, figUIobj, get(figUIobj.plot,'value')));
+    lh = addlistener(s, 'DataAvailable', @(src,event)dataCaptureNBA(src, event, capture, figUIobj, get(figUIobj.plot, 'value')));
 end
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % variables check %
