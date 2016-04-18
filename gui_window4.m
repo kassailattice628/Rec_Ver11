@@ -4,6 +4,7 @@ function hGui = gui_window4(Testmode, Recmode)
 % handles (hGui) and create a GUI for PTB visual stimuli, data acquisition
 % from a DAQ session (s), and control TTL output
 
+%% call global vars
 global sobj
 global recobj
 global s
@@ -26,20 +27,19 @@ hGui.EXIT = uicontrol('style', 'pushbutton', 'string', 'EXIT', 'position', [680 
 set(hGui.EXIT, 'CallBack', {@quit_NBA, s});
 
 %% save %%
-hGui.getfname = uicontrol('style', 'pushbutton', 'string', 'File Name', 'position', [345 705 80 30], 'Callback', @SelectSaveFile, 'Horizontalalignment', 'center');
-set(hGui.getfname);
+hGui.getfname = uicontrol('style', 'pushbutton', 'string', 'File Name', 'position', [365 705 80 30], 'Callback', @SelectSaveFile, 'Horizontalalignment', 'center');
 
-hGui.save = uicontrol('style', 'togglebutton', 'string', 'Unsave', 'position', [430 705 70 30], 'Callback', @ch_save);
+hGui.save = uicontrol('style', 'togglebutton', 'string', 'Unsave', 'position', [450 705 70 30], 'Callback', @ch_save);
 
 %% plot %%
-hGui.PlotWindowON = uicontrol('style', 'togglebutton', 'string', 'Plot ON', 'position', [345 670 65 30],...
+hGui.PlotWindowON = uicontrol('style', 'togglebutton', 'string', 'Plot ON', 'position', [365 670 65 30],...
     'value', 1, 'BackGroundColor', 'g', 'FontSize',12, 'Horizontalalignment', 'center');
 set(hGui.PlotWindowON, 'CallBack', {@open_plot, hGui, Recmode});
-%%
-%stim state monitor% %%
-hGui.StimMonitor1 = uicontrol('style', 'text', 'string', '', 'position', [230 670 100 20], 'FontSize',12, 'BackGroundColor', 'w');
-hGui.StimMonitor2 = uicontrol('style', 'text', 'string', 'OFF', 'position', [230 690 100 25], 'FontSize',12, 'BackGroundColor', 'w', 'Horizontalalignment', 'center');
-hGui.StimMonitor3 = uicontrol('style', 'text', 'string', '', 'position', [230 715 100 20], 'FontSize',12, 'BackGroundColor', 'w');
+
+%% stim state monitor% %%
+hGui.StimMonitor1 = uicontrol('style', 'text', 'string', '', 'position', [230 710 120 25], 'FontSize',13, 'BackGroundColor', 'w', 'Horizontalalignment', 'center');
+hGui.StimMonitor2 = uicontrol('style', 'text', 'string', 'OFF', 'position', [230 690 120 20], 'FontSize',12, 'BackGroundColor', 'w', 'Horizontalalignment', 'center');
+hGui.StimMonitor3 = uicontrol('style', 'text', 'string', '', 'position', [230 670 120 20], 'FontSize',12, 'BackGroundColor', 'w', 'Horizontalalignment', 'center');
 
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -48,12 +48,12 @@ hGui.StimMonitor3 = uicontrol('style', 'text', 'string', '', 'position', [230 71
 
 uipanel('Title', 'Vis. Stim.1', 'FontSize', 12, 'Units', 'Pixels', 'Position', [5 10 195 650]);
 
+%% Select stim position
 uicontrol('style', 'text', 'string', 'Mode (Position)', 'position', [10 620 90 15], 'Horizontalalignment', 'left');
-
 hGui.mode = uicontrol('style', 'popupmenu', 'position', [10 600 90 20], 'string', [{'Random'}, {'Fix_Rep'}, {'Ordered'}]);
 set(hGui.mode, 'Callback', @set_fig_pos);
 
-%%
+%% Select pattern
 uicontrol('style', 'text', 'string', 'Stim.Pattern', 'position', [105 620 70 15], 'Horizontalalignment', 'left');
 hGui.pattern = uicontrol('style', 'popupmenu', 'position', [105 600 90 20],...
     'string', [{'Uni'}, {'Size_rand'}, {'1P_Conc'}, {'2P_Conc'}, {'B/W'},...
@@ -128,8 +128,7 @@ hGui.dots_density = uicontrol('style', 'edit', 'string', sobj.dots_density, 'pos
 set(hGui.dots_density, 'Callback', {@check_mosaic, hGui});
 uicontrol('style', 'text', 'string', '%', 'position', [175 355 20 15], 'HorizontalAlignment', 'left');
 
-
-%%% Size %%%%
+%%% Size 
 uicontrol('style', 'text', 'string', 'Size (Diamiter)', 'position', [10 330 130 15], 'Horizontalalignment', 'left');
 hGui.size = uicontrol('style', 'edit', 'string', 1, 'position', [10 305 50 25], 'BackGroundColor', 'w');
 uicontrol('style', 'text', 'string', 'deg', 'position', [65 305 30 15], 'Horizontalalignment', 'left');
@@ -137,8 +136,7 @@ uicontrol('style', 'text', 'string', 'deg', 'position', [65 305 30 15], 'Horizon
 hGui.auto_size = uicontrol('style', 'togglebutton', 'string', 'Auto OFF', 'position', [105 300 70 30], 'Horizontalalignment', 'center');
 set(hGui.auto_size, 'Callback', {@autosizing, hGui});
 
-
-%%% Center/Position %%%
+%%% Center/Position
 uicontrol('style', 'text', 'string', 'Monitor Div.', 'position', [10 280 70 15], 'Horizontalalignment', 'left');
 hGui.divnum = uicontrol('style', 'edit', 'string', sobj.divnum, 'position', [10 255 50 25], 'BackGroundColor', 'w');
 set(hGui.divnum, 'Callback', {@reload_params, Testmode, Recmode});
@@ -153,7 +151,7 @@ set(hGui.fixpos, 'Callback', {@reload_params, Testmode, Recmode});
 hGui.fixposN = uicontrol('style', 'text', 'position', [65 205 70 15],...
     'string', ['(in' num2str(sobj.divnum) 'x' num2str(sobj.divnum) 'mat)'], 'Horizontalalignment', 'left');
 
-% Get fine position
+%%% Get fine position
 hGui.get_fine_pos = uicontrol('style', 'togglebutton', 'string', 'get Pos', 'position', [130 250 60 30], 'Horizontalalignment', 'center');
 set(hGui.get_fine_pos, 'Callback', {@get_fine_pos, hGui});
 
@@ -336,7 +334,7 @@ end
 %%%%%%%%%%%%   TTL out DIO3    %%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-uipanel('Title', 'TTL3', 'FontSize',12, 'Units', 'Pixels', 'Position', [205 10 195 230]);
+uipanel('Title', 'TTL3', 'FontSize', 12, 'Units', 'Pixels', 'Position', [205 10 195 230]);
 %% DIO3 (outer TTL);
 uicontrol('style', 'text', 'position', [210 165 60 15], 'string', 'Delay', 'Horizontalalignment', 'left');
 hGui.delayTTL3 = uicontrol('style', 'edit', 'position', [210,140,40,25], 'string', recobj.TTL3.delay*1000, 'BackGroundColor', 'w');
@@ -365,10 +363,10 @@ uicontrol('style', 'text', 'position', [285 75 100 15], 'string', 'Single Pulse 
 hGui.widthTTL3 = uicontrol('style', 'text', 'position', [285 50 40 15], 'string', recobj.TTL3.DutyCycle/recobj.TTL3.Freq*1000, 'Horizontalalignment', 'center');
 uicontrol('style', 'text', 'position', [325 50 20 15], 'string', 'ms', 'Horizontalalignment', 'left');
 
-hGui.TTL3 = uicontrol('style', 'togglebutton', 'position', [210 185 65 30], 'string', 'TTL-OFF', 'Horizontalalignment', 'left');
+hGui.TTL3 = uicontrol('style', 'togglebutton', 'position', [210 185 65 30], 'string', 'TTL-OFF', 'Horizontalalignment', 'center');
 set(hGui.TTL3, 'Callback', {@TTL3, Testmode})
 
-hGui.TTL3_select = uicontrol('style', 'togglebutton', 'position', [285 185 90 30], 'string', 'Fix:Duration', 'Horizontalalignment', 'left');
+hGui.TTL3_select = uicontrol('style', 'togglebutton', 'position', [285 185 90 30], 'string', 'Fix:Duration', 'Horizontalalignment', 'center');
 set(hGui.TTL3_select, 'Callback', {@TTL3_select, hGui})
 
 %%
@@ -379,7 +377,6 @@ set(hGui.TTL3_select, 'Callback', {@TTL3_select, hGui})
 hGui.loop = uicontrol('style', 'togglebutton', 'position', [110 670 100 30],...
     'string', 'Loop-OFF', 'Callback', {@main_loop, hGui, Testmode, Recmode}, 'BackGroundColor', 'r');
 
-
 %%
 
 end
@@ -387,9 +384,9 @@ end
 
 
 
-%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%% sub functions for Callback %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%% sub functions for Callback %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Callback fucntions need at lest 2 parameters.
 % other input parameters are used after 2nd var.
 % function func_name(hObject, Callbackdata, usr1, usr2, ...)
@@ -496,12 +493,19 @@ ch_ButtonColor(hObject, [], 'g')
 end
 
 %%
-function set_fig_pos(hObject,~)
+function set_fig_pos(hObject, ~)
+global sobj
 global figUIobj
+
 if get(hObject, 'value') == 2
     set(figUIobj.fixpos, 'BackGroundColor', 'g');
 else
-    set(figUIobj.fixpos, 'BackGroundColor', 'w');
+    switch sobj.pattern
+        case {'FineMap'}
+            set(figUIobj.fixpos, 'BackGroundColor', 'g');
+        otherwise
+            set(figUIobj.fixpos, 'BackGroundColor', 'w');
+    end
 end
 end
 

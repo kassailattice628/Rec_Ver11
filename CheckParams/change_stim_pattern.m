@@ -20,15 +20,6 @@ switch sobj.pattern
         set(figUIobj.mode, 'value', 1); % position random
         set(figUIobj.shape, 'value', 2); % circular
         
-    case 'FineMap'
-        val = {'g', 'g', 'g', 'k', 'k',...
-            'k', 'k', 'k', 'k', 'k',...
-            'k', 'k', 'k', 'k', 'k', 'g'};
-        map_list = containers.Map(key, val);
-        
-        set(figUIobj.mode, 'value', 2); % position random
-        set(figUIobj.shape, 'value', 2); % circular
-        
     case 'Size_rand'
         val = {'g', 'k', 'k', 'k', 'k',...
             'k', 'k', 'k', 'k', 'k',...
@@ -99,14 +90,21 @@ switch sobj.pattern
         
         set(figUIobj.mode, 'value', 2); % position fix
         set(figUIobj.shape, 'value', 1); % rectangle
+        
+    case 'FineMap'
+        val = {'g', 'g', 'g', 'k', 'k',...
+            'k', 'k', 'k', 'k', 'k',...
+            'k', 'k', 'k', 'k', 'k', 'g'};
+        map_list = containers.Map(key, val);
+        
+        set(figUIobj.mode, 'value', 1); % position random
+        set(figUIobj.shape, 'value', 2); % circular
 end
 
 set_fig_stim_color(map_list)
 
 %%
     function set_fig_stim_color(map_list)
-        
-        set(figUIobj.mode, 'value', 2); % position fix
         
         set(figUIobj.fixpos, 'BackGroundColor', map_list('fixpos'));
         

@@ -1,51 +1,108 @@
 function main_loop(hObject, ~, hGui, Testmode, Recmode)
-% Loop start and stop
+% Main loop structure and subfunctions for GUI setting and visual stimuli
 
-global recobj
+%% call global vars
+
+
+%% call global vars
 global sobj
+global recobj
+
 global s
 global sOut
+
 global dio
-global DataSave %save
-global ParamsSave %save
+
 global lh
 
-%%
+global DataSave % save
+global ParamsSave % save
+
+%% Loop Start/ Loop Stop
 if get(hObject, 'value')==1 % loop ON
     reload_params([], [], Testmode, Recmode);
     recobj.cycleCount = 0;
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    if sobj.Num_screens == 1 && get(hGui.stim,'value')
+    if sobj.Num_screens == 1 && get(hGui.stim, 'value')
         %open screen in single monitor condition
         [sobj.wPtr, ~] = Screen('OpenWindow', sobj.ScrNum, sobj.bgcol);
     end
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    while get(hObject,'value') == 1
+    while get(hObject, 'value') == 1
         % set 1st counter
         recobj.cycleCount = recobj.cycleCount + 1; % for ParamsSave
         recobj.cycleNum = recobj.cycleNum + 1;
-        set(hObject,'string', 'Looping', 'BackGroundColor', 'g');
+        set(hObject, 'string', 'Looping', 'BackGroundColor', 'g');
         
         %%%%%%%%%%%%%% loop contentes %%%%%%%%%%%%%%%
         % start loop (Trigger + Visual Stimulus)
-        MainLoop(dio, hGui, Testmode)
+        Loop_contents(dio, hGui, Testmode)
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
+        % for Testing with single display condition
         if sobj.Num_screens == 1 && recobj.cycleNum == 5
             set(hObject, 'value', 0);
-            func_Loop_Off
+            Loop_Off
         end
     end
+    
 else %loop OFF
-    func_Loop_Off;
+    Loop_Off;
 end
+
+%% %%%%%%%%%%%% nested functions %%%%%%%%%%%%%%
 %%
-    function func_Loop_Off
+    function Loop_contents(dio, hGui, Testmode)
+        % ready to start DAQ
+        if Testmode == 0
+            if s.IsRunning==false
+                s.startBackground; %session start, listener ON, *** Waiting Analog Trigger (AI3)
+            end
+            
+            if get(hGui.TTL3, 'value')==1
+                %TTLpulse
+                queueOutputData(sOut, 5 * recobj.TTL3AO); %max 10V
+                sOut.startBackground
+            end
+        end
+        
+        try %error check
+            switch get(hGui.stim, 'value')
+                %%%%%%%%%%%%%%%%%%%% Visual Stimulus OFF %%%%%%%%%%%%%%%%%%%%
+                case 0
+                    % start timer and start FV
+                    Trigger(Testmode, dio);
+                    
+                    % loop interval %
+                    pause(recobj.rect/1000 + recobj.interval);
+                    
+                    %%%%%%%%%%%%%%%%%%%% Visual Stimulus ON %%%%%%%%%%%%%%%%%%%%%
+                case 1
+                    % start timer, start FV and start Visu Stim
+                    VisStim(Testmode, dio);
+            end
+            
+            if Testmode == 1 && get(hGui.save, 'value')==1
+                ParamsSave{1, recobj.cycleCount} = get_save_params(recobj, sobj);
+            end
+            
+        catch ME1
+            % if any error occurs
+            Screen('CloseAll');
+            rethrow(ME1);
+        end
+    end
+
+
+%%
+    function Loop_Off
+        % check the number of screen.
         if sobj.Num_screens==1
             sca;
         end
-        set(hObject,'string', 'Loop-Off', 'BackGroundColor', 'r');
-        % stop loop & data acquiring
+        set(hObject, 'string', 'Loop-Off', 'BackGroundColor', 'r');
+        
+        %%%%%% Stop DAQ %%%%%%
         if Testmode==0
             if s.IsRunning
                 stop(s)
@@ -57,7 +114,7 @@ end
             disp('stop daq sessions, delete event listenner')
         end
         
-        %%%%%% Save Data %%%%%%%%
+        %%%%%% Save Data %%%%%%
         if get(hGui.save, 'value')
             if Testmode==0
                 save(recobj.savefilename, 'DataSave', 'ParamsSave', 'recobj', 'sobj');
@@ -65,16 +122,18 @@ end
                 save(recobj.savefilename, 'ParamsSave', 'recobj', 'sobj');
             end
             
-            disp(['data saved as ::' recobj.savefilename])
+            disp(['Captured Data was saved as :: ' recobj.savefilename])
             recobj.savecount = recobj.savecount + 1;
             set(hGui.save, 'value', 0, 'string', 'Unsave', 'BackGroundColor',[0.9400 0.9400 0.9400])
         end
         
-        %%%%%%%%%%%%%%%%%%%%%%%%%
-        % Reset Cycle Counter %
-        recobj.cycleNum = 0- recobj.prestim;
+        %%%%%% Reset Cycle Counter %%%%%%
+        recobj.cycleNum = 0 - recobj.prestim;
         disp(['Loop-Out:', num2str(recobj.cycleNum)]);
-        recobj = rmfield(recobj,'STARTloop');
+        
+        if isfield(recobj, 'STARTloop')
+            recobj = rmfield(recobj, 'STARTloop');
+        end
         
         %reset all triggers
         ResetTTLall(Testmode, dio, sobj);
@@ -82,57 +141,11 @@ end
 
 end
 
-%% subfunctions %%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function MainLoop(dio, hGui, Testmode)
-% Main structure%
-global s
-global recobj
-global sobj
-global ParamsSave
-global sOut
-
-% ready to start DAQ
-if Testmode == 0
-    if s.IsRunning==false
-        s.startBackground; %session start, listener ON, *** Waiting Analog Trigger (AI3)
-    end
-    
-    if get(hGui.TTL3,'value')==1
-        %TTLpulse
-        queueOutputData(sOut, 5 * recobj.TTL3AO); %max 10V
-        sOut.startBackground
-    end
-end
-
-try %error check
-    switch get(hGui.stim, 'value')
-        %%%%%%%%%%%%%%%%%%%% Visual Stimulus OFF %%%%%%%%%%%%%%%%%%%%
-        case 0
-            % start timer and start FV
-            Trigger(Testmode, dio);
-            % loop interval %
-            pause(recobj.rect/1000 + recobj.interval);
-            %%%%%%%%%%%%%%%%%%%% Visual Stimulus ON %%%%%%%%%%%%%%%%%%%%%
-        case 1
-            % start timer, start FV and start Stim
-            VisStim(Testmode, dio);
-    end
-    
-    if Testmode == 1 && get(hGui.save, 'value')==1
-        ParamsSave{1, recobj.cycleCount} = get_save_params(recobj, sobj);
-    end
-catch ME1
-    %PTB error
-    Screen('CloseAll');
-    rethrow(ME1);
-end
-end
-
-%%
+%%% subfunctions %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%
 function Trigger(Testmode, dio)
 % put TTL signal and start timer
 
@@ -148,14 +161,13 @@ Screen('FillRect', sobj.wPtr, sobj.bgcol); %presenting background
 % timer start, digital out
 if recobj.cycleNum == -recobj.prestim +1
     recobj.STARTloop = tic;
-    generate_trigger([1,1]); %Start AI
+    generate_trigger([1,1]); % Start AI & FV
 else
     recobj.tRec = toc(recobj.STARTloop);
-    generate_trigger([1,0]);
+    generate_trigger([1,0]); % Start AI
 end
 %reset Trigger level
 generate_trigger([0,0]);
-
 
 %%nested%%
     function generate_trigger(pattern)
@@ -168,6 +180,7 @@ end
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function TriggerVSon(Testmode, dio, value)
+%TTL output for visual stimulus timing
 if Testmode == 0
     outputSingleScan(dio.VSon, value);
 end
@@ -175,8 +188,7 @@ end
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function ResetTTLall(Testmode, dio, sobj)
-% Reset all TTL to zero.
-
+% Reset all TTL leve to zero.
 if Testmode == 0; %Test mode off
     outputSingleScan(dio.TrigAIFV,[0,0]);
     outputSingleScan(dio.VSon,0);
@@ -192,14 +204,17 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function VisStim(Testmode, dio)
 % define stimulus properties, start timer, recording, stimulus presentation
+
+%% call globa params
 global figUIobj
 global recobj
 global sobj
 
+%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%Start Recording, with/without Visual Stimulus
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-if recobj.cycleNum <= 0 % prestimulus
+if recobj.cycleNum <= 0 % Prestimulus
     % Start AI
     Trigger(Testmode, dio)
     stim_monitor;
@@ -210,94 +225,76 @@ elseif recobj.cycleNum > 0 %StimON
     % Start AI
     Trigger(Testmode, dio)
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-    if strcmp(sobj.pattern, '2P_Conc')
-        %Prep, ON, OFF
-        Conc_2P;
-        time1 = recobj.rect/1000 - (sobj.vbl_3-sobj.vbl_1);
-        time2 = recobj.rect/1000 - (sobj.vbl2_3-sobj.vbl_1);
-        pause_time = min([time1,time2] + recobj.interval);
+    switch sobj.pattern
+        case 'Uni'
+            %Prep
+            Uni_stim(2);
+            VisStimON;
+            VisStimOFF;
+            
+        case 'Size_rand'
+            %Prep
+            Uni_stim(1);
+            VisStimON;
+            VisStimOFF;
+            
+        case {'1P_Conc', 'B/W'}
+            %Prep
+            Conc_1P;
+            VisStimON;
+            VisStimOFF;
         
-    elseif strcmp(sobj.pattern, 'Looming')
-        %Prep, ON
-        Looming;
+        case '2P_Conc'
+            %Prep, ON, OFF
+            Conc_2P;
+            time1 = recobj.rect/1000 - (sobj.vbl_3-sobj.vbl_1);
+            time2 = recobj.rect/1000 - (sobj.vbl2_3-sobj.vbl_1);
+            pause_time = min([time1,time2] + recobj.interval);
+            
+        case 'Looming'
+            %Prep ON, OFF
+            Looming;
+            %GUI stim indicater
+            stim_monitor_reset;
+            time1 = recobj.rect/1000 - (sobj.vbl_3-sobj.vbl_1);
+            pause_time = time1 + recobj.interval;
         
-        %GUI stim indicater
-        stim_monitor_reset;
-        time1 = recobj.rect/1000 - (sobj.vbl_3-sobj.vbl_1);
-        pause_time = time1 + recobj.interval;
-    else
-        
-        if strcmp(sobj.pattern, 'Sin') || strcmp(sobj.pattern, 'Gabor') || strcmp(sobj.pattern, 'Rect')
+        case {'Sin', 'Rect', 'Gabor'}
             %Prep, ON
             GratingGLSL;
+            VisStimOFF;
             
-        else
-            if strcmp(sobj.pattern, 'Uni')
-                %Prep,
-                Uni_stim(2);
-                
-            elseif strcmp(sobj.pattern, 'Size_rand')
-                %Prep,
-                Uni_stim(1);
-                
-            elseif strcmp(sobj.pattern, '1P_Conc') || strcmp(sobj.pattern, 'B/W')
-                %Prep,
-                Conc_1P;
-                
-            elseif strcmp(sobj.pattern, 'Images')
-                %Prep,
-                Img_stim;
-                
-            elseif strcmp(sobj.pattern, 'Mosaic')
-                %Prep,
-                Mosaic_Dots;
-                
-            elseif strcmp(sobj.pattern, 'FineMap')
-                %Prep
-                Fine_Mapping;
-            end
+        case 'Images'
+            %Prep
+            Img_stim;
+            VisStimON;
+            VisStimOFF;
             
+        case 'Mosaic'
+            %Prep
+            Mosaic_Dots;
+            VisStimON;
+            VisStimOFF;
             
-            %AddPhoto Sensor (Left, UP in the monitor) for the stimulus timing check
-            Screen('FillRect', sobj.wPtr, 255, [0 0 40 40]);
-            
-            %%% stim ON %%%%%%%%%%%%%%%%%%%%%%%%%%%
-            % Flip and rap timer
-            [sobj.vbl_2, sobj.OnsetTime_2, sobj.FlipTimeStamp_2] = ...
-                Screen('Flip', sobj.wPtr, sobj.vbl_1+sobj.delayPTB);% put some delay for PTB
-            
-            TriggerVSon(Testmode, dio, 1)
-            disp(['AITrig; ',sobj.pattern, ': #', num2str(recobj.cycleNum)]);
-            stim_monitor;
-        end
-        
-        %%% stim OFF %%%%%%%%%%%%%%%%%%%%%%%%%%%
-        % Prep BacgGround Screen
-        Screen('FillRect', sobj.wPtr, sobj.bgcol);
-        % After sobj.duration, flib BG color
-        [sobj.vbl_3, sobj.OnsetTime_3, sobj.FlipTimeStamp_3] = ...
-            Screen('Flip', sobj.wPtr, sobj.vbl_2+sobj.duration);
-        
-        TriggerVSon(Testmode, dio,0)
-        
-        %GUI stim indicater
-        stim_monitor_reset;
-        time1 = recobj.rect/1000 - (sobj.vbl_3-sobj.vbl_1);
-        pause_time = time1 + recobj.interval;
+        case 'FineMap'
+            %Prep
+            Fine_Mapping;
+            VisStimON;
+            VisStimOFF;
     end
     pause(pause_time);
 end
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% nestrd functions %
+% nested functions in 'VisStim' %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%
     function Uni_stim(flag_size_random)
         % Set stim center
         fix_center = sobj.center_pos_list(sobj.fixpos,:);
         [sobj.stim_center, sobj.center_index] = get_condition(1, sobj.center_pos_list, recobj.cycleNum,...
-            sobj.divnum^2, get(figUIobj.mode,'value'), fix_center);
-        if get(figUIobj.mode,'value') == 2
+            sobj.divnum^2, get(figUIobj.mode, 'value'), fix_center);
+        if get(figUIobj.mode, 'value') == 2
             sobj.center_index = sobj.fixpos;
         end
         
@@ -315,7 +312,7 @@ end
         Rect = CenterRectOnPointd([0,0,sobj.stim_size], sobj.stim_center(1), sobj.stim_center(2));
         
         % Set Luminance
-        switch get(figUIobj.lumi,'value')
+        switch get(figUIobj.lumi, 'value')
             case 1
                 flag_lumi_random = 2; %fix
             case 2
@@ -347,7 +344,7 @@ end
                     size(sobj.concentric_mat,1)/2, flag_random_dir);
                 
                 % Set Luminance
-                switch get(figUIobj.lumi,'value')
+                switch get(figUIobj.lumi, 'value')
                     case 1
                         flag_lumi_random = 2; %fix
                     case 2
@@ -378,8 +375,8 @@ end
         % Set stim center
         fix_center = sobj.center_pos_list(sobj.fixpos,:);
         [sobj.stim_center, sobj.center_index] = get_condition(1, sobj.center_pos_list, recobj.cycleNum,...
-            sobj.divnum^2, get(figUIobj.mode,'value'), fix_center);
-        if get(figUIobj.mode,'value') == 2
+            sobj.divnum^2, get(figUIobj.mode, 'value'), fix_center);
+        if get(figUIobj.mode, 'value') == 2
             sobj.center_index = sobj.fixpos;
         end
         
@@ -396,52 +393,6 @@ end
         
         %PrepScreen Screen
         Screen(sobj.shape, sobj.wPtr, sobj.stimcol, Rect, maxDiameter);
-    end
-
-%%
-    function Looming
-        % Looming parameters
-        
-        % Set stim center as fixed position
-        sobj.stim_center = sobj.center_pos_list(sobj.fixpos,:); %fixed position
-        sobj.center_index = sobj.fixpos;
-        
-        stim_size =  [0, 0, sobj.loomSize_pix];% max_Stim_Size
-        sobj.stim_size = sobj.loomSize_pix;
-        
-        %set flipnum
-        flipnum = round(sobj.loomDuration/sobj.m_int);
-        scaleFactor = sobj.loomSize_pix./flipnum;
-        
-        topPriorityLevel =  MaxPriority(sobj.wPtr);
-        Priority(topPriorityLevel);
-        
-        %Prep first frame
-        Rect = CenterRectOnPointd(stim_size .* 0, sobj.stim_center(1), sobj.stim_center(2));
-        
-        Screen(sobj.shape, sobj.wPtr, 255, Rect);
-        Screen('FillRect', sobj.wPtr, 255, [0 0 40 40]);
-        
-        %%% flip 1st img %%%%%%%%%%%%%%%%%%%%%%%%%%%
-        [sobj.vbl_2, sobj.OnsetTime_2, sobj.FlipTimeStamp_2] =...
-            Screen('Flip', sobj.wPtr, sobj.vbl_1+sobj.delayPTB);% put some delay for PTB
-        TriggerVSon(Testmode, dio,1)
-        disp(['AITrig; ',sobj.pattern, ': #', num2str(recobj.cycleNum)]);
-        stim_monitor;
-        
-        for count = 1:flipnum
-            Rect = CenterRectOnPointd([0, 0, count .* scaleFactor], sobj.stim_center(1), sobj.stim_center(2));
-            Screen(sobj.shape, sobj.wPtr, 255, Rect);
-            Screen('FillRect', sobj.wPtr, 255, [0 0 40 40]);
-            Screen('Flip', sobj.wPtr);
-        end
-        
-        %%% stim off %%%
-        Screen('FillRect', sobj.wPtr, sobj.bgcol);
-        [sobj.vbl_3, sobj.OnsetTime_3, sobj.FlipTimeStamp_3] =...
-            Screen('Flip', sobj.wPtr, sobj.vbl_1+sobj.loomDuration);
-        
-        TriggerVSon(Testmode, dio,0)
     end
 
 %%
@@ -479,7 +430,7 @@ end
         Rect2 = CenterRectOnPointd([0,0, sobj.stim_size2], sobj.stim_center2(1), sobj.stim_center2(2));
         
         % Set Luminance
-        switch get(figUIobj.lumi,'value')
+        switch get(figUIobj.lumi, 'value')
             case 1
                 flag_lumi_random = 2; %fix
             case 2
@@ -620,6 +571,52 @@ end
         end
     end
 
+%%
+    function Looming
+        % Looming parameters
+        
+        % Set stim center as fixed position
+        sobj.stim_center = sobj.center_pos_list(sobj.fixpos,:); %fixed position
+        sobj.center_index = sobj.fixpos;
+        
+        stim_size =  [0, 0, sobj.loomSize_pix];% max_Stim_Size
+        sobj.stim_size = sobj.loomSize_pix;
+        
+        %set flipnum
+        flipnum = round(sobj.loomDuration/sobj.m_int);
+        scaleFactor = sobj.loomSize_pix./flipnum;
+        
+        topPriorityLevel =  MaxPriority(sobj.wPtr);
+        Priority(topPriorityLevel);
+        
+        %Prep first frame
+        Rect = CenterRectOnPointd(stim_size .* 0, sobj.stim_center(1), sobj.stim_center(2));
+        
+        Screen(sobj.shape, sobj.wPtr, 255, Rect);
+        Screen('FillRect', sobj.wPtr, 255, [0 0 40 40]);
+        
+        %%% flip 1st img %%%%%%%%%%%%%%%%%%%%%%%%%%%
+        [sobj.vbl_2, sobj.OnsetTime_2, sobj.FlipTimeStamp_2] =...
+            Screen('Flip', sobj.wPtr, sobj.vbl_1+sobj.delayPTB);% put some delay for PTB
+        TriggerVSon(Testmode, dio,1)
+        disp(['AITrig; ',sobj.pattern, ': #', num2str(recobj.cycleNum)]);
+        stim_monitor;
+        
+        for count = 1:flipnum
+            Rect = CenterRectOnPointd([0, 0, count .* scaleFactor], sobj.stim_center(1), sobj.stim_center(2));
+            Screen(sobj.shape, sobj.wPtr, 255, Rect);
+            Screen('FillRect', sobj.wPtr, 255, [0 0 40 40]);
+            Screen('Flip', sobj.wPtr);
+        end
+        
+        %%% stim off %%%
+        Screen('FillRect', sobj.wPtr, sobj.bgcol);
+        [sobj.vbl_3, sobj.OnsetTime_3, sobj.FlipTimeStamp_3] =...
+            Screen('Flip', sobj.wPtr, sobj.vbl_1+sobj.loomDuration);
+        
+        TriggerVSon(Testmode, dio,0)
+    end
+
 %% function to generate shifting grating stimulus
     function GratingGLSL
         if strcmp(sobj.pattern, 'Sin')
@@ -651,8 +648,8 @@ end
         % Set stim center
         fix_center = sobj.center_pos_list(sobj.fixpos,:);
         [sobj.stim_center, sobj.center_index] = get_condition(1, sobj.center_pos_list, recobj.cycleNum,...
-            sobj.divnum^2, get(figUIobj.mode,'value'), fix_center);
-        if get(figUIobj.mode,'value') == 2
+            sobj.divnum^2, get(figUIobj.mode, 'value'), fix_center);
+        if get(figUIobj.mode, 'value') == 2
             sobj.center_index = sobj.fixpos;
         end
         
@@ -667,7 +664,7 @@ end
         % get  Spatial frequency of the grating
         % cycles/deg
         gratFreq_list_deg = get(figUIobj.gratFreq, 'string');
-        sobj.gratFreq_deg = str2double(gratFreq_list_deg(get(figUIobj.gratFreq,'value')));
+        sobj.gratFreq_deg = str2double(gratFreq_list_deg(get(figUIobj.gratFreq, 'value')));
         % deg/cycles
         deg_per_cycle = 1/sobj.gratFreq_deg;
         % deg/cycle -> pix/cycle
@@ -818,9 +815,9 @@ end
         % Set stim center for Fine Mapping, centered at fixed position
         fix_center = sobj.center_pos_list(sobj.fixpos,:);
         [sobj.stim_center, sobj.center_index_FineMap] = get_condition(7, sobj.center_pos_list_FineMap, recobj.cycleNum,...
-            sobj.div_zoom^2, get(figUIobj.mode,'value'), fix_center);
+            sobj.div_zoom^2, get(figUIobj.mode, 'value'), fix_center);
         sobj.center_index = sobj.fixpos;
-        if get(figUIobj.mode,'value') == 2
+        if get(figUIobj.mode, 'value') == 2
             sobj.center_index_FineMap = 0;
         end
         
@@ -832,7 +829,7 @@ end
         Rect = CenterRectOnPointd([0, 0, sobj.stim_size], sobj.stim_center(1), sobj.stim_center(2));
         
         % Set Luminance
-        switch get(figUIobj.lumi,'value')
+        switch get(figUIobj.lumi, 'value')
             case 1
                 flag_lumi_random = 2; %fix
             case 2
@@ -847,7 +844,6 @@ end
         Screen(sobj.shape, sobj.wPtr, sobj.stimcol, Rect, maxDiameter);
         
     end
-
 
 %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %%
     function [out, index] = get_condition(n, list_mat, cycleNum, list_size, flag_random, fix)
@@ -887,7 +883,38 @@ end
             out = list_mat(index,:);
         end
     end
+
 %%
+    function VisStimON
+        %AddPhoto Sensor (Left, UP in the monitor) for the stimulus timing check
+        Screen('FillRect', sobj.wPtr, 255, [0 0 40 40]);
+        
+        %%% stim ON %%%%%%%%%%%%%%%%%%%%%%%%%%%
+        % Flip and rap timer
+        [sobj.vbl_2, sobj.OnsetTime_2, sobj.FlipTimeStamp_2] = ...
+            Screen('Flip', sobj.wPtr, sobj.vbl_1 + sobj.delayPTB);% put some delay for PTB
+        
+        TriggerVSon(Testmode, dio, 1)
+        disp(['AITrig; ',sobj.pattern, ': #', num2str(recobj.cycleNum)]);
+        stim_monitor;
+    end
+
+%%
+    function VisStimOFF
+        % Prep BacgGround Screen
+        Screen('FillRect', sobj.wPtr, sobj.bgcol);
+        % After sobj.duration, flib BG color
+        [sobj.vbl_3, sobj.OnsetTime_3, sobj.FlipTimeStamp_3] = ...
+            Screen('Flip', sobj.wPtr, sobj.vbl_2+sobj.duration);
+        
+        TriggerVSon(Testmode, dio, 0)
+        
+        %GUI stim indicater
+        stim_monitor_reset;
+        time1 = recobj.rect/1000 - (sobj.vbl_3 - sobj.vbl_1);
+        pause_time = time1 + recobj.interval;
+    end
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % end of VisStim
 end
@@ -900,14 +927,16 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%
 function stim_monitor
+%
 global figUIobj
 global sobj
 global recobj
 
+%
 if recobj.cycleNum <= 0 % prestim
-    set(figUIobj.StimMonitor3,'string','', 'BackGroundColor','k');
-    set(figUIobj.StimMonitor2,'string','Pre Stim','ForegroundColor','white','BackGroundColor','k');
-    set(figUIobj.StimMonitor1,'string','', 'BackGroundColor','k');
+    set(figUIobj.StimMonitor3, 'string', '', 'BackGroundColor', 'k');
+    set(figUIobj.StimMonitor2, 'string', 'Pre Stim', 'ForeGroundColor', 'w', 'BackGroundColor', 'k');
+    set(figUIobj.StimMonitor1, 'string', '', 'BackGroundColor', 'k');
     
 else % during stimulation
     switch sobj.pattern
@@ -916,21 +945,11 @@ else % during stimulation
             stim_str3 = '';
             
         case 'Size_rand'
+            bgcol = 'y';
+            stim_str3 = ['Size: ', num2str(sobj.size_deg), 'deg'];
+            
+        case {'1P_Conc', '2P_Conc', 'B/W'}
             bgcol = 'm';
-            stim_str3 = ['Size: ', num2str(sobj.size_deg),' deg'];
-            
-        case '1P_Conc'
-            bgcol = 'm';
-            stim_str3 = ['Dist:',num2str(sobj.concentric_mat_deg(sobj.conc_index,1)),...
-                '/Ang:', num2str(sobj.concentric_mat_deg(sobj.conc_index,2))];
-            
-        case '2P_Conc'
-            bgcol = 'g';
-            stim_str3 = ['Dist:',num2str(sobj.concentric_mat_deg(sobj.conc_index,1)),...
-                '/Ang:', num2str(sobj.concentric_mat_deg(sobj.conc_index,2))];
-            
-        case 'B/W'
-            bgcol = 'c';
             stim_str3 = ['Dist:',num2str(sobj.concentric_mat_deg(sobj.conc_index,1)),...
                 '/Ang:', num2str(sobj.concentric_mat_deg(sobj.conc_index,2))];
             
@@ -938,7 +957,7 @@ else % during stimulation
             bgcol = 'y';
             stim_str3 = ['Spd: ', num2str(sobj.loomSpd_deg), 'deg/s'];
             
-        case {'Sin', 'Rect','Gabor'}
+        case {'Sin', 'Rect', 'Gabor'}
             bgcol = 'c';
             stim_str3 = ['Dir: ', num2str(sobj.angle), ' deg'];
             
@@ -958,9 +977,9 @@ else % during stimulation
     end
     %position in matrix
     
-    set(figUIobj.StimMonitor3,'string',sobj.pattern, 'BackGroundColor',bgcol);
-    set(figUIobj.StimMonitor2,'string',['POS: ',num2str(sobj.center_index),'/',num2str(sobj.divnum^2)],'ForegroundColor','black','BackGroundColor',bgcol);
-    set(figUIobj.StimMonitor1,'string', stim_str3, 'BackGroundColor',bgcol);
+    set(figUIobj.StimMonitor1, 'string', [sobj.pattern, ': #', num2str(recobj.cycleNum)], 'BackGroundColor',bgcol);
+    set(figUIobj.StimMonitor2, 'string',['POS: ',num2str(sobj.center_index), '/',num2str(sobj.divnum^2)], 'ForeGroundColor', 'k', 'BackGroundColor', bgcol);
+    set(figUIobj.StimMonitor3, 'string', stim_str3, 'BackGroundColor',bgcol);
 end
 drawnow;
 end

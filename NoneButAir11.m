@@ -1,10 +1,12 @@
 function NoneButAir11(Testmode, Recmode)
-% %%%%%%%%%%%%%%%%%%%%%%%%
-% %%%% None But Air %%%%%%
-% %%%%%%%%%%%%%%%%%%%%%%%%
-% visual stimlus controller and recording elechtrical data
+% Initialize parameters and setup PTB.
+%
+% Initialize PTB and open 'Screens'.
+% Open main GUI controler.
+% Testmode: 0 or 1, when '1': DAQ is not used.
+% Recmode: 1 or 2, when '1': iRecHS2, '2':Electrophysilogy
 
-%%
+%% set global vars
 global sobj % keep stimulus parameters
 global recobj % keep recording parameters
 
@@ -28,7 +30,6 @@ recobj = recobj_ini(Recmode);
 recobj.cycleNum = 0 - recobj.prestim; %loop cycle number
 
 %% Initialize Stimulus params
-
 % monitor dependent prameter (DeLL 19-inch)
 pixpitch = 0.264;%(mm)
 sobj = sobj_ini(pixpitch);
@@ -41,39 +42,33 @@ if Testmode == 0
     [s, sOut, dio, capture, dev] = daq_ini;
 end
 %% open Window PTB %%
-%PsychDefaultSetup(2);
 
-%[sobj.wPtr, sobj.RECT] = Screen('OpenWindow', sobj.ScrNum,sobj.bgcol);
+%PsychDefaultSetup(2);
+% usage:: [sobj.wPtr, sobj.RECT] = Screen('OpenWindow', sobj.ScrNum,sobj.bgcol);
 [sobj.wPtr, sobj.RECT] = PsychImaging('OpenWindow', sobj.ScrNum, sobj.bgcol);
-[sobj.ScrCenterX, sobj.ScrCenterY] = RectCenter(sobj.RECT);% center positionof of stim monitor
+
+% get center position in pix of stim monitor
+[sobj.ScrCenterX, sobj.ScrCenterY] = RectCenter(sobj.RECT);
 sobj.m_int = Screen('GetFlipInterval', sobj.wPtr);
 sobj.frameRate = Screen('FrameRate', sobj.ScrNum);
 if sobj.frameRate == 0
-    sobj.frameRate = 75;
+    sobj.frameRate = 60;
 end
-sobj.duration = sobj.flipNum * sobj.m_int;% sec
+% set stimulus duration in sec
+sobj.duration = sobj.flipNum * sobj.m_int; % sec
 
 %% open GUI window
 if sobj.Num_screens == 1
     %Single monitor condition
     Screen('Close', sobj.wPtr);
 end
+% open main GUI ctr window.
 figUIobj = gui_window4(Testmode, Recmode);
+
+% open plot window.
 plotUIobj = plot_window(figUIobj, Recmode);
 
 %% DAQ Event Listener used in AI rec
 if Testmode == 0
     lh = addlistener(s, 'DataAvailable', @(src,event)dataCaptureNBA(src, event, capture, figUIobj, get(figUIobj.plot, 'value')));
 end
-%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-% variables check %
-% open @base workspace
-
-%assignin('base', 'sobj',sobj)
-%assignin('base', 'recobj',recobj)
-%assignin('base', 'figUIobj',figUIobj)
-%assignin('base', 'RecData', RecData)
-%assignin('base', 'capture', capture)
-%assignin('base', 'lh', lh)
-%assignin('base', 's', s)
-%assignin('base', 'dio', dio)
