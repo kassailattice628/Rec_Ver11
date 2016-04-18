@@ -82,8 +82,8 @@ if recobj.cycleNum > 0
             % tentative
             % if the two seeds were enough to reproduce mosaic
             % dots, following prams dose'nt need to be saved.
-            save.position_deg_mat = sobj.dot_position_deg;
-            save.size_deg_mat = sobj.dot_sizes_deg;
+            save.stim1.position_deg_mat = sobj.dot_position_deg;
+            save.stim1.size_deg_mat = sobj.dot_sizes_deg;
             
         case {'FineMap'}
             % Fine mapping by using a small area

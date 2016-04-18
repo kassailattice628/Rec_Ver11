@@ -18,12 +18,14 @@ MATLAB 64bit R2015b をメインで使用．その前後でも大丈夫だと思
 Data acquisition toolbox が必要．  
 \(イメージングの解析には Image Processing toolbox も\)．  
 NIDAQmx は，NI から直接ダウンロードした．  
-R2016 以降は, MATLAB のメニュー，アドオン　＞　ハードウェアサポートパッケージの入手 から．  
-[Psychtoolbox3]("http://psychtoolbox.org/download/") から指示に従って最新版を入れる．  
+R2016 以降は, MATLAB のメニュー，アドオン　＞　ハードウェアサポートパッケージの入手 から．   
 NI の DAQ としては，USB 接続の BNC コネクタ付きのものを使用している \(USB6341BNC\)．  
 USB6001 等では TTL3 に設定した AO パルスが同時に使えない．
 
-###注意  
+視覚刺激用に Psychtoolbox3 を使用．  
+[Psychtoolbox3]("http://psychtoolbox.org/download/") から指示に従って最新版を入れる．
+
+### 注意  
 DAQ は 使用する PC に 1 台だけつなげばその認識してくれる．  
 複数使用する場合は，daq_ini.m の中で機器名を指定する必要あり．
 
@@ -55,12 +57,52 @@ Single-display 環境では ５回 刺激出したら Screen('Close') を読ん�
 "1P\_Conc" と "FineMap" のときは 刺激モニタを 200^2 分割した 場所に対応する場所を検索して Fixed position として反映できる．
 
 ---
-## save data & parameters
+## Save data & Parameters
 初回は File name を押して保存先フォルダ，ファイル名を選択．  
-２回目以降は，ファイル名の後に連番で数字が 1 ずつ足されていく．
+２回目以降，File name をつけ直さない場合は，ファイル名の後に連番で数字が 1 ずつ足されていく．  
 
 ---
-## information about parameters
-1. recobj
-2. sobj
-3. save
+## Information about parameters
+### recobj
+
+### sobj
+
+### DataSave
+1. Time in sec.
+2. AI0
+3. AI1
+4. AI2 = Photo Censer
+5. AI3 = Trigger Monitor
+6. Rotary Encoder
+
+### ParamsSave
+1. stim1
+  * On_time
+  * Off_time
+  * lumi
+  * color
+  * center_position, centerX_pix, centerY_pix
+  * size
+  * dist_deg
+  * angle_deg
+  * LoomingSpd_deg_s
+  * LoomingMaxSize_deg
+  * gratingSF_cyc_deg
+  * gratingSpd_Hz
+  * gratingAngle_deg
+  * RandPosition_seed
+  * RandSize_seed
+  * position_deg_mat
+  * size_deg_mat
+  * center_position_FineMap
+2. stim2
+  * On_time
+  * Off_time
+  * lumi
+  * color
+  * center_position, centerX_pix, centerY_pix
+  * size
+  * dist_deg
+  * angle_deg
+3. cycleNum
+4. RecStartTime

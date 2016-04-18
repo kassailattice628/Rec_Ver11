@@ -97,7 +97,7 @@ elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) > c.Tim
     
     % Update captured data plot (one line for each acquisition channel)
     % captureData(:,1) is timstamp
-    % 2: AI1, 3: AI2, 4:AI 3=photosensor, 5: AI4=Trigger monitor, 6: RotaryEncoder
+    % 2:AI0, 3:AI1, 4:AI2 = photosensor, 5:AI3 =Trigger monitor, 6:RotaryEncoder
     % plotVI = get(figUIobj.plot, 'value'): AI0='V plot, AI1='I plot'
     
     if isfield(plotUIobj,'button4')
