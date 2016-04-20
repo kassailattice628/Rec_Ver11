@@ -575,9 +575,13 @@ end
     function Looming
         % Looming parameters
         
-        % Set stim center as fixed position
-        sobj.stim_center = sobj.center_pos_list(sobj.fixpos,:); %fixed position
-        sobj.center_index = sobj.fixpos;
+        % Set stim center
+        fix_center = sobj.center_pos_list(sobj.fixpos,:);
+        [sobj.stim_center, sobj.center_index] = get_condition(1, sobj.center_pos_list, recobj.cycleNum,...
+            sobj.divnum^2, get(figUIobj.mode, 'value'), fix_center);
+        if get(figUIobj.mode, 'value') == 2
+            sobj.center_index = sobj.fixpos;
+        end
         
         stim_size =  [0, 0, sobj.loomSize_pix];% max_Stim_Size
         sobj.stim_size = sobj.loomSize_pix;
@@ -641,7 +645,7 @@ end
         else %randomize
             flag_rand_dir=1;
         end
-        
+        % Set grating direction
         [sobj.angle, sobj.angle_index] = get_condition(5, angle_list, recobj.cycleNum,...
             length(angle_list), flag_rand_dir, angle_list);
         
@@ -749,9 +753,15 @@ end
         imgtex = Screen('MakeTexture',sobj.wPtr,imgdata);
         
         % Set stim center as fixed position
-        sobj.stim_center = sobj.center_pos_list(sobj.fixpos,:); %fixed position
-        sobj.center_index = sobj.fixpos;
+        % Set stim center
+        fix_center = sobj.center_pos_list(sobj.fixpos,:);
+        [sobj.stim_center, sobj.center_index] = get_condition(1, sobj.center_pos_list, recobj.cycleNum,...
+            sobj.divnum^2, get(figUIobj.mode, 'value'), fix_center);
+        if get(figUIobj.mode, 'value') == 2
+            sobj.center_index = sobj.fixpos;
+        end
         
+        % Set stim size
         sobj.stim_size = sobj.stimsz;
         sobj.size_deg = str2double(get(figUIobj.size, 'string'));
         %
@@ -766,8 +776,13 @@ end
 %%
     function Mosaic_Dots
         % Set stim area center
-        sobj.stim_center = sobj.center_pos_list(sobj.fixpos,:);
-        sobj.center_index = sobj.fixpos;
+        % Set stim center
+        fix_center = sobj.center_pos_list(sobj.fixpos,:);
+        [sobj.stim_center, sobj.center_index] = get_condition(1, sobj.center_pos_list, recobj.cycleNum,...
+            sobj.divnum^2, get(figUIobj.mode, 'value'), fix_center);
+        if get(figUIobj.mode, 'value') == 2
+            sobj.center_index = sobj.fixpos;
+        end
         
         % Fix stim luminance
         sobj.lumi = sobj.stimlumi;
@@ -862,7 +877,7 @@ end
             index = [];
             out = fix;
         else
-            if cycleNum == 1 && n == 1
+            if isempty(list_order) && cycleNum == 1 && n == 1
                 list_order = cell(6,1);
             end
             i_in_cycle = mod(cycleNum, list_size);
@@ -879,6 +894,8 @@ end
                         list_order{n,1} = 1:list_size;
                 end
             end
+            disp(n)
+            disp(list_order)
             index = list_order{n,1}(i_in_cycle);
             out = list_mat(index,:);
         end

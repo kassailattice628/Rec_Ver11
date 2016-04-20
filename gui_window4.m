@@ -29,7 +29,9 @@ set(hGui.EXIT, 'CallBack', {@quit_NBA, s});
 %% save %%
 hGui.getfname = uicontrol('style', 'pushbutton', 'string', 'File Name', 'position', [365 705 80 30], 'Callback', @SelectSaveFile, 'Horizontalalignment', 'center');
 
-hGui.save = uicontrol('style', 'togglebutton', 'string', 'Unsave', 'position', [450 705 70 30], 'Callback', @ch_save);
+hGui.showfname = uicontrol('style', 'text', 'string', 'unset', 'position', [455 710 120 20], 'FontSize', 13);% , 'BackGroundColor', 'w');
+
+hGui.save = uicontrol('style', 'togglebutton', 'string', 'Unsave', 'position', [450 670 70 30], 'Callback', {@ch_save, hGui});
 
 %% plot %%
 hGui.PlotWindowON = uicontrol('style', 'togglebutton', 'string', 'Plot ON', 'position', [365 670 65 30],...
@@ -722,21 +724,23 @@ end
 end
 
 %%
-function ch_save(hObject,~)
+function ch_save(hObject, ~, hGui)
 global recobj
 
 switch get(hObject, 'value')
     case 1 %saving
         set(hObject, 'string', 'Saving')
-        if isfield(recobj, 'fname')==1 && ischar(recobj.fname)
+        if isfield(recobj, 'fname') == 1 && ischar(recobj.fname)
         else
             SelectSaveFile;
         end
         [~, fname, ext] = fileparts([recobj.dirname, recobj.fname]);
         recobj.savefilename  = [recobj.dirname, fname, num2str(recobj.savecount), ext];
-        disp(['filename ::', recobj.savefilename]);
+        set(hGui.showfname, 'string', [fname, num2str(recobj.savecount), ext]);
+        disp(['Save as :: ', recobj.savefilename]);
     case 0 %unsave
         set(hObject, 'string', 'Unsave')
+        set(hGui.showfname, 'string', 'unset');
 end
 
 ch_ButtonColor(hObject, [], 'g');
