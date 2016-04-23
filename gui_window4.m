@@ -587,11 +587,15 @@ if get(hObject, 'value')==1
     %Stim.Duration2
     set(hGui.flipNum2, 'string',get(hGui.flipNum, 'string'));
     sobj.flipNum2 = str2double(get(hGui.flipNum2, 'string'));
-    
+    sobj.duration2 = sobj.flipNum2*sobj.m_int;
+    set(hGui.stimDur2, 'string', ['flips=',num2str(floor(sobj.duration2*1000)), 'ms']);
+
     %PTB delay2
     set(hGui.delayPTBflip2, 'string', get(hGui.delayPTBflip, 'string'));
     sobj.delayPTBflip2 = str2double(get(hGui.delayPTBflip2, 'string'));
     sobj.delayPTB2 = sobj.delayPTBflip2*sobj.m_int;
+    set(hGui.delayPTB2, 'string', ['flips=',num2str(floor(sobj.delayPTB2*1000)), 'ms']);
+
     
     %Stim.Size2
     set(hGui.size2, 'string', get(hGui.size, 'string'));
