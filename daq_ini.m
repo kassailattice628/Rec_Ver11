@@ -1,4 +1,4 @@
-function [varargout] = daq_ini
+function [varargout] = daq_ini(Recmode)
 % initialize daq device configurations
 % set daq sessions
 global recobj
@@ -16,21 +16,40 @@ s.DurationInSeconds = recobj.rect/1000;%sec
 %s.NotifyWhenDataAvailableExceeds = recobj.recp; %10 times/sec in default
 s.IsContinuous = true;
 
-%(1):AI0Vm, (2):Im, (3):photo sensor, (4):Trigger pulse
-InCh = addAnalogInputChannel(s, dev.ID, 0:3, 'Voltage');
-
-% default SingleEnded, -> DifferentialÅD
-InCh(1).TerminalConfig = 'Differential';
-InCh(2).TerminalConfig = 'Differential'; 
-InCh(3).TerminalConfig = 'Differential';
-% Channle4 is used for hardware timing.
-InCh(4).TerminalConfig = 'Differential';
+if Recmode == 1
+    % for iRecHS2
+    %(1):Eye_Vertical, (2):Eye_Horizontal, (3):photo sensor, (4):Trigger pulse
+    %(5):Refrect_Vertical, (6):Refrect_Horizontal
+    InCh = addAnalogInputChannel(s, dev.ID, 0:5, 'Voltage');
+    
+    % default SingleEnded, -> DifferentialÅD
+    InCh(1).TerminalConfig = 'Differential';
+    InCh(2).TerminalConfig = 'Differential';
+    InCh(3).TerminalConfig = 'Differential';
+    % Channle4 is used for hardware timing.
+    InCh(4).TerminalConfig = 'Differential';
+    
+    InCh(5).TerminalConfig = 'Differential';
+    InCh(6).TerminalConfig = 'Differential';
+    
+elseif Recmode == 2
+    % for Electrophysiology
+    %(1):AI0Vm, (2):Im, (3):photo sensor, (4):Trigger pulse
+    InCh = addAnalogInputChannel(s, dev.ID, 0:3, 'Voltage');
+    
+    % default SingleEnded, -> DifferentialÅD
+    InCh(1).TerminalConfig = 'Differential';
+    InCh(2).TerminalConfig = 'Differential';
+    InCh(3).TerminalConfig = 'Differential';
+    % Channle4 is used for hardware timing.
+    InCh(4).TerminalConfig = 'Differential';
+end
 
 %% Analog Output
 sOut = daq.createSession(dev.Vendor.ID);
 sOut.Rate = recobj.sampf;
 addAnalogOutputChannel(sOut, dev.ID, 0, 'Voltage');
-%(1): 
+%(1):
 %(2): Curretn Pulse (C clamp), Voltage Pulse (V clamp)
 addTriggerConnection(sOut,'External',[dev.ID,'/PFI0'],'StartTrigger');
 sOut.Connections(1).TriggerCondition = 'RisingEdge';

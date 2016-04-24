@@ -97,17 +97,27 @@ elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) > c.Tim
     
     % Update captured data plot (one line for each acquisition channel)
     % captureData(:,1) is timstamp
-    % 2:AI0, 3:AI1, 4:AI2 = photosensor, 5:AI3 =Trigger monitor, 6:RotaryEncoder
+    % 2:AI0, 3:AI1, 4:AI2 = photosensor, 5:AI3 = Triggermonitor
+    % Recmode==1
+    % 6:AI4, 7:AI5, 8:RotaryEnconder
+    % Recmode==2
+    % 6:RotaryEncoder
     % plotVI = get(figUIobj.plot, 'value'): AI0='V plot, AI1='I plot'
     
     if isfield(plotUIobj,'button4')
         if Recmode == 1
-            if get(plotUIobj.button1, 'value') % Eye Position from iRecHS2
-                set(plotUIobj.plot1(1), 'XData', captureData(:, 1), 'YData', captureData(:,2))
-                set(plotUIobj.plot1(2), 'XData', captureData(:, 1), 'YData', captureData(:,3))
-                set(plotUIobj.axes1, 'XLim',[-inf,inf]);
+            if get(plotUIobj.button1_1, 'value') % Eye Position from iRecHS2
+                set(plotUIobj.plot1_1(1), 'XData', captureData(:, 1), 'YData', captureData(:,2))
+                set(plotUIobj.plot1_1(2), 'XData', captureData(:, 1), 'YData', captureData(:,6))
+                set(plotUIobj.axes1, 'XLim', [-inf,inf]);
             end
-        else
+            
+            if get(plotUIobj.button1_2, 'value')
+                set(plotUIobj.plot1_2(1), 'Xdata', captureData(:, 1), 'YData', captureData(:, 3))
+                set(plotUIobj.plot1_2(2), 'Xdata', captureData(:, 1), 'YData', captureData(:, 7))
+                set(plotUIobj.axes1_2, 'XLim', [-inf, inf]);
+            end
+        elseif Recmode == 2
             plotVI = get(hGui.plot,'value');
             if get(plotUIobj.button1, 'value') % V or I plot
                 set(plotUIobj.plot1, 'XData', captureData(:, 1), 'YData', captureData(:,plotVI+2))
@@ -124,7 +134,12 @@ elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) > c.Tim
         %when Rotary ON, plot Angular Position
         if get(plotUIobj.button3,'value')
             %decode rotary
-            positionDataDeg = DecodeRot(captureData(:,6));
+            if Recmode == 1
+                rot_ch = 8;
+            else
+                rot_ch = 6;
+            end
+            positionDataDeg = DecodeRot(captureData(:, rot_ch));
             set(plotUIobj.axes3, 'XLim',[-inf,inf]);
             set(plotUIobj.plot3, 'XData', captureData(:, 1), 'YData', positionDataDeg)%Decoded Angular position data
         end

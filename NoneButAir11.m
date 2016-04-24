@@ -66,7 +66,7 @@ end
 figUIobj = gui_window4(Testmode, Recmode);
 
 % open plot window.
-plotUIobj = plot_window(figUIobj, Recmode);
+plotUIobj = open_plot_window(figUIobj, Recmode);
 
 %% DAQ Event Listener used in AI rec
 if Testmode == 0

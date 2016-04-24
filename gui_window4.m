@@ -457,7 +457,7 @@ function open_plot(hObject, ~, hGui, Recmode)
 global plotUIobj
 
 if get(hObject, 'value')
-    plotUIobj = plot_window(hGui, Recmode);
+    plotUIobj = open_plot_window(hGui, Recmode);
     disp('open plot window')
 else
     if isfield(plotUIobj, 'fig')
