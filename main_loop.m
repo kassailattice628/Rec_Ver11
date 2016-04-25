@@ -894,8 +894,6 @@ end
                         list_order{n,1} = 1:list_size;
                 end
             end
-            disp(n)
-            disp(list_order)
             index = list_order{n,1}(i_in_cycle);
             out = list_mat(index,:);
         end

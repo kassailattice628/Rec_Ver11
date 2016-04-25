@@ -20,7 +20,7 @@ if Recmode == 1
     % for iRecHS2
     %(1):Eye_Vertical, (2):Eye_Horizontal, (3):photo sensor, (4):Trigger pulse
     %(5):Refrect_Vertical, (6):Refrect_Horizontal
-    InCh = addAnalogInputChannel(s, dev.ID, 0:5, 'Voltage');
+    InCh = addAnalogInputChannel(s, dev.ID, 0:3, 'Voltage');
     
     % default SingleEnded, -> DifferentialÅD
     InCh(1).TerminalConfig = 'Differential';
@@ -29,8 +29,8 @@ if Recmode == 1
     % Channle4 is used for hardware timing.
     InCh(4).TerminalConfig = 'Differential';
     
-    InCh(5).TerminalConfig = 'Differential';
-    InCh(6).TerminalConfig = 'Differential';
+    %InCh(5).TerminalConfig = 'Differential';
+    %InCh(6).TerminalConfig = 'Differential';
     
 elseif Recmode == 2
     % for Electrophysiology
