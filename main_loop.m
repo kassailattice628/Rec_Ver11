@@ -78,7 +78,6 @@ end
             logvid = VideoWriter([recobj.savefilename, '_vid_', num2str(recobj.cycleCount),'.avi']);
             logvid.FrameRate = 100;
             logvid.Quality = 50;
-            disp(log.vid);
             imaq.vid.DiskLogger = logvid;
             if isrunning(imaq.vid) == 0
                 start(imaq.vid)

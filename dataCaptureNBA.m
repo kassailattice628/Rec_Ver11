@@ -155,7 +155,8 @@ elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) > c.Tim
     
     %%%%%% wait save imaq %%%%%
     if SetCam
-
+        disp(imaq.vid.DiskLoggerFrameCount)
+        disp(imaq.FramesAcquired)
     end
     
 elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) < c.TimeSpan)
