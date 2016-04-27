@@ -1,4 +1,4 @@
-function NoneButAir11(Testmode, Recmode)
+function NoneButAir11(Testmode, Recmode, UseCam)
 % Initialize parameters and setup PTB.
 %
 % Initialize PTB and open 'Screens'.
@@ -63,7 +63,7 @@ if sobj.Num_screens == 1
     Screen('Close', sobj.wPtr);
 end
 % open main GUI ctr window.
-figUIobj = gui_window4(Testmode, Recmode);
+figUIobj = gui_window4(Testmode, Recmode, UseCam);
 
 % open plot window.
 plotUIobj = open_plot_window(figUIobj, Recmode);
