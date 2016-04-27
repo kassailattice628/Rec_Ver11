@@ -1,10 +1,14 @@
-function save = get_save_params(recobj, sobj)
+function save = get_save_params(recobj, sobj, UseCam)
 % save parameters for Ver11
 % these paraemters are updated in evely loop and saved in a cell.
 global figUIobj
+global imaq
 
 pattern = sobj.pattern;
 
+if UseCam == 1
+    save.eye_img = getdata(imaq.vid);
+end
 %%%% Timing Data %%%%
 save.cycleNum = recobj.cycleNum; % > Visual Stim ON
 save.RecStartTime = recobj.tRec; % AI trigger time from the first AI Trigger.

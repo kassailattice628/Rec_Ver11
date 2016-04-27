@@ -1,4 +1,4 @@
-function dataCaptureNBA(src, event, c, hGui, Recmode)
+function dataCaptureNBA(src, event, c, hGui, Recmode, UseCam)
 %dataCapture Process DAQ acquired data when called by DataAvailable event.
 %  dataCapture (SRC, EVENT, C, HGUI) processes latest acquired data (EVENT.DATA)
 %  and timestamps (EVENT.TIMESTAMPS) from session (SRC), and, based on specified
@@ -148,8 +148,8 @@ elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) > c.Tim
     
     %%%%%% save setting %%%%%%
     if get(hGui.save, 'value') == 1 % Saving
-        DataSave(:,:,trigCount) = captureData;
-        ParamsSave{1,trigCount} = get_save_params(recobj, sobj);
+        DataSave(:, :, trigCount) = captureData;
+        ParamsSave{1, trigCount} = get_save_params(recobj, sobj, UseCam);
     end
     
 elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) < c.TimeSpan)

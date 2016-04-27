@@ -1,4 +1,4 @@
-function main_loop(hObject, ~, hGui, Testmode, Recmode)
+function main_loop(hObject, ~, hGui, Testmode, Recmode, UseCam)
 % Main loop structure and subfunctions for GUI setting and visual stimuli
 
 %% call global vars
@@ -12,6 +12,8 @@ global s
 global sOut
 
 global dio
+
+global imaq
 
 global lh
 
@@ -55,11 +57,11 @@ end
     function Loop_contents(dio, hGui, Testmode)
         % ready to start DAQ
         if Testmode == 0
-            if s.IsRunning==false
+            if s.IsRunning == false
                 s.startBackground; %session start, listener ON, *** Waiting Analog Trigger (AI3)
             end
             
-            if get(hGui.TTL3, 'value')==1
+            if get(hGui.TTL3, 'value') == 1
                 %TTLpulse
                 queueOutputData(sOut, 5 * recobj.TTL3AO); %max 10V
                 sOut.startBackground
@@ -71,15 +73,15 @@ end
                 %%%%%%%%%%%%%%%%%%%% Visual Stimulus OFF %%%%%%%%%%%%%%%%%%%%
                 case 0
                     % start timer and start FV
-                    Trigger(Testmode, dio);
+                    Trigger(Testmode, UseCam, dio);
                     
                     % loop interval %
                     pause(recobj.rect/1000 + recobj.interval);
-                    
+                        
                     %%%%%%%%%%%%%%%%%%%% Visual Stimulus ON %%%%%%%%%%%%%%%%%%%%%
                 case 1
                     % start timer, start FV and start Visu Stim
-                    VisStim(Testmode, dio);
+                    VisStim(Testmode, UseCam, dio);
             end
             
             if Testmode == 1 && get(hGui.save, 'value')==1
@@ -96,6 +98,9 @@ end
 
 %%
     function Loop_Off
+        global imaq
+        
+        %%
         % check the number of screen.
         if sobj.Num_screens==1
             sca;
@@ -112,6 +117,11 @@ end
             end
             delete(lh)
             disp('stop daq sessions, delete event listenner')
+        end
+        
+        %%%%%% Stop Cam %%%%%%
+        if UseCam == 1
+            sto(imaq.vid)
         end
         
         %%%%%% Save Data %%%%%%
@@ -146,11 +156,12 @@ end
 %%% subfunctions %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%
-function Trigger(Testmode, dio)
+function Trigger(Testmode, UseCam,  dio)
 % put TTL signal and start timer
 
 global recobj
 global sobj
+global imaq
 
 %start timer & Trigger AI & FV
 Screen('FillRect', sobj.wPtr, sobj.bgcol); %presenting background
@@ -173,6 +184,10 @@ generate_trigger([0,0]);
     function generate_trigger(pattern)
         if Testmode == 0
             outputSingleScan(dio.TrigAIFV, pattern)
+        end
+        
+        if UseCam == 1
+            Trigger(imaq.vid)
         end
     end
 end
@@ -202,7 +217,7 @@ end
 
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-function VisStim(Testmode, dio)
+function VisStim(Testmode, UseCam, dio)
 % define stimulus properties, start timer, recording, stimulus presentation
 
 %% call globa params
@@ -216,14 +231,14 @@ global sobj
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if recobj.cycleNum <= 0 % Prestimulus
     % Start AI
-    Trigger(Testmode, dio)
+    Trigger(Testmode, UseCam, dio)
     stim_monitor;
     pause_time = recobj.rect/1000 + recobj.interval;
     pause(pause_time);
     
 elseif recobj.cycleNum > 0 %StimON
     % Start AI
-    Trigger(Testmode, dio)
+    Trigger(Testmode, UseCam, dio)
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     switch sobj.pattern
         case 'Uni'

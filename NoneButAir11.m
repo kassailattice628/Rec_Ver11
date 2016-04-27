@@ -76,5 +76,5 @@ plotUIobj = open_plot_window(figUIobj, Recmode);
 
 %% DAQ Event Listener used in AI rec
 if Testmode == 0
-    lh = addlistener(s, 'DataAvailable', @(src,event)dataCaptureNBA(src, event, capture, figUIobj, get(figUIobj.plot, 'value')));
+    lh = addlistener(s, 'DataAvailable', @(src,event)dataCaptureNBA(src, event, capture, figUIobj, Recmode, UseCam));
 end

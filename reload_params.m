@@ -1,4 +1,4 @@
-function reload_params(~, ~, Testmode, Recmode)
+function reload_params(~, ~, Testmode, Recmode, UseCam)
 % reload all paraemter and settings before start loop.
 % 
 
@@ -16,6 +16,8 @@ global dio
 
 global capture
 global lh
+
+global imaq
 
 global DataSave
 global ParamsSave
@@ -262,7 +264,7 @@ if Testmode == 0
     delete(lh)% <-- important!!!
     DataSave =[]; %reset save data
     ParamsSave =[]; % reset save parameters
-    lh = addlistener(s, 'DataAvailable', @(src,event) dataCaptureNBA(src, event, capture, figUIobj, Recmode)); 
+    lh = addlistener(s, 'DataAvailable', @(src,event) dataCaptureNBA(src, event, capture, figUIobj, Recmode, UseCam)); 
     % dio reset
     outputSingleScan(dio.TrigAIFV,[0,0])
     outputSingleScan(dio.VSon,0)
@@ -270,18 +272,28 @@ if Testmode == 0
     
     %%%%%% session for TTL3 counter pulse generation %%%%%%
     if get(figUIobj.TTL3, 'value')
-        delay = zeros(recobj.sampf*recobj.TTL3.delay/1000,1);
-        size_pulseON = round(recobj.sampf/recobj.TTL3.Freq*recobj.TTL3.DutyCycle);
+        delay = zeros(recobj.sampf * recobj.TTL3.delay / 1000,1);
+        size_pulseON = round(recobj.sampf / recobj.TTL3.Freq * recobj.TTL3.DutyCycle);
         pulseON = ones(size_pulseON, 1);
-        size_pulseOFF = round(recobj.sampf/recobj.TTL3.Freq*(1-recobj.TTL3.DutyCycle));
+        size_pulseOFF = round(recobj.sampf / recobj.TTL3.Freq * (1 - recobj.TTL3.DutyCycle));
         pulseOFF = zeros(size_pulseOFF, 1);
         pulse = repmat([pulseON;pulseOFF], str2double(get(figUIobj.pulsenumTTL3, 'string')),1);
-        recobj.TTL3AO = [delay; pulse; zeros(recobj.recp-size(delay,2)-size(pulse,2),1)];
+        recobj.TTL3AO = [delay; pulse; zeros(recobj.recp-size(delay, 2) - size(pulse, 2), 1)];
         recobj.TTL3AO = zeros(recobj.recp, 1);
-        recobj.TTL3AO(1:size([delay;pulse],1),1)=[delay;pulse];
+        recobj.TTL3AO(1:size([delay;pulse], 1), 1) = [delay; pulse];
     end
     
 end
+%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%% IMAQ Camera %%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+if UseCam == 1
+    frame_rate = 100;
+    imaq.vid.FramesPerTrigger = recobj.rect * frame_rate;
+    start(imaq.vid);
+end
+
 %% figures
 if isfield(plotUIobj, 'plot')
     switch get(figUIobj.plot, 'value') %V-plot or I-plot
