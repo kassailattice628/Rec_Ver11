@@ -11,7 +11,7 @@ global s
 
 %% %---------- Create GUI window ----------%
 %open GUI window
-hGui.fig = figure('Position', [sobj.GUI_Display_x + 10, 20, 750, 750], 'Name', 'None But Air11', 'NumberTitle', 'off', 'Menubar', 'none', 'Resize', 'off');
+hGui.fig = figure('Position', [sobj.GUI_Display_x + 10, 20, 750, 750], 'Name', ['None But Air_Ver', recobj.NBAver], 'NumberTitle', 'off', 'Menubar', 'none', 'Resize', 'off');
 
 %GUI components
 hGui.ONSCR = uicontrol('style', 'pushbutton', 'string', 'OpenScreen', 'position', [5 705 80 30], 'Horizontalalignment', 'center');
@@ -115,7 +115,7 @@ hGui.delayPTB = uicontrol('style', 'text', 'position', [45 405 75 15],...
 %%% Blank Frames
 uicontrol('style', 'text', 'string', 'Set Blank', 'position', [10 380 70 15], 'Horizontalalignment', 'left');
 hGui.prestimN = uicontrol('style', 'edit', 'string', recobj.prestim, 'position', [10 355 30 25], 'BackGroundColor', 'w');
-set(hGui.prestimN, 'Callback', {@reload_params, Testmode, Recmode});
+set(hGui.prestimN, 'Callback', {@reload_params, Testmode, Recmode, 0});
 
 hGui.prestim = uicontrol('style', 'text', 'position', [45 355 100 15],...
     'string', ['loops=',num2str(recobj.prestim * (recobj.rect/1000 + recobj.interval)), 'sec'], 'Horizontalalignment', 'left');
@@ -141,14 +141,14 @@ set(hGui.auto_size, 'Callback', {@autosizing, hGui});
 %%% Center/Position
 uicontrol('style', 'text', 'string', 'Monitor Div.', 'position', [10 280 70 15], 'Horizontalalignment', 'left');
 hGui.divnum = uicontrol('style', 'edit', 'string', sobj.divnum, 'position', [10 255 50 25], 'BackGroundColor', 'w');
-set(hGui.divnum, 'Callback', {@reload_params, Testmode, Recmode});
+set(hGui.divnum, 'Callback', {@reload_params, Testmode, Recmode, 0});
 
 hGui.divnumN = uicontrol('style', 'text', 'position', [65 255 70 15],...
     'string', ['(' num2str(sobj.divnum) 'x' num2str(sobj.divnum) 'mat)'], 'Horizontalalignment', 'left');
 
 uicontrol('style', 'text', 'string', 'Fixed Pos.', 'position', [10 230 70 15], 'Horizontalalignment', 'left');
 hGui.fixpos = uicontrol('style', 'edit', 'string', sobj.fixpos, 'position', [10 205 50 25], 'BackGroundColor', 'w');
-set(hGui.fixpos, 'Callback', {@reload_params, Testmode, Recmode});
+set(hGui.fixpos, 'Callback', {@reload_params, Testmode, Recmode, 0});
 
 hGui.fixposN = uicontrol('style', 'text', 'position', [65 205 70 15],...
     'string', ['(in' num2str(sobj.divnum) 'x' num2str(sobj.divnum) 'mat)'], 'Horizontalalignment', 'left');
@@ -348,7 +348,10 @@ switch UseCam
         uicontrol('style', 'text', 'position', [410 290 150 30],...
         'string', 'Imaq Camera is not used.', 'FontSize', 12);
     case 1
-        hGui.imaqPrev = uicontrol('style', 'togglebutton', 'position', [410 290 100 30],...
+        hGui.setCam = uicontrol('style', 'togglebutton', 'position', [410 290 50 30],...
+        'string', 'Cam_Set', 'Callback', {@Cam_Set, hGui});
+    
+        hGui.imaqPrev = uicontrol('style', 'togglebutton', 'position', [460 290 100 30],...
         'string', 'Cam_Preview', 'Callback', {@Cam_Preview, hGui});
     
 
@@ -400,7 +403,7 @@ set(hGui.TTL3_select, 'Callback', {@TTL3_select, hGui})
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %main_loopingtest
 hGui.loop = uicontrol('style', 'togglebutton', 'position', [110 670 100 30],...
-    'string', 'Loop-OFF', 'Callback', {@main_loop, hGui, Testmode, Recmode, UseCam}, 'BackGroundColor', 'r');
+    'string', 'Loop-OFF', 'Callback', {@main_loop, hGui, Testmode, Recmode, get(hGui.setCam, 'value')}, 'BackGroundColor', 'r');
 
 %%
 

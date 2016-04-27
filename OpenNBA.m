@@ -50,10 +50,15 @@ end
 function UseImaqCam(hObject, ~)
 if get(hObject, 'value')
     % check avairable camera
-    hwinf = imaqhwinfo;
-    if exist('hwinf', 'var')
+    if exist('imaqhwinfo', 'builtin')
+        hwinf = imaqhwinfo;
+        if exist('hwinf', 'var')
+        else
+            errordlg('Imaq Cam is not available!')
+            set(hObject, 'value', 0)
+        end
     else
-        errordlg('Imaq Cam is not available!')
+        errordlg('IMAQ toolbox is not available!')
         set(hObject, 'value', 0)
     end 
     ch_ButtonColor(hObject, [], 'g')

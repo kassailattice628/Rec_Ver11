@@ -45,7 +45,9 @@ if Testmode == 0
 end
 
 %% Initialize IMAQ params
-imaq = imaq_ini(recobj, UseCam);
+if UseCam
+    imaq = imaq_ini(recobj);
+end
 
 %% open Window PTB %%
 
@@ -76,5 +78,5 @@ plotUIobj = open_plot_window(figUIobj, Recmode);
 
 %% DAQ Event Listener used in AI rec
 if Testmode == 0
-    lh = addlistener(s, 'DataAvailable', @(src,event)dataCaptureNBA(src, event, capture, figUIobj, Recmode, UseCam));
+    lh = addlistener(s, 'DataAvailable', @(src,event)dataCaptureNBA(src, event, capture, figUIobj, Recmode, 0));
 end

@@ -1,4 +1,4 @@
-function dataCaptureNBA(src, event, c, hGui, Recmode, UseCam)
+function dataCaptureNBA(src, event, c, hGui, Recmode, SetCam)
 %dataCapture Process DAQ acquired data when called by DataAvailable event.
 %  dataCapture (SRC, EVENT, C, HGUI) processes latest acquired data (EVENT.DATA)
 %  and timestamps (EVENT.TIMESTAMPS) from session (SRC), and, based on specified
@@ -23,6 +23,7 @@ global recobj
 global sobj
 global DataSave
 global ParamsSave
+global imaq
 
 
 %% keep parameter during loop
@@ -149,7 +150,14 @@ elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) > c.Tim
     %%%%%% save setting %%%%%%
     if get(hGui.save, 'value') == 1 % Saving
         DataSave(:, :, trigCount) = captureData;
-        ParamsSave{1, trigCount} = get_save_params(recobj, sobj, UseCam);
+        ParamsSave{1, trigCount} = get_save_params(recobj, sobj);
+    end
+    
+    %%%%%% wait save imaq %%%%%
+    if SetCam
+        while (imaq.vid.FramesAcquired ~= imaq.vid.DiskLoggerFrameCount)
+            pause(.1)
+        end
     end
     
 elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) < c.TimeSpan)

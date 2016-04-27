@@ -1,4 +1,4 @@
-function main_loop(hObject, ~, hGui, Testmode, Recmode, UseCam)
+function main_loop(hObject, ~, hGui, Testmode, Recmode, SetCam)
 % Main loop structure and subfunctions for GUI setting and visual stimuli
 
 %% call global vars
@@ -22,7 +22,7 @@ global ParamsSave % save
 
 %% Loop Start/ Loop Stop
 if get(hObject, 'value')==1 % loop ON
-    reload_params([], [], Testmode, Recmode, UseCam);
+    reload_params([], [], Testmode, Recmode, SetCam);
     recobj.cycleCount = 0;
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     if sobj.Num_screens == 1 && get(hGui.stim, 'value')
@@ -38,7 +38,7 @@ if get(hObject, 'value')==1 % loop ON
         
         %%%%%%%%%%%%%% loop contentes %%%%%%%%%%%%%%%
         % start loop (Trigger + Visual Stimulus)
-        Loop_contents(dio, hGui, Testmode, UseCam)
+        Loop_contents(dio, hGui, Testmode, SetCam)
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
         % for Testing with single display condition
@@ -54,7 +54,7 @@ end
 
 %% %%%%%%%%%%%% nested functions %%%%%%%%%%%%%%
 %%
-    function Loop_contents(dio, hGui, Testmode, UseCam)
+    function Loop_contents(dio, hGui, Testmode, SetCam)
         % ready to start DAQ
         if Testmode == 0
             if s.IsRunning == false
@@ -68,7 +68,9 @@ end
             end
         end
         
-        if UseCam
+        if SetCam
+            logfile = VideoWriter(['vid_', recobj.savefilename, num2str(recobj.cycleCount), '.mp4'], 'MPEG-4');
+            imaq.vid.DiskLogger = logfile;
             if isrunning(imaq.vid) == 0
                 start(imaq.vid)
             end
@@ -79,7 +81,7 @@ end
                 %%%%%%%%%%%%%%%%%%%% Visual Stimulus OFF %%%%%%%%%%%%%%%%%%%%
                 case 0
                     % start timer and start FV
-                    Trigger_Rec(Testmode, UseCam, dio);
+                    Trigger_Rec(Testmode, SetCam, dio);
                     
                     % loop interval %
                     pause(recobj.rect/1000 + recobj.interval);
@@ -87,11 +89,11 @@ end
                     %%%%%%%%%%%%%%%%%%%% Visual Stimulus ON %%%%%%%%%%%%%%%%%%%%%
                 case 1
                     % start timer, start FV and start Visu Stim
-                    VisStim(Testmode, UseCam, dio);
+                    VisStim(Testmode, SetCam, dio);
             end
             
             if Testmode == 1 && get(hGui.save, 'value')==1
-                ParamsSave{1, recobj.cycleCount} = get_save_params(recobj, sobj, UseCam);
+                ParamsSave{1, recobj.cycleCount} = get_save_params(recobj, sobj);
             end
             
         catch ME1
@@ -124,8 +126,10 @@ end
         end
         
         %%%%%% Stop Cam %%%%%%
-        if UseCam == 1
-            stop(imaq.vid)
+        if SetCam == 1
+            if isrunning(imaq.vid)
+                stop(imaq.vid)
+            end
         end
         
         %%%%%% Save Data %%%%%%

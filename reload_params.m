@@ -1,4 +1,4 @@
-function reload_params(~, ~, Testmode, Recmode, UseCam)
+function reload_params(~, ~, Testmode, Recmode, SetCam)
 % reload all paraemter and settings before start loop.
 % 
 
@@ -264,7 +264,7 @@ if Testmode == 0
     delete(lh)% <-- important!!!
     DataSave =[]; %reset save data
     ParamsSave =[]; % reset save parameters
-    lh = addlistener(s, 'DataAvailable', @(src,event) dataCaptureNBA(src, event, capture, figUIobj, Recmode, UseCam)); 
+    lh = addlistener(s, 'DataAvailable', @(src,event) dataCaptureNBA(src, event, capture, figUIobj, Recmode, SetCam)); 
     % dio reset
     outputSingleScan(dio.TrigAIFV,[0,0])
     outputSingleScan(dio.VSon,0)
@@ -288,9 +288,9 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%% IMAQ Camera %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-if UseCam == 1
+if SetCam == 1
     frame_rate = 100;
-    imaq.vid.FramesPerTrigger = recobj.rect/1000 * frame_rate;
+    imaq.vid.FramesPerTrigger = recobj.rect/1000 * frame_rate;    
 end
 
 %% figures
