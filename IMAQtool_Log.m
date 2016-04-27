@@ -23,7 +23,7 @@ vid.LoggingMode = 'memory' ;
 %triggerconfig(vid, 'immediate' ); % cature when calls start(vid)
 triggerconfig(vid, 'manual' ); % capture when calls trigger(vid)
 % set external trigger and trigger source
-triggerconfig(vid, 'hardware' , 'fallingEdge', 'externalTriggerMode0-Source0' );
+%triggerconfig(vid, 'hardware' , 'fallingEdge', 'externalTriggerMode0-Source0' );
 
 vid.ROIPosition = [80 116 480 280];
 

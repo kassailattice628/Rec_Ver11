@@ -23,6 +23,8 @@ global dev % NI device object
 global capture % Continuous plot params
 global lh % Event listener handle of AI recording
 
+global imaq % Camera setting
+
 %% Initialize recording params
 recobj = recobj_ini(Recmode);
 
@@ -39,8 +41,12 @@ if Testmode == 0
     % Reset DAQ
     daq.reset
     % NI DAQ params
-    [s, sOut, dio, capture, dev] = daq_ini;
+    [s, sOut, dio, capture, dev] = daq_ini(Recmode);
 end
+
+%% Initialize IMAQ params
+imaq = imaq_ini(recobj, UseCam);
+
 %% open Window PTB %%
 
 %PsychDefaultSetup(2);

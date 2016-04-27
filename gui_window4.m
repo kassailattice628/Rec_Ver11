@@ -8,6 +8,7 @@ function hGui = gui_window4(Testmode, Recmode, UseCam)
 global sobj
 global recobj
 global s
+global imaq
 
 %% %---------- Create GUI window ----------%
 %open GUI window
@@ -349,7 +350,7 @@ switch UseCam
         'string', 'Imaq Camera is not used.', 'FontSize', 12);
     case 1
         hGui.imaqPrev = uicontrol('style', 'togglebutton', 'position', [410 290 100 30],...
-        'string', 'Cam_Preview', 'Callback', @Cam_Preview);
+        'string', 'Cam_Preview', 'Callback', {@Cam_Preview, hGui});
     
 
 end
@@ -733,6 +734,22 @@ if Recmode == 2
     check_pulse_duration([], []);
 end
 end
+
+%%
+function Cam_Preview(hObject, ~, hGui)
+global prevobj
+if get(hObject, 'value')
+    prevobj = open_prev_window(hObject);
+    disp('open preview')
+else
+    if isfield(prevobj, 'fig')
+        close(prevobj.fig)
+        clearvars -global prevobj
+    end
+end
+ch_ButtonColor(hObject, [], 'g')
+end
+
 
 %%%%%%%%%%%%% save setting %%%%%%%%%%%%%%
 %%
