@@ -1,6 +1,4 @@
 function imaq = imaq_ini(recobj, UseCam)
-
-
 if UseCam == 1
     imaq.vid = videoinput( 'pointgrey' , 1, 'F7_Raw8_640x512_Mode1');
     imaq.src = getselectedsource(imaq.vid);
@@ -9,8 +7,8 @@ if UseCam == 1
     frame_rate = 100;
     imaq.src.FrameRatePercentage = frame_rate;
     
-    rec_time = recobj.rect/1000;
-    imaq.vid.FramesPerTrigger = rec_time*frame_rate;
+    rec_time = recobj.rect / 1000;
+    imaq.vid.FramesPerTrigger = rec_time * frame_rate;
     imaq.src.FrameRatePercentage = 10;
     imaq.vid.LoggingMode = 'memory' ;
     

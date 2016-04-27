@@ -8,7 +8,6 @@ function hGui = gui_window4(Testmode, Recmode, UseCam)
 global sobj
 global recobj
 global s
-global imaq
 
 %% %---------- Create GUI window ----------%
 %open GUI window
@@ -401,7 +400,7 @@ set(hGui.TTL3_select, 'Callback', {@TTL3_select, hGui})
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %main_loopingtest
 hGui.loop = uicontrol('style', 'togglebutton', 'position', [110 670 100 30],...
-    'string', 'Loop-OFF', 'Callback', {@main_loop, hGui, Testmode, Recmode}, 'BackGroundColor', 'r');
+    'string', 'Loop-OFF', 'Callback', {@main_loop, hGui, Testmode, Recmode, UseCam}, 'BackGroundColor', 'r');
 
 %%
 

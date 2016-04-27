@@ -108,7 +108,7 @@ elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) > c.Tim
         if Recmode == 1
             if get(plotUIobj.button1_1, 'value') % Eye Position from iRecHS2
                 set(plotUIobj.plot1_1(1), 'XData', captureData(:, 1), 'YData', captureData(:,2))
-                set(plotUIobj.axes1, 'XLim', [-inf,inf]);
+                set(plotUIobj.axes1_1, 'XLim', [-inf,inf]);
             end
             
             if get(plotUIobj.button1_2, 'value')
