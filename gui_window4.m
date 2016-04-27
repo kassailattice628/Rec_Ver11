@@ -349,7 +349,7 @@ switch UseCam
         'string', 'Imaq Camera is not used.', 'FontSize', 12);
     case 1
         hGui.setCam = uicontrol('style', 'togglebutton', 'position', [410 290 50 30],...
-        'string', 'Cam_Set', 'Callback', {@Cam_Set, hGui});
+        'string', 'Cam_Set', 'Callback', {@ch_ButtonColor, 'g'});
     
         hGui.imaqPrev = uicontrol('style', 'togglebutton', 'position', [460 290 100 30],...
         'string', 'Cam_Preview', 'Callback', {@Cam_Preview, hGui});
@@ -403,7 +403,7 @@ set(hGui.TTL3_select, 'Callback', {@TTL3_select, hGui})
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %main_loopingtest
 hGui.loop = uicontrol('style', 'togglebutton', 'position', [110 670 100 30],...
-    'string', 'Loop-OFF', 'Callback', {@main_loop, hGui, Testmode, Recmode, get(hGui.setCam, 'value')}, 'BackGroundColor', 'r');
+    'string', 'Loop-OFF', 'Callback', {@main_loop, hGui, Testmode, Recmode}, 'BackGroundColor', 'r');
 
 %%
 

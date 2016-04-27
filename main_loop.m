@@ -1,4 +1,4 @@
-function main_loop(hObject, ~, hGui, Testmode, Recmode, SetCam)
+function main_loop(hObject, ~, hGui, Testmode, Recmode)
 % Main loop structure and subfunctions for GUI setting and visual stimuli
 
 %% call global vars
@@ -20,6 +20,12 @@ global lh
 global DataSave % save
 global ParamsSave % save
 
+%%
+if isfield(hGui, 'setCam')
+    SetCam = get(hGui.setCam, 'value');
+else
+    SetCam = 0;
+end
 %% Loop Start/ Loop Stop
 if get(hObject, 'value')==1 % loop ON
     reload_params([], [], Testmode, Recmode, SetCam);
@@ -69,7 +75,7 @@ end
         end
         
         if SetCam
-            logfile = VideoWriter(['vid_', recobj.savefilename, num2str(recobj.cycleCount), '.mp4'], 'MPEG-4');
+            logfile = VideoWriter([recobj.savefilename, 'vid_', num2str(recobj.cycleCount),'.avi']);
             imaq.vid.DiskLogger = logfile;
             if isrunning(imaq.vid) == 0
                 start(imaq.vid)

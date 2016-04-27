@@ -50,7 +50,7 @@ end
 function UseImaqCam(hObject, ~)
 if get(hObject, 'value')
     % check avairable camera
-    if exist('imaqhwinfo', 'builtin')
+    if exist('imaqhwinfo')==2
         hwinf = imaqhwinfo;
         if exist('hwinf', 'var')
         else
