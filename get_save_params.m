@@ -24,7 +24,7 @@ if recobj.cycleNum > 0
     end
     
     %%% Luminance & Color %%%
-    save.stim1.lumi = sobj.lumi;
+    save.stim1.lumi = sobj.stimlumi;
     save.stim1.color = sobj.stimcol;
     
     %%% Center Position %%%

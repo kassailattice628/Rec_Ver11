@@ -617,6 +617,7 @@ end
         
         stim_size =  [0, 0, sobj.loomSize_pix];% max_Stim_Size
         sobj.stim_size = sobj.loomSize_pix;
+        sobj.size_deg = NaN;
         
         %set flipnum
         flipnum = round(sobj.loomDuration/sobj.m_int);
