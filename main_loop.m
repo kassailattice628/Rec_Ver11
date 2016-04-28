@@ -77,7 +77,7 @@ end
         if SetCam
             logvid = VideoWriter([recobj.savefilename, '_vid_', num2str(recobj.cycleCount)], 'MPEG-4');
             logvid.FrameRate = 100;
-            %logvid.Quality = 50;
+            logvid.Quality = 30;
             imaq.vid.DiskLogger = logvid;
             if isrunning(imaq.vid) == 0
                 start(imaq.vid)

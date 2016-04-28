@@ -7,13 +7,12 @@ imaq.src = getselectedsource(imaq.vid);
 frame_rate = 100;
 imaq.src.FrameRatePercentage = frame_rate;
 
-rec_time = recobj.rect / 1000;
+rec_time = recobj.rect / 1000; % sec
 imaq.vid.FramesPerTrigger = rec_time * frame_rate;
 imaq.src.FrameRatePercentage = 10;
 
 % set save mode
 imaq.vid.LoggingMode = 'disk';% 'memory' ;
-
 
 %triggerconfig(vid, 'immediate' ); % cature when calls start(vid)
 triggerconfig(imaq.vid, 'manual' ); % capture when calls trigger(vid)
