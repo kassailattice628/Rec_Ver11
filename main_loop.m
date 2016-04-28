@@ -74,10 +74,10 @@ end
             end
         end
         
-        if SetCam
+        if SetCam && get(hGui.save, 'value')
             logvid = VideoWriter([recobj.savefilename, '_vid_', num2str(recobj.cycleCount)], 'MPEG-4');
             logvid.FrameRate = 100;
-            logvid.Quality = 30;
+            logvid.Quality = 10;
             imaq.vid.DiskLogger = logvid;
             if isrunning(imaq.vid) == 0
                 start(imaq.vid)
