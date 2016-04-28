@@ -23,7 +23,9 @@ global recobj
 global sobj
 global DataSave
 global ParamsSave
+
 global imaq
+global ImgSave
 
 
 %% keep parameter during loop
@@ -153,10 +155,9 @@ elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) > c.Tim
         ParamsSave{1, trigCount} = get_save_params(recobj, sobj);
     end
     
-    %%%%%% wait save imaq %%%%%
+    %%%%%% save imaq %%%%%
     if SetCam
-        disp(imaq.vid.DiskLoggerFrameCount)
-        disp(imaq.FramesAcquired)
+        ImgSave{1, trigCount} = getdata(imaq.vid);
     end
     
 elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) < c.TimeSpan)

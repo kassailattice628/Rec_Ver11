@@ -1,15 +1,10 @@
 function save = get_save_params(recobj, sobj)
 % save parameters for Ver11
 % these paraemters are updated in evely loop and saved in a cell.
+
 global figUIobj
 
-%{
-global imaq
-if SetCam == 1
-    save.eye_img = getdata(imaq.vid);
-end
-%}
-
+%%
 pattern = sobj.pattern;
 %%%% Timing Data %%%%
 save.cycleNum = recobj.cycleNum; % > Visual Stim ON
@@ -49,7 +44,7 @@ if recobj.cycleNum > 0
                 % timing
                 if get(figUIobj.stim,'value')
                     % Stim ON %
-                    save.stim2.On_time = sobj.vbl2_2-sobj.vbl_1;
+                    save.stim2.On_time = sobj.vbl2_2 - sobj.vbl_1;
                     % Stim Off %
                     save.stim2.Off_time = sobj.vbl2_3 - sobj.vbl2_2;
                 end

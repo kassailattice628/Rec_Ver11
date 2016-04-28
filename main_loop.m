@@ -75,10 +75,13 @@ end
         end
         
         if SetCam
+            %{
+            %it is slow to use video sriter
             logvid = VideoWriter([recobj.savefilename, '_vid_', num2str(recobj.cycleCount),'.avi']);
             logvid.FrameRate = 100;
             logvid.Quality = 50;
             imaq.vid.DiskLogger = logvid;
+            %}
             if isrunning(imaq.vid) == 0
                 start(imaq.vid)
             end
@@ -142,8 +145,12 @@ end
         
         %%%%%% Save Data %%%%%%
         if get(hGui.save, 'value')
-            if Testmode==0
+            if Testmode==0 && SetCam==1
+                save(recobj.savefilename, 'DataSave', 'ImgSave', 'ParamsSave', 'recobj', 'sobj');
+                
+            elseif Testmode==0 && SetCam==0
                 save(recobj.savefilename, 'DataSave', 'ParamsSave', 'recobj', 'sobj');
+                
             else
                 save(recobj.savefilename, 'ParamsSave', 'recobj', 'sobj');
             end
