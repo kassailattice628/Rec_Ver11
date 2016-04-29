@@ -56,7 +56,7 @@ if get(hObject, 'value')
     if exist('imaqhwinfo')==2
         hwinf = imaqhwinfo;
         if exist('hwinf', 'var')
-            if hwinf.InstalledAdaptors
+            if isempty(hwinf.InstalledAdaptors)
                 errordlg('No Image Acquisition adaptors found!')
                 set(hObject, 'value', 0)
             end

@@ -75,6 +75,11 @@ end
         end
         
         if SetCam && get(hGui.save, 'value')
+            %{
+            if isrunning(imaq.vid) == 1
+                stop(imaq.vid)
+            end
+            %}
             logvid = VideoWriter([recobj.savefilename, '_vid_', num2str(recobj.cycleCount)], 'MPEG-4');
             logvid.FrameRate = 100;
             logvid.Quality = 10;
@@ -83,6 +88,7 @@ end
                 start(imaq.vid)
             end
         end
+
         
         try %error check
             switch get(hGui.stim, 'value')
