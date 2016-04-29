@@ -24,7 +24,7 @@ hGui.stim = uicontrol('style', 'togglebutton', 'string', 'Stim-OFF', 'position',
 set(hGui.stim, 'Callback', @ch_stimON);
 
 hGui.EXIT = uicontrol('style', 'pushbutton', 'string', 'EXIT', 'position', [680 705 65 30], 'FontSize',12, 'Horizontalalignment', 'center');
-set(hGui.EXIT, 'CallBack', {@quit_NBA, s});
+set(hGui.EXIT, 'CallBack', {@quit_NBA, s, UseCam});
 
 %% save %%
 hGui.getfname = uicontrol('style', 'pushbutton', 'string', 'File Name', 'position', [365 705 80 30], 'Callback', @SelectSaveFile, 'Horizontalalignment', 'center');
@@ -444,13 +444,22 @@ ch_ButtonColor(hObject, [], 'y');
 end
 
 %%
-function quit_NBA(~, ~, s)
+function quit_NBA(~, ~, s, UseCam)
 global sobj
 global dev
 global plotUIobj
 global getfineUIobj
+global imaq
 
 delete(s)
+
+if UseCam==1
+    if isrunning(imaq.vid)
+        stop(imaq.vid)
+    end
+    delete(imaq.vid)
+    clear imaq
+end
 
 if isempty(dev)
 else

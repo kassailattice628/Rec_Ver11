@@ -99,15 +99,24 @@ end
                     
                     % loop interval %
                     pause(recobj.rect/1000 + recobj.interval);
-                        
+                    
                     %%%%%%%%%%%%%%%%%%%% Visual Stimulus ON %%%%%%%%%%%%%%%%%%%%%
                 case 1
                     % start timer, start FV and start Visu Stim
                     VisStim(Testmode, SetCam, dio);
             end
             
-            if Testmode == 1 && get(hGui.save, 'value')==1
+            if Testmode && get(hGui.save, 'value')
                 ParamsSave{1, recobj.cycleCount} = get_save_params(recobj, sobj);
+            end
+            
+            %% IMAQ save data check
+            if SetCam && get(hGui.save, 'value')
+                while imaq.vid.DiskLoggerFrameCount<imaq.vid.FramesAcquired
+                    disp([num2str(imaq.vid.FramesAcquired), '/', num2str(imaq.vid.DiskLoggerFrameCount),...
+                        ' frames are saved.'])
+                    pause(.1);
+                end
             end
             
         catch ME1
