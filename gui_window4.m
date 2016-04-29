@@ -342,10 +342,10 @@ end
 %%%%%%%%%%%%   Imaq Camera     %%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-uipanel('Title', 'CAM Setting', 'FontSize', 12, 'Units', 'Pixels', 'Position', [405 10 400 330]);
+uipanel('Title', 'CAM Setting', 'FontSize', 12, 'Units', 'Pixels', 'Position', [405 10 340 330]);
 switch UseCam
     case 0
-        uicontrol('style', 'text', 'position', [410 290 150 30],...
+        uicontrol('style', 'text', 'position', [410 290 200 30],...
         'string', 'Imaq Camera is not used.', 'FontSize', 12);
     case 1
         hGui.setCam = uicontrol('style', 'togglebutton', 'position', [410 290 50 30],...

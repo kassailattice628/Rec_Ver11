@@ -8,6 +8,9 @@ function OpenNBA
 % 'iRecHS2': AI0:1 <= center of pupil
 % 'Electrophys': AI0:1 <= Vm and Im from patch amp
 
+% USB3 Cam is available when IMAQ toolbox is installed.
+% clikc 'Use Cam'
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % adding path for sub functions.
 addpath('CheckParams')
@@ -53,6 +56,10 @@ if get(hObject, 'value')
     if exist('imaqhwinfo')==2
         hwinf = imaqhwinfo;
         if exist('hwinf', 'var')
+            if hwinf.InstalledAdaptors
+                errordlg('No Image Acquisition adaptors found!')
+                set(hObject, 'value', 0)
+            end
         else
             errordlg('Imaq Cam is not available!')
             set(hObject, 'value', 0)
