@@ -82,7 +82,7 @@ end
             %}
             logvid = VideoWriter([recobj.savefilename, '_vid_', num2str(recobj.cycleCount)], 'MPEG-4');
             logvid.FrameRate = 100;
-            logvid.Quality = 10;
+            logvid.Quality = 20;
             imaq.vid.DiskLogger = logvid;
             if isrunning(imaq.vid) == 0
                 start(imaq.vid)
@@ -112,7 +112,8 @@ end
             
             %% IMAQ save data check
             if SetCam && get(hGui.save, 'value')
-                while imaq.vid.DiskLoggerFrameCount<imaq.vid.FramesAcquired
+                while islogging(imaq.vid)
+                %while imaq.vid.DiskLoggerFrameCount<imaq.vid.FramesAcquired
                     disp([num2str(imaq.vid.FramesAcquired), '/', num2str(imaq.vid.DiskLoggerFrameCount),...
                         ' frames are saved.'])
                     pause(.1);
