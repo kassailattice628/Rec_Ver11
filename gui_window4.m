@@ -352,7 +352,7 @@ switch UseCam
         'string', 'ON', 'Callback', {@ch_ButtonColor, 'g'},'FontSize', 13);
     
         hGui.imaqPrev = uicontrol('style', 'togglebutton', 'position', [470 290 100 30],...
-        'string', 'Preview', 'Callback', {@Cam_Preview, hGui},'FontSize', 13);
+        'string', 'Preview', 'Callback', @Cam_Preview,'FontSize', 13);
     
 
 end
@@ -747,7 +747,7 @@ end
 end
 
 %%
-function Cam_Preview(hObject, ~, hGui)
+function Cam_Preview(hObject, ~)
 global prevobj
 if get(hObject, 'value')
     prevobj = open_prev_window(hObject);
@@ -768,7 +768,7 @@ function SelectSaveFile(~, ~)
 global recobj
 
 if isfield(recobj, 'dirname') == 0 % 1st time to define filename
-    [recobj.fname, recobj.dirname] = uiputfile('*.*');
+    [recobj.fname, recobj.dirname] = uiputfile('*.mat');
 else %open the same folder when any foder was selected previously.
     if recobj.dirname == 0
         recobj.dirname = pwd;
@@ -785,11 +785,21 @@ global recobj
 switch get(hObject, 'value')
     case 1 %saving
         set(hObject, 'string', 'Saving')
+        
         if isfield(recobj, 'fname') == 1 && ischar(recobj.fname)
         else
             SelectSaveFile;
         end
         [~, fname, ext] = fileparts([recobj.dirname, recobj.fname]);
+        
+        e_fname = dir([recobj.dirname, '*.mat']);
+        if size(e_fname, 1) == 0
+            recobj.savecount = 1;
+        else
+            [startIndex, endIndex] = regexp(e_fname(end).name, '\d');
+            recobj.savecount = str2double(e_fname(end).name(startIndex:endIndex)) + 1;
+        end
+        
         recobj.savefilename  = [recobj.dirname, fname, num2str(recobj.savecount), ext];
         set(hGui.showfname, 'string', [fname, num2str(recobj.savecount), ext]);
         disp(['Save as :: ', recobj.savefilename]);

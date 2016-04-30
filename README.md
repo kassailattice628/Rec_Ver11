@@ -67,7 +67,7 @@ Single-display 環境では ５回 刺激出したら Screen('Close') を読ん�
 初回は File name を押して保存先フォルダ，ファイル名を選択．  
 ２回目以降，File name をつけ直さない場合は，ファイル名の後に連番で数字が 1 ずつ足されていく．
 
-動画データはトライアルごとに 連番が追加される． 
+動画データはトライアルごとに 連番が追加される．
 
 ---
 ## Information about parameters

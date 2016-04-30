@@ -76,8 +76,12 @@ end
         
 
         if SetCam && get(hGui.save, 'value')
+            if exist([recobj.dirname, 'Movie'], 'dir') == 0
+                mkdir([recobj.dirname, 'Movie']);
+            end
             
-            logvid = VideoWriter([recobj.savefilename, '_vid_', num2str(recobj.cycleCount)], 'MPEG-4');
+            dirname_movie = [recobj.dirname, 'Movie/'];
+            logvid = VideoWriter([dirname_movie, recobj.fname, '_mov_', num2str(recobj.cycleCount)], 'MPEG-4');
             logvid.FrameRate = imaq.frame_rate;
             logvid.Quality = 10;
             imaq.vid.DiskLogger = logvid;
@@ -87,7 +91,6 @@ end
             end
         end
 
-        
         try %error check
             switch get(hGui.stim, 'value')
                 %%%%%%%%%%%%%%%%%%%% Visual Stimulus OFF %%%%%%%%%%%%%%%%%%%%
@@ -116,14 +119,14 @@ end
                         ' frames are written in disk.'])
                     pause(.2);
                 end
+                
+                %check actual FPS
+                [~ , timeStamp] = getdata(imaq.vid);
+                %figure;
+                %plot(timeStamp,'x');
+                FPS = imaq.vid.DiskLoggerFrameCount/(timeStamp(end)-timeStamp(1));
+                disp(['actual FPS = ', num2str(FPS)]);
             end
-            
-            %check actual FPS
-            [~ , timeStamp] = getdata(imaq.vid);
-            %figure;
-            %plot(timeStamp,'x');
-            FPS = imaq.vid.DiskLoggerFrameCount/(timeStamp(end)-timeStamp(1));
-            disp(['actual FPS = ', num2str(FPS)]);
             
         catch ME1
             % if any error occurs
