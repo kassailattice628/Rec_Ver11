@@ -96,6 +96,7 @@ end
                 case 0
                     % start timer and start FV
                     Trigger_Rec(Testmode, SetCam, dio);
+                    disp(['AITrig; PreStim', ': #', num2str(recobj.cycleNum)]);
                     
                     % loop interval %
                     pause(recobj.rect/1000 + recobj.interval);
@@ -114,9 +115,9 @@ end
             if SetCam && get(hGui.save, 'value')
                 while islogging(imaq.vid)
                 %while imaq.vid.DiskLoggerFrameCount<imaq.vid.FramesAcquired
-                    disp([num2str(imaq.vid.FramesAcquired), '/', num2str(imaq.vid.DiskLoggerFrameCount),...
-                        ' frames are saved.'])
-                    pause(.1);
+                    disp([num2str(imaq.vid.DiskLoggerFrameCount), '/', num2str(imaq.vid.FramesAcquired),...
+                        ' frames are written in disk.'])
+                    pause(.2);
                 end
             end
             

@@ -5,19 +5,19 @@ imaq.src = getselectedsource(imaq.vid);
 
 % set the number of frame (maximum 100 Hz)
 frame_rate = 100;
-imaq.src.FrameRatePercentage = frame_rate;
 
 rec_time = recobj.rect / 1000; % sec
 imaq.vid.FramesPerTrigger = rec_time * frame_rate;
+imaq.vid.TriggerFrameDelay = 0;
 imaq.src.FrameRatePercentage = 10;
 
 % set save mode
-imaq.vid.LoggingMode = 'disk';% 'memory' ;
+%imaq.vid.LoggingMode = 'disk';% 'memory' ;
 
 %triggerconfig(vid, 'immediate' ); % cature when calls start(vid)
 triggerconfig(imaq.vid, 'manual' ); % capture when calls trigger(vid)
 % set external trigger and trigger source
-%triggerconfig(vid, 'hardware' , 'fallingEdge', 'externalTriggerMode0-Source0' );
+%triggerconfig(vid, 'hardware' , 'risingEdge', 'externalTriggerMode0-Source0' );
 
 % image size
 imaq.vid.ROIPosition = [80 116 480 280];

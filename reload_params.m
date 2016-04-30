@@ -289,8 +289,9 @@ end
 %%%%%%% IMAQ Camera %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if SetCam == 1
-    frame_rate = 100;
-    imaq.vid.FramesPerTrigger = (recobj.rect/1000 * frame_rate)-10;    
+    %frame_rate = 100;
+    %imaq.vid.FramesPerTrigger = (recobj.rect/1000 * frame_rate)-10; 
+    imaq.vid.FramesPerTrigger = 1;
 end
 
 %% figures
