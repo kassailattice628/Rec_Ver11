@@ -4,15 +4,15 @@ imaq.vid = videoinput( 'pointgrey' , 1, 'F7_Raw8_640x512_Mode1');
 imaq.src = getselectedsource(imaq.vid);
 
 % set the number of frame (maximum 100 Hz)
-frame_rate = 100;
+imaq.frame_rate = 475;
 
 rec_time = recobj.rect / 1000; % sec
-imaq.vid.FramesPerTrigger = rec_time * frame_rate;
+imaq.vid.FramesPerTrigger = rec_time * imaq.frame_rate;
 imaq.vid.TriggerFrameDelay = 0;
-%imaq.src.FrameRatePercentage = 10;
+imaq.src.FrameRatePercentage = 100;
 
 % set save mode
-imaq.vid.LoggingMode = 'disk';% 'memory' ;
+imaq.vid.LoggingMode = 'disk&memory';% 'memory' ;
 
 %triggerconfig(vid, 'immediate' ); % cature when calls start(vid)
 triggerconfig(imaq.vid, 'manual' ); % capture when calls trigger(vid)

@@ -81,8 +81,8 @@ end
             end
             %}
             logvid = VideoWriter([recobj.savefilename, '_vid_', num2str(recobj.cycleCount)], 'MPEG-4');
-            logvid.FrameRate = 100;
-            logvid.Quality = 20;
+            logvid.FrameRate = imaq.frame_rate;
+            logvid.Quality = 10;
             imaq.vid.DiskLogger = logvid;
             if isrunning(imaq.vid) == 0
                 start(imaq.vid)
@@ -120,6 +120,11 @@ end
                     pause(.2);
                 end
             end
+            [~ , timeStamp] = getdata(imaq.vid);
+            %figure;
+            %plot(timeStamp,'x');
+            FPS = imaq.vid.DiskLoggerFrameCount/(timeStamp(end)-timeStamp(1));
+            disp(['CamFPS = ', num2str(FPS)]);
             
         catch ME1
             % if any error occurs

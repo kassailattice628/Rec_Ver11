@@ -156,6 +156,7 @@ elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) > c.Tim
     
     %%%%%% wait save imaq %%%%%
     if SetCam
+        %check the number of logged frame.
         disp([num2str(imaq.vid.DiskLoggerFrameCount), '/',...
             num2str(imaq.vid.FramesAcquired),' frames are written in disk.'])
     end
