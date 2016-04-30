@@ -25,7 +25,6 @@ global DataSave
 global ParamsSave
 
 global imaq
-global ImgSave
 
 
 %% keep parameter during loop
@@ -158,20 +157,8 @@ elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) > c.Tim
     
     %%%%%% save imaq %%%%%
     if SetCam
-<<<<<<< HEAD
-        [ImgSave{1, trigCount}, timeStamp] = getdata(imaq.vid);
-        %{
-        %frame time check
-        figure;
-        plot(timeStamp,'x')
-        xlabel('Frame Index')
-        ylabel('Time(s)')
-        %}
-=======
-        %check the number of logged frame.
         disp([num2str(imaq.vid.DiskLoggerFrameCount), '/',...
             num2str(imaq.vid.FramesAcquired),' frames are written in disk.'])
->>>>>>> develop3_use_counter
     end
     
 elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) < c.TimeSpan)

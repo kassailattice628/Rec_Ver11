@@ -19,7 +19,6 @@ global lh
 
 global DataSave % save
 global ParamsSave % save
-global ImgSave % save
 
 %%
 if isfield(hGui, 'setCam')
@@ -75,26 +74,14 @@ end
             end
         end
         
-<<<<<<< HEAD
-        if SetCam
-            %{
-            %it is slow to use video sriter
-            logvid = VideoWriter([recobj.savefilename, '_vid_', num2str(recobj.cycleCount),'.avi']);
-            logvid.FrameRate = 100;
-            logvid.Quality = 50;
-=======
+
         if SetCam && get(hGui.save, 'value')
-            %{
-            if isrunning(imaq.vid) == 1
-                stop(imaq.vid)
-            end
-            %}
+            
             logvid = VideoWriter([recobj.savefilename, '_vid_', num2str(recobj.cycleCount)], 'MPEG-4');
             logvid.FrameRate = imaq.frame_rate;
             logvid.Quality = 10;
->>>>>>> develop3_use_counter
             imaq.vid.DiskLogger = logvid;
-            %}
+            
             if isrunning(imaq.vid) == 0
                 start(imaq.vid)
             end
@@ -117,25 +104,26 @@ end
                     % start timer, start FV and start Visu Stim
                     VisStim(Testmode, SetCam, dio);
             end
-            
+            %
             if Testmode && get(hGui.save, 'value')
                 ParamsSave{1, recobj.cycleCount} = get_save_params(recobj, sobj);
             end
             
-            %% IMAQ save data check
+            % IMAQ save data check
             if SetCam && get(hGui.save, 'value')
                 while islogging(imaq.vid)
-                %while imaq.vid.DiskLoggerFrameCount<imaq.vid.FramesAcquired
                     disp([num2str(imaq.vid.DiskLoggerFrameCount), '/', num2str(imaq.vid.FramesAcquired),...
                         ' frames are written in disk.'])
                     pause(.2);
                 end
             end
+            
+            %check actual FPS
             [~ , timeStamp] = getdata(imaq.vid);
             %figure;
             %plot(timeStamp,'x');
             FPS = imaq.vid.DiskLoggerFrameCount/(timeStamp(end)-timeStamp(1));
-            disp(['CamFPS = ', num2str(FPS)]);
+            disp(['actual FPS = ', num2str(FPS)]);
             
         catch ME1
             % if any error occurs
@@ -175,12 +163,8 @@ end
         
         %%%%%% Save Data %%%%%%
         if get(hGui.save, 'value')
-            if Testmode==0 && SetCam==1
-                save(recobj.savefilename, 'DataSave', 'ImgSave', 'ParamsSave', 'recobj', 'sobj');
-                
-            elseif Testmode==0 && SetCam==0
+            if Testmode==0
                 save(recobj.savefilename, 'DataSave', 'ParamsSave', 'recobj', 'sobj');
-                
             else
                 save(recobj.savefilename, 'ParamsSave', 'recobj', 'sobj');
             end
