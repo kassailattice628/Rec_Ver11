@@ -151,12 +151,14 @@ elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) > c.Tim
     
     %%%%%% save setting %%%%%%
     if get(hGui.save, 'value') == 1 % Saving
+        disp('DAQ captued.')
         DataSave(:, :, trigCount) = captureData;
         ParamsSave{1, trigCount} = get_save_params(recobj, sobj);
     end
     
     %%%%%% save imaq %%%%%
     if SetCam
+<<<<<<< HEAD
         [ImgSave{1, trigCount}, timeStamp] = getdata(imaq.vid);
         %{
         %frame time check
@@ -165,6 +167,11 @@ elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) > c.Tim
         xlabel('Frame Index')
         ylabel('Time(s)')
         %}
+=======
+        %check the number of logged frame.
+        disp([num2str(imaq.vid.DiskLoggerFrameCount), '/',...
+            num2str(imaq.vid.FramesAcquired),' frames are written in disk.'])
+>>>>>>> develop3_use_counter
     end
     
 elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) < c.TimeSpan)

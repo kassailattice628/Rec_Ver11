@@ -1,7 +1,8 @@
-# NoneButAir_Rec_Ver11.4.1
+# NoneButAir_Rec_Ver11.5.0
 
 MATLAB, Psychtoolbox3 を使っての視覚刺激制御と  
 DAQ toolbox (session-based), NIDAQmx ドライバ で NI DAQを制御．
+眼球運動記録用に IMAQ toolbox を使用．
 
 3チャンネル AI, ロータリィエンコーダ から記録．  
 毎回ループのはじめに P0.0 から TTL 出力．  
@@ -9,6 +10,8 @@ DAQ toolbox (session-based), NIDAQmx ドライバ で NI DAQを制御．
 視覚刺激のタイミングにあわせて P0.2 の TTL ON/OFF．  
 
 外部 TTL pulse 出力として AO0 を使用．
+
+眼球記録用に Point Grey Flea3(USB3)を使用．
 
 ---
 ## Requirement
@@ -22,8 +25,11 @@ R2016 以降は, MATLAB のメニュー，アドオン　＞　ハードウェ�
 NI の DAQ としては，USB 接続の BNC コネクタ付きのものを使用している \(USB6341BNC\)．  
 USB6001 等では TTL3 に設定した AO パルスが同時に使えない．
 
-視覚刺激用に Psychtoolbox3 を使用．  
+視覚刺激用に Psychtoolbox3 を使用.   
 [Psychtoolbox3]("http://psychtoolbox.org/download/") から指示に従って最新版を入れる．
+
+Point Grey モノクロカメラを使用．  
+[Flea3: FL3-U3-13Y3M-C]("https://www.ptgrey.com/flea3-13-mp-mono-usb3-vision-vita-1300-camera")
 
 ### 注意  
 DAQ は 使用する PC に 1 台だけつなげばその認識してくれる．  
@@ -59,7 +65,9 @@ Single-display 環境では ５回 刺激出したら Screen('Close') を読ん�
 ---
 ## Save data & Parameters
 初回は File name を押して保存先フォルダ，ファイル名を選択．  
-２回目以降，File name をつけ直さない場合は，ファイル名の後に連番で数字が 1 ずつ足されていく．  
+２回目以降，File name をつけ直さない場合は，ファイル名の後に連番で数字が 1 ずつ足されていく．
+
+動画データはトライアルごとに 連番が追加される． 
 
 ---
 ## Information about parameters
@@ -106,3 +114,6 @@ Single-display 環境では ５回 刺激出したら Screen('Close') を読ん�
   * angle_deg
 3. cycleNum
 4. RecStartTime
+
+### MP4 ビデオ
+カメラを ON にして save すると MP4 形式でトライアルごとの動画を保存．

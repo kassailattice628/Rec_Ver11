@@ -10,13 +10,11 @@ pattern = sobj.pattern;
 save.cycleNum = recobj.cycleNum; % > Visual Stim ON
 save.RecStartTime = recobj.tRec; % AI trigger time from the first AI Trigger.
 
-if recobj.cycleNum > 0
-    if get(figUIobj.stim,'value')
-        % Stimi ON %
-        save.stim1.On_time = sobj.vbl_2 - sobj.vbl_1;
-        % Stimi OFF %
-        save.stim1.Off_time = sobj.vbl_3 - sobj.vbl_2;
-    end
+if get(figUIobj.stim,'value') && recobj.cycleNum > 0
+    % Stimi ON %
+    save.stim1.On_time = sobj.vbl_2 - sobj.vbl_1;
+    % Stimi OFF %
+    save.stim1.Off_time = sobj.vbl_3 - sobj.vbl_2;
     
     %%% Luminance & Color %%%
     save.stim1.lumi = sobj.stimlumi;

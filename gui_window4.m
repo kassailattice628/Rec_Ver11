@@ -24,7 +24,7 @@ hGui.stim = uicontrol('style', 'togglebutton', 'string', 'Stim-OFF', 'position',
 set(hGui.stim, 'Callback', @ch_stimON);
 
 hGui.EXIT = uicontrol('style', 'pushbutton', 'string', 'EXIT', 'position', [680 705 65 30], 'FontSize',12, 'Horizontalalignment', 'center');
-set(hGui.EXIT, 'CallBack', {@quit_NBA, s});
+set(hGui.EXIT, 'CallBack', {@quit_NBA, s, UseCam});
 
 %% save %%
 hGui.getfname = uicontrol('style', 'pushbutton', 'string', 'File Name', 'position', [365 705 80 30], 'Callback', @SelectSaveFile, 'Horizontalalignment', 'center');
@@ -345,14 +345,14 @@ end
 uipanel('Title', 'CAM Setting', 'FontSize', 12, 'Units', 'Pixels', 'Position', [405 10 340 330]);
 switch UseCam
     case 0
-        uicontrol('style', 'text', 'position', [410 290 150 30],...
+        uicontrol('style', 'text', 'position', [410 290 200 30],...
         'string', 'Imaq Camera is not used.', 'FontSize', 12);
     case 1
         hGui.setCam = uicontrol('style', 'togglebutton', 'position', [410 290 50 30],...
-        'string', 'Cam_Set', 'Callback', {@ch_ButtonColor, 'g'});
+        'string', 'ON', 'Callback', {@ch_ButtonColor, 'g'},'FontSize', 13);
     
-        hGui.imaqPrev = uicontrol('style', 'togglebutton', 'position', [460 290 100 30],...
-        'string', 'Cam_Preview', 'Callback', {@Cam_Preview, hGui});
+        hGui.imaqPrev = uicontrol('style', 'togglebutton', 'position', [470 290 100 30],...
+        'string', 'Preview', 'Callback', {@Cam_Preview, hGui},'FontSize', 13);
     
 
 end
@@ -444,13 +444,22 @@ ch_ButtonColor(hObject, [], 'y');
 end
 
 %%
-function quit_NBA(~, ~, s)
+function quit_NBA(~, ~, s, UseCam)
 global sobj
 global dev
 global plotUIobj
 global getfineUIobj
+global imaq
 
 delete(s)
+
+if UseCam==1
+    if isrunning(imaq.vid)
+        stop(imaq.vid)
+    end
+    delete(imaq.vid)
+    clear imaq
+end
 
 if isempty(dev)
 else
