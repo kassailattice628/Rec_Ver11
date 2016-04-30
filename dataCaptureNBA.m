@@ -157,7 +157,14 @@ elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) > c.Tim
     
     %%%%%% save imaq %%%%%
     if SetCam
-        ImgSave{1, trigCount} = getdata(imaq.vid);
+        [ImgSave{1, trigCount}, timeStamp] = getdata(imaq.vid);
+        %{
+        %frame time check
+        figure;
+        plot(timeStamp,'x')
+        xlabel('Frame Index')
+        ylabel('Time(s)')
+        %}
     end
     
 elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) < c.TimeSpan)
