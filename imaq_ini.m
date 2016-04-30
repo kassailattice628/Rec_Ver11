@@ -9,10 +9,10 @@ frame_rate = 100;
 rec_time = recobj.rect / 1000; % sec
 imaq.vid.FramesPerTrigger = rec_time * frame_rate;
 imaq.vid.TriggerFrameDelay = 0;
-imaq.src.FrameRatePercentage = 10;
+%imaq.src.FrameRatePercentage = 10;
 
 % set save mode
-%imaq.vid.LoggingMode = 'disk';% 'memory' ;
+imaq.vid.LoggingMode = 'disk';% 'memory' ;
 
 %triggerconfig(vid, 'immediate' ); % cature when calls start(vid)
 triggerconfig(imaq.vid, 'manual' ); % capture when calls trigger(vid)
