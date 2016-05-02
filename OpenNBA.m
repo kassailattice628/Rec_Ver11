@@ -21,8 +21,14 @@ h.fig = figure(6);
 set(h.fig, 'position',[20, 500, 150, 200], 'Name', 'Open NBA', 'NumberTitle', 'off', 'Menubar', 'none', 'Resize', 'off');
 
 h.SelectTest = uicontrol('style', 'togglebutton', 'position',[10 155 100 40],...
-    'string', 'TEST Mode', 'Callback', {@UseDAQ},...
+    'string', 'TEST Mode', 'Callback', {@UseTestmode},...
     'FontSize', 12, 'Horizontalalignment', 'center');
+name_toolbox = ver;
+if isempty(find(strcmp({name_toolbox.Name}, 'Data Acquisition Toolbox'), 1))
+    set(h.SelectTest, 'value', 1, 'BackGroundColor', 'g')
+end
+
+
 
 h.SelectRecmode = uicontrol('style', 'popupmenu', 'position',[10 120 100 20],...
     'string', {'iRecHS', 'Electrophsy'}, 'Callback', {@ch_ButtonColor, 'g'},...
@@ -50,19 +56,19 @@ end
 end
 
 %%
-function UseDAQ(hObject, ~)
-if get(hObject, 'value')
+function UseTestmode(hObject, ~)
+if get(hObject, 'value') == 0
     % check avairable DAQ devices
     name_toolbox = ver;
-    if isempty(find(strcmp({name_toolbox.Name},'Data Acquisition Toolbox'),1))
+    if isempty(find(strcmp({name_toolbox.Name}, 'Data Acquisition Toolbox'), 1))
         errordlg('DAQ toolbox is not available!')
-        set(hObject, 'value', 0)
+        set(hObject, 'value', 1)
     else % DAQ toolbox is installed
         hwinf = daq.getDevices;
         if isempty(hwinf.ID)
             % No device availbae
             errordlg('DAQ Device is not available!')
-            set(hObject, 'value', 0)
+            set(hObject, 'value', 1)
         end
     end
 end
@@ -73,7 +79,7 @@ end
 function UseImaqCam(hObject, ~)
 if get(hObject, 'value')
     name_toolbox = ver;
-    if isempty(find(strcmp({name_toolbox.Name},'Image Acquisition Toolbox'),1))
+    if isempty(find(strcmp({name_toolbox.Name}, 'Image Acquisition Toolbox'), 1))
         errordlg('IMAQ toolbox is not available!')
         set(hObject, 'value', 0)
     else % IMAQ toolbox is installed
