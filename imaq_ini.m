@@ -12,12 +12,9 @@ imaq.vid.TriggerFrameDelay = 0;
 imaq.src.FrameRatePercentage = 100;
 
 % set save mode
-<<<<<<< HEAD
 %imaq.vid.LoggingMode = 'disk';% 'memory' ;
-imaq.vid.LoggingMode = 'memory';
-=======
 imaq.vid.LoggingMode = 'disk&memory';% 'memory' ;
->>>>>>> develop3_use_counter
+
 
 %triggerconfig(vid, 'immediate' ); % cature when calls start(vid)
 triggerconfig(imaq.vid, 'manual' ); % capture when calls trigger(vid)

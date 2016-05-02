@@ -53,38 +53,40 @@ end
 function UseDAQ(hObject, ~)
 if get(hObject, 'value')
     % check avairable DAQ devices
-    if exist('')==2
-        hwinf = daqread;
-        if exist('hwinf', 'var')
-            if isempty(hwinf.
-    ch_ButtonColor(hObject, [], 'g')
+    name_toolbox = ver;
+    if isempty(find(strcmp({name_toolbox.Name},'Data Acquisition Toolbox'),1))
+        errordlg('DAQ toolbox is not available!')
+        set(hObject, 'value', 0)
+    else % DAQ toolbox is installed
+        hwinf = daq.getDevices;
+        if isempty(hwinf.ID)
+            % No device availbae
+            errordlg('DAQ Device is not available!')
+            set(hObject, 'value', 0)
+        end
+    end
 end
+ch_ButtonColor(hObject, [], 'g')
 end
 
 %%
 function UseImaqCam(hObject, ~)
 if get(hObject, 'value')
-    % check avairable cameras
-    if exist('imaqhwinfo')==2
-        hwinf = imaqhwinfo;
-        if exist('hwinf', 'var')
-            if isempty(hwinf.InstalledAdaptors)
-                errordlg('No Image Acquisition adaptors found!')
-                set(hObject, 'value', 0)
-            end
-        else
-            errordlg('Imaq Cam is not available!')
-            set(hObject, 'value', 0)
-        end
-    else
+    name_toolbox = ver;
+    if isempty(find(strcmp({name_toolbox.Name},'Image Acquisition Toolbox'),1))
         errordlg('IMAQ toolbox is not available!')
         set(hObject, 'value', 0)
-    end 
-    ch_ButtonColor(hObject, [], 'g')
+    else % IMAQ toolbox is installed
+        hwinf = imaqhwinfo;
+         if isempty(hwinf.InstalledAdaptors)
+                errordlg('No Image Acquisition adaptors found!')
+                set(hObject, 'value', 0)
+         end
+    end
 end
-% 
+ch_ButtonColor(hObject, [], 'g')
+end
 
-end
 
 function ch_ButtonColor(hObject, ~, col)
 % button push event: change button color
