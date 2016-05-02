@@ -86,9 +86,9 @@ Single-display 環境では ５回 刺激出したら Screen('Close') を読ん�
 * "Sin", "Rect", "Gabor" グレーティング, direction, temporal frequency, spatial frequency を設定．
 * "Images", 256 種類の画像ファイルから # of Image \(ランダムに\)選んで繰り返し提示
 * "Mosaic", 視野角 dist \(deg\) で Density \(%\) 個ランダムな場所に複数ドット \(丸 or 四角\) を出す．
-* "FineMapp", Fixed position を中心に，(sobj.dist)^2 の小領域を sobj.div_zoom∧２ に分割して刺激をだす．
+* "FineMapp", Fixed position を中心に，(sobj.dist)<sup>2</sup> の小領域を sobj.div_zoom<sup>2</sup> に分割して刺激をだす．
 
-"1P\_Conc" と "FineMap" のときは 刺激モニタを 200^2 分割した 場所に対応する場所を検索して Fixed position として反映できる．
+"1P\_Conc" と "FineMap" のときは 刺激モニタを 200<sup>2</sup> 分割した 場所に対応する場所を検索して Fixed position として反映できる．
 
 ---
 ## Save data & Parameters
@@ -98,11 +98,29 @@ Single-display 環境では ５回 刺激出したら Screen('Close') を読ん�
 動画データは "Movie" フォルダに トライアルごとに連番が追加．   
 
 ---
-## Information about parameters
+## Information about parameters (MATLAB structures)
 ### recobj
+記録全般に関わるパラメタをまとめた構造体．
 
 ### sobj
+視覚刺激に関するパラメタをまとめた構造体．
 
+### imaq
+カメラ動画記録に関するパラメタをまとめた構造体．
+
+---
+### figUIobj
+Figure components（ボタンなど）をまとめたもの．
+
+---
+### s, sOut, dio
+DAQ toolbox で生成した AI, AO, DIO セッションをまとめた構造体．
+
+### lh
+AI 記録で実行されるイベントの，event handle.
+
+---
+## Logged Data
 ### DataSave
 1. Time in sec.
 2. AI0
