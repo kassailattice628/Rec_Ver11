@@ -21,7 +21,7 @@ h.fig = figure(6);
 set(h.fig, 'position',[20, 500, 150, 200], 'Name', 'Open NBA', 'NumberTitle', 'off', 'Menubar', 'none', 'Resize', 'off');
 
 h.SelectTest = uicontrol('style', 'togglebutton', 'position',[10 155 100 40],...
-    'string', 'TEST Mode', 'Callback', {@ch_ButtonColor, 'g'},...
+    'string', 'TEST Mode', 'Callback', {@UseDAQ},...
     'FontSize', 12, 'Horizontalalignment', 'center');
 
 h.SelectRecmode = uicontrol('style', 'popupmenu', 'position',[10 120 100 20],...
@@ -50,9 +50,21 @@ end
 end
 
 %%
+function UseDAQ(hObject, ~)
+if get(hObject, 'value')
+    % check avairable DAQ devices
+    if exist('')==2
+        hwinf = daqread;
+        if exist('hwinf', 'var')
+            if isempty(hwinf.
+    ch_ButtonColor(hObject, [], 'g')
+end
+end
+
+%%
 function UseImaqCam(hObject, ~)
 if get(hObject, 'value')
-    % check avairable camera
+    % check avairable cameras
     if exist('imaqhwinfo')==2
         hwinf = imaqhwinfo;
         if exist('hwinf', 'var')
