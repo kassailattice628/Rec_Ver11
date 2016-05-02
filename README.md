@@ -60,6 +60,7 @@ AI3 は記録開始のトリガーモニターとして使用．
 眼球記録用に Point Grey Flea3(USB3)を使用．
 Preview しながら Save は キツイので，Preview はカメラの位置確認程度．
 
+---
 ## Usage
 OpenNBA.m を実行．  
 開いたウィンドウから "Start NBA" ボタンを押すと起動．
@@ -75,7 +76,7 @@ Single-display 環境では ５回 刺激出したら Screen('Close') を読ん�
 
 ---
 ## Visual Stimuli
-視覚刺激は，以下のものが使える．
+視覚刺激のパタンは，以下のものが使える．
 * "Uni": 丸，四角 の刺激
 * "Size_rand": サイズ変更
 * "1P\_Conc": 中心点から, dist \(deg\) まで div\_zoom \(個\)分割した場所に刺激を１点だす．傾きは Direction \(deg\)．
@@ -85,7 +86,7 @@ Single-display 環境では ５回 刺激出したら Screen('Close') を読ん�
 * "Sin", "Rect", "Gabor" グレーティング, direction, temporal frequency, spatial frequency を設定．
 * "Images", 256 種類の画像ファイルから # of Image \(ランダムに\)選んで繰り返し提示
 * "Mosaic", 視野角 dist \(deg\) で Density \(%\) 個ランダムな場所に複数ドット \(丸 or 四角\) を出す．
-* "FineMapp", Fixed position を中心に，sobj.dist\^2 の小領域を sobj.div_zoom∧２ に分割して刺激をだす．
+* "FineMapp", Fixed position を中心に，(sobj.dist)^2 の小領域を sobj.div_zoom∧２ に分割して刺激をだす．
 
 "1P\_Conc" と "FineMap" のときは 刺激モニタを 200^2 分割した 場所に対応する場所を検索して Fixed position として反映できる．
 
@@ -94,7 +95,7 @@ Single-display 環境では ５回 刺激出したら Screen('Close') を読ん�
 初回は File name を押して保存先フォルダ，ファイル名を選択．  
 ２回目以降，File name をつけ直さない場合は，ファイル名の後に連番で数字が 1 ずつ足されていく．
 
-動画データはトライアルごとに 連番が追加される．
+動画データは "Movie" フォルダに トライアルごとに連番が追加．   
 
 ---
 ## Information about parameters
