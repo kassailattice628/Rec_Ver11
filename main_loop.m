@@ -76,12 +76,13 @@ end
         
 
         if SetCam && get(hGui.save, 'value')
-            if exist([recobj.dirname, 'Movie'], 'dir') == 0
-                mkdir([recobj.dirname, 'Movie']);
+            
+            [~, fname] = fileparts([recobj.dirname, recobj.fname]);
+            if exist([recobj.dirname, 'Movie_', fname], 'dir') == 0
+                mkdir([recobj.dirname, 'Movie_', fname]);
             end
             
-            dirname_movie = [recobj.dirname, 'Movie/'];
-            [~, fname] = fileparts([recobj.dirname, recobj.fname]);
+            dirname_movie = [recobj.dirname, 'Movie_', fname, '/'];
             logvid = VideoWriter([dirname_movie, fname, num2str(recobj.savecount), '_mov_', num2str(recobj.cycleCount)], 'MPEG-4');
             logvid.FrameRate = imaq.frame_rate;
             logvid.Quality = 50;
