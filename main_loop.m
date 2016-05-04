@@ -78,12 +78,12 @@ end
         if SetCam && get(hGui.save, 'value')
             
             [~, fname] = fileparts([recobj.dirname, recobj.fname]);
-            if exist([recobj.dirname, 'Movie_', fname], 'dir') == 0
-                mkdir([recobj.dirname, 'Movie_', fname]);
+            if exist([recobj.dirname, 'Movie_', fname, num2str(recobj.savecount)], 'dir') == 0
+                mkdir([recobj.dirname, 'Movie_', fname, num2str(recobj.savecount)]);
             end
             
-            dirname_movie = [recobj.dirname, 'Movie_', fname, '/'];
-            logvid = VideoWriter([dirname_movie, fname, num2str(recobj.savecount), '_mov_', num2str(recobj.cycleCount)], 'MPEG-4');
+            dirname_movie = [recobj.dirname, 'Movie_', fname, num2str(recobj.savecount), '/'];
+            logvid = VideoWriter([dirname_movie, '_mov_', num2str(recobj.cycleCount)], 'MPEG-4');
             logvid.FrameRate = imaq.frame_rate;
             logvid.Quality = 50;
             imaq.vid.DiskLogger = logvid;
@@ -136,7 +136,6 @@ end
             rethrow(ME1);
         end
     end
-
 
 %%
     function Loop_Off
@@ -1046,16 +1045,12 @@ else % during stimulation
         case 'FineMap'
             bgcol = 'm';
             stim_str3 = ['FinePos: ', num2str(sobj.center_index_FineMap),...
-                '/', num2str(sobj.div_zoom^2)];
-            
+                '/', num2str(sobj.div_zoom^2)];     
     end
-    %position in matrix
-    
     set(figUIobj.StimMonitor1, 'string', [sobj.pattern, ': #', num2str(recobj.cycleNum)], 'BackGroundColor',bgcol);
     set(figUIobj.StimMonitor2, 'string',['POS: ',num2str(sobj.center_index), '/',num2str(sobj.divnum^2)], 'ForeGroundColor', 'k', 'BackGroundColor', bgcol);
     set(figUIobj.StimMonitor3, 'string', stim_str3, 'BackGroundColor',bgcol);
 end
-drawnow;
 end
 %%
 function stim_monitor_reset

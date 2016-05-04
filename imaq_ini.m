@@ -3,7 +3,7 @@ function imaq = imaq_ini(recobj)
 imaq.vid = videoinput( 'pointgrey' , 1, 'F7_Raw8_640x512_Mode1');
 imaq.src = getselectedsource(imaq.vid);
 
-% set the number of frame (maximum 100 Hz)
+% set the number of frame
 imaq.frame_rate = 475;
 
 rec_time = recobj.rect / 1000; % sec

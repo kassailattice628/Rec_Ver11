@@ -789,8 +789,12 @@ switch get(hObject, 'value')
         if size(e_fname, 1) == 0
             recobj.savecount = 1;
         else
-            [startIndex, endIndex] = regexp(e_fname(end).name, '\d');
-            recobj.savecount = str2double(e_fname(end).name(startIndex:endIndex)) + 1;
+            ind = zeros(1, size(e_fname, 1));
+            for n = 1:size(e_fname ,1)
+                [startIndex, ~] = regexp(e_fname(n).name, '\d');
+                ind(n) = str2double(e_fname(n).name(startIndex));
+            end
+            recobj.savecount = max(ind) + 1;
         end
         
         recobj.savefilename  = [recobj.dirname, fname, num2str(recobj.savecount), ext];
