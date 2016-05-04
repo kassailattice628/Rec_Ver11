@@ -657,12 +657,12 @@ end
         Screen(sobj.shape, sobj.wPtr, 255, Rect);
         Screen('FillRect', sobj.wPtr, 255, [0 0 40 40]);
         
+        stim_monitor;
         %%% flip 1st img %%%%%%%%%%%%%%%%%%%%%%%%%%%
         [sobj.vbl_2, sobj.OnsetTime_2, sobj.FlipTimeStamp_2] =...
             Screen('Flip', sobj.wPtr, sobj.vbl_1+sobj.delayPTB);% put some delay for PTB
         TriggerVSon(Testmode, dio,1)
         disp(['AITrig; ',sobj.pattern, ': #', num2str(recobj.cycleNum)]);
-        stim_monitor;
         
         for count = 1:flipnum
             Rect = CenterRectOnPointd([0, 0, count .* scaleFactor], sobj.stim_center(1), sobj.stim_center(2));
@@ -766,7 +766,7 @@ end
             gabortex = CreateProceduralGabor(sobj.wPtr, sobj.stim_size(1), sobj.stim_size(2), [], [bgcol bgcol bgcol 0.0]);
             Screen('DrawTexture', sobj.wPtr, gabortex, [], stimRect, angle, [], [], [], [], kPsychDontDoRotation, [phase, cycles_per_pix, sc, contrast, 1, 0, 0, 0]);
         end
-        
+        stim_monitor;
         % prep 1st frame
         %%%%%%%%%%%%%%%%%%
         %AddPhoto Sensor (Left, UP in the monitor) for the stimulus timing check
@@ -777,7 +777,6 @@ end
         
         TriggerVSon(Testmode, dio, 1);
         disp(['AITrig; ',sobj.pattern, ': #', num2str(recobj.cycleNum)]);
-        stim_monitor;
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         for count = 1:sobj.flipNum-1
             phase = count * 360/sobj.frameRate * sobj.shiftSpd;
@@ -1051,6 +1050,7 @@ else % during stimulation
     set(figUIobj.StimMonitor2, 'string',['POS: ',num2str(sobj.center_index), '/',num2str(sobj.divnum^2)], 'ForeGroundColor', 'k', 'BackGroundColor', bgcol);
     set(figUIobj.StimMonitor3, 'string', stim_str3, 'BackGroundColor',bgcol);
 end
+drawnow;
 end
 %%
 function stim_monitor_reset
