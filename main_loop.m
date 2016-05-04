@@ -81,9 +81,10 @@ end
             end
             
             dirname_movie = [recobj.dirname, 'Movie/'];
-            logvid = VideoWriter([dirname_movie, recobj.fname, '_mov_', num2str(recobj.cycleCount)], 'MPEG-4');
+            [~, fname] = fileparts([recobj.dirname, recobj.fname]);
+            logvid = VideoWriter([dirname_movie, fname, num2str(recobj.savecount), '_mov_', num2str(recobj.cycleCount)], 'MPEG-4');
             logvid.FrameRate = imaq.frame_rate;
-            logvid.Quality = 10;
+            logvid.Quality = 50;
             imaq.vid.DiskLogger = logvid;
             
             if isrunning(imaq.vid) == 0

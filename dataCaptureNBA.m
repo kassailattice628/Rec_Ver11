@@ -135,7 +135,7 @@ elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) > c.Tim
         if get(plotUIobj.button3,'value')
             %decode rotary
             if Recmode == 1
-                rot_ch = 8;
+                rot_ch = 6;
             else
                 rot_ch = 6;
             end
