@@ -8,7 +8,7 @@ global figUIobj
 pattern = sobj.pattern;
 %%%% Timing Data %%%%
 save.cycleNum = recobj.cycleNum; % > Visual Stim ON
-save.RecStartTime = recobj.tRec; % AI trigger time from the first AI Trigger.
+save.RecStartTime = recobj.t_AIstart; % AI trigger time from the first AI Trigger.
 
 if get(figUIobj.stim,'value') && recobj.cycleNum > 0
     % Stimi ON %

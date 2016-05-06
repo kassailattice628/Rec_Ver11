@@ -104,11 +104,12 @@ end
                     % loop interval %
                     pause(recobj.rect/1000 + recobj.interval);
                     
-                    %%%%%%%%%%%%%%%%%%%% Visual Stimulus ON %%%%%%%%%%%%%%%%%%%%%
+                %%%%%%%%%%%%%%%%%%%% Visual Stimulus ON %%%%%%%%%%%%%%%%%%%%%
                 case 1
                     % start timer, start FV and start Visu Stim
                     VisStim(Testmode, SetCam, dio);
             end
+            
             %
             if Testmode && get(hGui.save, 'value')
                 ParamsSave{1, recobj.cycleCount} = get_save_params(recobj, sobj);
@@ -167,7 +168,7 @@ end
         
         %%%%%% Save Data %%%%%%
         if get(hGui.save, 'value')
-            if Testmode==0
+            if Testmode == 0
                 save(recobj.savefilename, 'DataSave', 'ParamsSave', 'recobj', 'sobj');
             else
                 save(recobj.savefilename, 'ParamsSave', 'recobj', 'sobj');
@@ -178,13 +179,14 @@ end
             set(hGui.save, 'value', 0, 'string', 'Unsave', 'BackGroundColor',[0.9400 0.9400 0.9400])
         end
         
+        % clear save data
+        
+        DataSave = [];
+        ParamsSave = [];
+        
         %%%%%% Reset Cycle Counter %%%%%%
         recobj.cycleNum = 0 - recobj.prestim;
         disp(['Loop-Out:', num2str(recobj.cycleNum)]);
-        
-        if isfield(recobj, 'STARTloop')
-            recobj = rmfield(recobj, 'STARTloop');
-        end
         
         %reset all triggers
         ResetTTLall(Testmode, dio, sobj);
@@ -207,18 +209,21 @@ global imaq
 %start timer & Trigger AI & FV
 Screen('FillRect', sobj.wPtr, sobj.bgcol); %prepare background
 
-%background ScreenON;
-%[sobj.vbl_1, sobj. OnsetTime_1, sobj.FlipTimeStamp_1] = Screen('Flip', sobj.wPtr);
-sobj.vbl_1 = Screen('Flip', sobj.wPtr);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % timer start, digital out
 if recobj.cycleNum == -recobj.prestim +1
-    recobj.STARTloop = tic;
-    recobj.tRec = 0;
+    %background ScreenON;
+    sobj.vbl_1 = Screen('Flip', sobj.wPtr);
     generate_trigger([1,1]); % Start AI & FV
+    
+    recobj.t_START = sobj.vbl_1;
+    recobj.t_AIstart = 0;
 else
-    recobj.tRec = toc(recobj.STARTloop);
+    %background ScreenON;
+    sobj.vbl_1 = Screen('Flip', sobj.wPtr);
     generate_trigger([1,0]); % Start AI
+    
+    recobj.t_AIstart = sobj.vbl_1 - recobj.t_START;
 end
 
 if UseCam
@@ -593,7 +598,7 @@ end
             case 1
                 % Stim1 appears earier thant Stm1
                 Screen('DrawTexture', sobj.wPtr, Stim1)
-                [sobj.vbl_2, ~, ~, ~, sobj.BeamposON] =...
+                [sobj.vbl_2, ~, ~, ~, sobj.BeamposON,] =...
                     Screen('Flip', sobj.wPtr, sobj.vbl_1 + sobj.delayPTB);
                 
                 TriggerVSon(Testmode, dio,1)

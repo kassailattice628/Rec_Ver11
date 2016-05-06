@@ -9,7 +9,7 @@ function OpenNBA
 % 'Electrophys': AI0:1 <= Vm and Im from patch amp
 
 % USB3 Cam is available when IMAQ toolbox is installed.
-% clikc 'Use Cam'
+% clikc 'Use Cam '
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % adding path for sub functions.
