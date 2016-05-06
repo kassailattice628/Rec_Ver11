@@ -15,7 +15,7 @@ if get(figUIobj.stim,'value') && recobj.cycleNum > 0
     save.stim1.On_time = sobj.vbl_2 - sobj.vbl_1;
     save.stim1.BeamposON = sobj.BeamposON;
     % Stimi OFF %
-    save.stim1.Off_time = sobj.vbl_3 - sobj.vbl_2;
+    save.stim1.Off_time = sobj.vbl_3 - sobj.vbl_1;
     save.stim1.BeamposOFF = sobj.BeamposOFF;
     
     %%% Luminance & Color %%%

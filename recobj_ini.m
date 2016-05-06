@@ -46,8 +46,6 @@ recobj.TTL3.PulseNum = 10;
 recobj.TTL3.DutyCycle = 0.5; %
 
 %%
-recobj.STARTloop=0;
-recobj.tRec=0;
 
 %%Savefile_conter
 recobj.savecount = 1;
