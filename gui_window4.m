@@ -1,4 +1,4 @@
-function hGui = gui_window4(Testmode, Recmode, UseCam)
+function hGui = gui_window4(Testmode, Recmode, UseCam, GUI_x)
 % gui_window3 creates a None But Air Graphical User Interface
 % hGui = gui_window3(s, sTrig) returns a structure of graphics components
 % handles (hGui) and create a GUI for PTB visual stimuli, data acquisition
@@ -11,7 +11,7 @@ global s
 
 %% %---------- Create GUI window ----------%
 %open GUI window
-hGui.fig = figure('Position', [sobj.GUI_Display_x + 10, 20, 750, 750], 'Name', ['None But Air_Ver', recobj.NBAver], 'NumberTitle', 'off', 'Menubar', 'none', 'Resize', 'off');
+hGui.fig = figure('Position', [GUI_x + 10, 20, 750, 750], 'Name', ['None But Air_Ver', recobj.NBAver], 'NumberTitle', 'off', 'Menubar', 'none', 'Resize', 'off');
 
 %GUI components
 hGui.ONSCR = uicontrol('style', 'pushbutton', 'string', 'OpenScreen', 'position', [5 705 80 30], 'Horizontalalignment', 'center');
@@ -36,7 +36,7 @@ hGui.save = uicontrol('style', 'togglebutton', 'string', 'Unsave', 'position', [
 %% plot %%
 hGui.PlotWindowON = uicontrol('style', 'togglebutton', 'string', 'Plot ON', 'position', [365 670 65 30],...
     'value', 1, 'BackGroundColor', 'g', 'FontSize',12, 'Horizontalalignment', 'center');
-set(hGui.PlotWindowON, 'CallBack', {@open_plot, hGui, Recmode});
+set(hGui.PlotWindowON, 'CallBack', {@open_plot, hGui, Recmode, GUI_x});
 
 %% stim state monitor% %%
 hGui.StimMonitor1 = uicontrol('style', 'text', 'string', '', 'position', [230 710 120 25], 'FontSize',13, 'BackGroundColor', 'w', 'Horizontalalignment', 'center');
@@ -481,11 +481,11 @@ close all hidden;
 end
 
 %%
-function open_plot(hObject, ~, hGui, Recmode)
+function open_plot(hObject, ~, hGui, Recmode, GUI_x)
 global plotUIobj
 
 if get(hObject, 'value')
-    plotUIobj = open_plot_window(hGui, Recmode);
+    plotUIobj = open_plot_window(hGui, Recmode, GUI_x);
     disp('open plot window')
 else
     if isfield(plotUIobj, 'fig')

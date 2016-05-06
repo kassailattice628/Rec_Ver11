@@ -1,13 +1,11 @@
-function hGui = open_plot_window(figUIobj, Recmode)
+function hGui = open_plot_window(figUIobj, Recmode, GUI_x)
 %plot_window creates plot window for  None But Air
 % plotUIobj = plot_window
-
-global sobj
 
 
 %% %---------- Create plot window ----------%
 %open plot window
-hGui.fig = figure('Position', [sobj.GUI_Display_x + 650, 20, 630, 750],...
+hGui.fig = figure('Position', [GUI_x + 650, 20, 630, 750],...
     'DeleteFcn', {@close_Plot, figUIobj}, 'Name', 'Plot Window NBA11',...
     'NumberTitle', 'off', 'Menubar', 'none', 'Resize', 'off');
 

@@ -34,7 +34,7 @@ recobj.cycleNum = 0 - recobj.prestim; %loop cycle number
 %% Initialize Stimulus params
 % monitor dependent prameter (DeLL 19-inch)
 pixpitch = 0.264;%(mm)
-sobj = sobj_ini(pixpitch);
+[sobj, GUI_x] = sobj_ini(pixpitch);
 
 %% Initialize DAQ params
 if Testmode == 0
@@ -71,10 +71,10 @@ if sobj.Num_screens == 1
     Screen('Close', sobj.wPtr);
 end
 % open main GUI ctr window.
-figUIobj = gui_window4(Testmode, Recmode, UseCam);
+figUIobj = gui_window4(Testmode, Recmode, UseCam, GUI_x);
 
 % open plot window.
-plotUIobj = open_plot_window(figUIobj, Recmode);
+plotUIobj = open_plot_window(figUIobj, Recmode, GUI_x);
 
 %% DAQ Event Listener used in AI rec
 if Testmode == 0

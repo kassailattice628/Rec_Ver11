@@ -13,8 +13,10 @@ save.RecStartTime = recobj.tRec; % AI trigger time from the first AI Trigger.
 if get(figUIobj.stim,'value') && recobj.cycleNum > 0
     % Stimi ON %
     save.stim1.On_time = sobj.vbl_2 - sobj.vbl_1;
+    save.stim1.BeamposON = sobj.BeamposON;
     % Stimi OFF %
     save.stim1.Off_time = sobj.vbl_3 - sobj.vbl_2;
+    save.stim1.BeamposOFF = sobj.BeamposOFF;
     
     %%% Luminance & Color %%%
     save.stim1.lumi = sobj.stimlumi;
@@ -43,8 +45,10 @@ if get(figUIobj.stim,'value') && recobj.cycleNum > 0
                 if get(figUIobj.stim,'value')
                     % Stim ON %
                     save.stim2.On_time = sobj.vbl2_2 - sobj.vbl_1;
+                    save.stim2.BeamposON = sobj.BeamposON_2;
                     % Stim Off %
                     save.stim2.Off_time = sobj.vbl2_3 - sobj.vbl2_2;
+                    save.stim2.BeamposOFF = sobj.BeamposOFF_2;
                 end
                 % center position
                 save.stim2.centerX_pix = sobj.stim_center2(1);

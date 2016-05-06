@@ -74,7 +74,7 @@ end
             end
         end
         
-
+        
         if SetCam && get(hGui.save, 'value')
             
             [~, fname] = fileparts([recobj.dirname, recobj.fname]);
@@ -92,7 +92,7 @@ end
                 start(imaq.vid)
             end
         end
-
+        
         try %error check
             switch get(hGui.stim, 'value')
                 %%%%%%%%%%%%%%%%%%%% Visual Stimulus OFF %%%%%%%%%%%%%%%%%%%%
@@ -205,14 +205,16 @@ global sobj
 global imaq
 
 %start timer & Trigger AI & FV
-Screen('FillRect', sobj.wPtr, sobj.bgcol); %presenting background
+Screen('FillRect', sobj.wPtr, sobj.bgcol); %prepare background
 
-%ScreenON;
-[sobj.vbl_1, sobj. OnsetTime_1, sobj.FlipTimeStamp_1] = Screen('Flip', sobj.wPtr);
+%background ScreenON;
+%[sobj.vbl_1, sobj. OnsetTime_1, sobj.FlipTimeStamp_1] = Screen('Flip', sobj.wPtr);
+sobj.vbl_1 = Screen('Flip', sobj.wPtr);
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % timer start, digital out
 if recobj.cycleNum == -recobj.prestim +1
     recobj.STARTloop = tic;
+    recobj.tRec = 0;
     generate_trigger([1,1]); % Start AI & FV
 else
     recobj.tRec = toc(recobj.STARTloop);
@@ -300,22 +302,22 @@ elseif recobj.cycleNum > 0 %StimON
             Conc_1P;
             VisStimON;
             VisStimOFF;
-        
+            
         case '2P_Conc'
             %Prep, ON, OFF
             Conc_2P;
-            time1 = recobj.rect/1000 - (sobj.vbl_3-sobj.vbl_1);
-            time2 = recobj.rect/1000 - (sobj.vbl2_3-sobj.vbl_1);
-            pause_time = min([time1,time2] + recobj.interval);
+            time1 = recobj.rect/1000 - (sobj.vbl_3 - sobj.vbl_1);
+            time2 = recobj.rect/1000 - (sobj.vbl2_3 - sobj.vbl_1);
+            pause_time = min([time1, time2] + recobj.interval);
             
         case 'Looming'
             %Prep ON, OFF
             Looming;
             %GUI stim indicater
             stim_monitor_reset;
-            time1 = recobj.rect/1000 - (sobj.vbl_3-sobj.vbl_1);
+            time1 = recobj.rect/1000 - (sobj.vbl_3 - sobj.vbl_1);
             pause_time = time1 + recobj.interval;
-        
+            
         case {'Sin', 'Rect', 'Gabor'}
             %Prep, ON
             GratingGLSL;
@@ -461,9 +463,8 @@ end
         end
         [conc_pos_mat, sobj.conc_index] = get_condition(4, sobj.concentric_mat(1:end/2,:), recobj.cycleNum,...
             size(sobj.concentric_mat,1)/2, flag_random_dir);
-        %conc_pos_mat(1,i): distance(pix)
-        %conc_pos_mat(2,i): angle(rad)
-        [concX, concY] = pol2cart(conc_pos_mat(2),conc_pos_mat(1));
+        
+        [concX, concY] = pol2cart(conc_pos_mat(2), conc_pos_mat(1));
         
         % Set stim center_fix
         fix_center = sobj.center_pos_list(sobj.fixpos,:);
@@ -546,34 +547,35 @@ end
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         if duration1 == duration2
             Screen('FillRect', sobj.wPtr, sobj.bgcol);
-            [sobj.vbl_3, sobj.OnsetTime_3, sobj.FlipTimeStamp_3] =...
-                Screen('Flip', sobj.wPtr, sobj.vbl_1+duration1);
+            [sobj.vbl_3, ~, ~, ~, sobj.BeamposOFF] =...
+                Screen('Flip', sobj.wPtr, sobj.vbl_1 + duration1);
             
             TriggerVSon(Testmode, dio,0)
             
             sobj.vbl2_3 = sobj.vbl_3;
-            sobj.OnsetTime2_3 = sobj.OnsetTime_3;
-            sobj.FlipTimeStamp2_3 = sobj.FlipTimeStamp_3;
+            sobj.BeamposOFF_2 = sobj.BeamposOFF;
+            
         elseif duration1 < duration2
             Screen('DrawTexture', sobj.wPtr, Stim2);
-            [sobj.vbl_3, sobj.OnsetTime_3, sobj.FlipTimeStamp_3] =...
-                Screen('Flip', sobj.wPtr, sobj.vbl_1+duration1);
+            [sobj.vbl_3, ~, ~, ~, sobj.BeamposOFF] =...
+                Screen('Flip', sobj.wPtr, sobj.vbl_1 + duration1);
             
             TriggerVSon(Testmode, dio,0)
             
             Screen('FillRect', sobj.wPtr, sobj.bgcol);
-            [sobj.vbl2_3, sobj.OnsetTime2_3, sobj.FlipTimeStamp2_3] =...
-                Screen('Flip', sobj.wPtr, sobj.vbl_1+duration2);
+            [sobj.vbl2_3, ~, ~, ~, sobj.BeamposOFF_2] =...
+                Screen('Flip', sobj.wPtr, sobj.vbl_1 + duration2);
+            
         elseif duration1 > duration2
             Screen('DrawTexture', sobj.wPtr, Stim1);
-            [sobj.vbl2_3, sobj.OnsetTime2_3, sobj.FlipTimeStamp2_3] =...
-                Screen('Flip', sobj.wPtr, sobj.vbl_1+duration2);
+            [sobj.vbl2_3, ~, ~, ~, sobj.BeamposOFF_2] =...
+                Screen('Flip', sobj.wPtr, sobj.vbl_1 + duration2);
             
             TriggerVSon(Testmode, dio,0)
             
             Screen('FillRect', sobj.wPtr, sobj.bgcol);
-            [sobj.vbl_3, sobj.OnsetTime_3, sobj.FlipTimeStamp_3] =...
-                Screen('Flip', sobj.wPtr, sobj.vbl_1+duration1);
+            [sobj.vbl_3, ~, ~, ~, sobj.BeamposOFF] =...
+                Screen('Flip', sobj.wPtr, sobj.vbl_1 + duration1);
         end
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -591,38 +593,37 @@ end
             case 1
                 % Stim1 appears earier thant Stm1
                 Screen('DrawTexture', sobj.wPtr, Stim1)
-                [sobj.vbl_2, sobj.OnsetTime_2, sobj.FlipTimeStamp_2] =...
+                [sobj.vbl_2, ~, ~, ~, sobj.BeamposON] =...
                     Screen('Flip', sobj.wPtr, sobj.vbl_1 + sobj.delayPTB);
                 
                 TriggerVSon(Testmode, dio,1)
                 disp(['AITrig; ',sobj.pattern, ': #', num2str(recobj.cycleNum)]);
                 
                 Screen('DrawTexture', sobj.wPtr, Both_Stim1_Stim2)
-                [sobj.vbl2_2, sobj.OnsetTime2_2, sobj.FlipTimeStamp2_2] =...
+                [sobj.vbl2_2, ~, ~, ~, sobj.BeamposON_2] =...
                     Screen('Flip', sobj.wPtr, sobj.vbl_1 + sobj.delayPTB2);
             case 2
                 % Stim1 and Stim2 appear at the same timing
                 Screen('DrawTexture', sobj.wPtr, Both_Stim1_Stim2)
-                [sobj.vbl_2, sobj.OnsetTime_2, sobj.FlipTimeStamp_2] =...
+                [sobj.vbl_2, ~, ~, ~, sobj.BeamposON] =...
                     Screen('Flip', sobj.wPtr, sobj.vbl_1 + sobj.delayPTB);
                 
                 TriggerVSon(Testmode, dio,1)
                 disp(['AITrig; ',sobj.pattern, ': #', num2str(recobj.cycleNum)]);
                 
                 sobj.vbl2_2 = sobj.vbl_2;
-                sobj.OnsetTime2_2 = sobj.OnsetTime_2;
-                sobj.FlipTimeStamp2_2 = sobj.FlipTimeStamp_2;
+                sobj.BeamposON_2 = sobj.BeamposON;
             case 3
                 % Stim1 appears after Stim2
                 Screen('DrawTexture', sobj.wPtr, Stim2)
-                [sobj.vbl2_2, sobj.OnsetTime2_2, sobj.FlipTimeStamp2_2] =...
+                [sobj.vbl2_2, ~, ~, ~, sobj.BeamposON_2] =...
                     Screen('Flip', sobj.wPtr, sobj.vbl_1 + sobj.delayPTB2);
                 
                 TriggerVSon(Testmode, dio,1)
                 disp(['AITrig; ',sobj.pattern, ': #', num2str(recobj.cycleNum)]);
                 
                 Screen('DrawTexture', sobj.wPtr, Both_Stim1_Stim2)
-                [sobj.vbl_2, sobj.OnsetTime_2, sobj.FlipTimeStamp_2] =...
+                [sobj.vbl_2, ~, ~, ~, sobj.BeamposON] =...
                     Screen('Flip', sobj.wPtr, sobj.vbl_1 + sobj.delayPTB);
                 
         end
@@ -659,8 +660,8 @@ end
         
         stim_monitor;
         %%% flip 1st img %%%%%%%%%%%%%%%%%%%%%%%%%%%
-        [sobj.vbl_2, sobj.OnsetTime_2, sobj.FlipTimeStamp_2] =...
-            Screen('Flip', sobj.wPtr, sobj.vbl_1+sobj.delayPTB);% put some delay for PTB
+        [sobj.vbl_2, ~, ~, ~, sobj.BeamposON] =...
+            Screen('Flip', sobj.wPtr, sobj.vbl_1 + sobj.delayPTB);% put some delay for PTB
         TriggerVSon(Testmode, dio,1)
         disp(['AITrig; ',sobj.pattern, ': #', num2str(recobj.cycleNum)]);
         
@@ -673,8 +674,8 @@ end
         
         %%% stim off %%%
         Screen('FillRect', sobj.wPtr, sobj.bgcol);
-        [sobj.vbl_3, sobj.OnsetTime_3, sobj.FlipTimeStamp_3] =...
-            Screen('Flip', sobj.wPtr, sobj.vbl_1+sobj.loomDuration);
+        [sobj.vbl_3, ~, ~, ~, sobj.BeamposOFF] =...
+            Screen('Flip', sobj.wPtr, sobj.vbl_1 + sobj.loomDuration);
         
         TriggerVSon(Testmode, dio,0)
     end
@@ -772,8 +773,8 @@ end
         %AddPhoto Sensor (Left, UP in the monitor) for the stimulus timing check
         Screen('FillRect', sobj.wPtr, 255, [0 0 40 40]);
         % Flip and rap timer
-        [sobj.vbl_2, sobj.OnsetTime_2, sobj.FlipTimeStamp_2] = ...
-            Screen('Flip', sobj.wPtr, sobj.vbl_1+sobj.delayPTB);% put some delay for PTB
+        [sobj.vbl_2, ~, ~, ~, sobj.BeamposON] = ...
+            Screen('Flip', sobj.wPtr, sobj.vbl_1 + sobj.delayPTB);% put some delay for PTB
         
         TriggerVSon(Testmode, dio, 1);
         disp(['AITrig; ',sobj.pattern, ': #', num2str(recobj.cycleNum)]);
@@ -963,7 +964,7 @@ end
         
         %%% stim ON %%%%%%%%%%%%%%%%%%%%%%%%%%%
         % Flip and rap timer
-        [sobj.vbl_2, sobj.OnsetTime_2, sobj.FlipTimeStamp_2] = ...
+        [sobj.vbl_2, ~, ~, ~, sobj.BeamposON] = ...
             Screen('Flip', sobj.wPtr, sobj.vbl_1 + sobj.delayPTB);% put some delay for PTB
         
         TriggerVSon(Testmode, dio, 1)
@@ -976,7 +977,7 @@ end
         % Prep BacgGround Screen
         Screen('FillRect', sobj.wPtr, sobj.bgcol);
         % After sobj.duration, flib BG color
-        [sobj.vbl_3, sobj.OnsetTime_3, sobj.FlipTimeStamp_3] = ...
+        [sobj.vbl_3, ~, ~, ~, sobj.BeamposOFF] = ...
             Screen('Flip', sobj.wPtr, sobj.vbl_2+sobj.duration);
         
         TriggerVSon(Testmode, dio, 0)
@@ -1044,7 +1045,7 @@ else % during stimulation
         case 'FineMap'
             bgcol = 'm';
             stim_str3 = ['FinePos: ', num2str(sobj.center_index_FineMap),...
-                '/', num2str(sobj.div_zoom^2)];     
+                '/', num2str(sobj.div_zoom^2)];
     end
     set(figUIobj.StimMonitor1, 'string', [sobj.pattern, ': #', num2str(recobj.cycleNum)], 'BackGroundColor',bgcol);
     set(figUIobj.StimMonitor2, 'string',['POS: ',num2str(sobj.center_index), '/',num2str(sobj.divnum^2)], 'ForeGroundColor', 'k', 'BackGroundColor', bgcol);

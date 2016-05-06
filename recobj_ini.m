@@ -2,7 +2,7 @@ function recobj = recobj_ini(Recmode)
 % initialize recobj
 
 %% version
-recobj.NBAver = '11.5.0';
+recobj.NBAver = '11.5.1';
 
 %% Recording Parameters: HEADER Information
 
