@@ -52,14 +52,14 @@ addAnalogOutputChannel(sOut, dev.ID, 0, 'Voltage');
 %(1):
 %(2): Curretn Pulse (C clamp), Voltage Pulse (V clamp)
 addTriggerConnection(sOut,'External',[dev.ID,'/PFI0'],'StartTrigger');
-sOut.Connections(1).TriggerCondition = 'RisingEdge';
+sOut.Connections(1).TriggerCondition = 'FallingEdge';
 
 
 %% Digital Output
 %P0.1:Start FV or Digidata
 dio.TrigAIFV = daq.createSession(dev.Vendor.ID);
 addDigitalChannel(dio.TrigAIFV, dev.ID, 'port0/line0:1', 'OutputOnly');
-outputSingleScan(dio.TrigAIFV,[0,0]);%reset trigger signals at Low
+outputSingleScan(dio.TrigAIFV,[1,0]);%reset trigger signals at Low
 
 %P0.2:Visual Stimulus On Timing
 dio.VSon = daq.createSession(dev.Vendor.ID);

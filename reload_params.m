@@ -266,7 +266,7 @@ if Testmode == 0
     ParamsSave =[]; % reset save parameters
     lh = addlistener(s, 'DataAvailable', @(src,event) dataCaptureNBA(src, event, capture, figUIobj, Recmode, SetCam)); 
     % dio reset
-    outputSingleScan(dio.TrigAIFV,[0,0])
+    outputSingleScan(dio.TrigAIFV,[1,0])
     outputSingleScan(dio.VSon,0)
     disp('reset s, dio, EventListener')
     
