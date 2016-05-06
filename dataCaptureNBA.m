@@ -150,13 +150,15 @@ elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) > c.Tim
     
     %%%%%% save setting %%%%%%
     if get(hGui.save, 'value') == 1 % Saving
-        disp('DAQ captued.')
-        %DataSave(:, :, trigCount) = captureData;
+        ParamsSave{1, trigCount} = get_save_params(recobj, sobj);
+        
+        DataSave(:, :, trigCount) = captureData;
+        %{
         [dirname, fname] = fileparts(recobj.savefilename);
         fid = fopen([dirname, '/', fname, '_Data.mat'], 'a');
         fwrite(fid, captureData, 'single');
-        flose(fid)
-        ParamsSave{1, trigCount} = get_save_params(recobj, sobj);
+        fclose(fid);
+        %}
     end
     
     %%%%%% save imaq %%%%%

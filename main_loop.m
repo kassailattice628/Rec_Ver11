@@ -118,11 +118,13 @@ end
             % IMAQ save data check
             if SetCam && get(hGui.save, 'value')
                 while islogging(imaq.vid)
-                    disp([num2str(imaq.vid.DiskLoggerFrameCount), '/', num2str(imaq.vid.FramesAcquired),...
-                        ' frames are written in disk.'])
+                    disp('waiting save vid.')
                     pause(.2);
                 end
                 
+                clear logvid
+                imaqreset;
+                imaq = imaq_ini(recobj);
                 %{
                 check actual FPS
                 [~ , timeStamp] = getdata(imaq.vid);
@@ -181,8 +183,7 @@ end
             set(hGui.save, 'value', 0, 'string', 'Unsave', 'BackGroundColor',[0.9400 0.9400 0.9400])
         end
         
-        % clear save data
-        
+        % clear save data from memory
         DataSave = [];
         ParamsSave = [];
         
@@ -228,7 +229,7 @@ else
     recobj.t_AIstart = sobj.vbl_1 - recobj.t_START;
 end
 
-if UseCam
+if UseCam && isrunning(imaq.vid)
     trigger(imaq.vid)
 end
 
