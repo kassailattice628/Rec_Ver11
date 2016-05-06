@@ -83,7 +83,7 @@ end
             end
             
             dirname_movie = [recobj.dirname, 'Movie_', fname, num2str(recobj.savecount), '/'];
-            logvid = VideoWriter([dirname_movie, '_mov_', num2str(recobj.cycleCount)], 'MPEG-4');
+            logvid = VideoWriter([dirname_movie, 'mov_', num2str(recobj.cycleCount)], 'MPEG-4');
             logvid.FrameRate = imaq.frame_rate;
             logvid.Quality = 50;
             imaq.vid.DiskLogger = logvid;
@@ -123,12 +123,14 @@ end
                     pause(.2);
                 end
                 
-                %check actual FPS
+                %{
+                check actual FPS
                 [~ , timeStamp] = getdata(imaq.vid);
                 %figure;
                 %plot(timeStamp,'x');
                 FPS = imaq.vid.DiskLoggerFrameCount/(timeStamp(end)-timeStamp(1));
                 disp(['actual FPS = ', num2str(FPS)]);
+                %}
             end
             
         catch ME1
