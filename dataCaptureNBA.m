@@ -32,8 +32,6 @@ persistent dataBuffer trigActive trigMoment trigCount
 %%
 % If dataCapture is running for the first time, initialize persistent vars
 if event.TimeStamps(1)==0
-    disp('Timer2 Start')
-    recobj.aiTimer2 = tic;
     dataBuffer = [];          % data buffer
     trigActive = false;       % trigger condition flag
     trigMoment = [];          % data timestamp when trigger condition met
@@ -155,9 +153,10 @@ elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) > c.Tim
     %%%%%% save setting %%%%%%
     if get(hGui.save, 'value') == 1 % Saving
         ParamsSave{1, trigCount} = get_save_params(recobj, sobj);
-        
         DataSave(:, :, trigCount) = captureData;
+        
         %{
+        % when DataSave is saved as a discrete file.
         [dirname, fname] = fileparts(recobj.savefilename);
         fid = fopen([dirname, '/', fname, '_Data.mat'], 'a');
         fwrite(fid, captureData, 'single');

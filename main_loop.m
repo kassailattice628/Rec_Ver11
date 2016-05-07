@@ -201,7 +201,7 @@ end
 %%% subfunctions %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%
-function Trigger_Rec(Testmode, UseCam,  dio)
+function Trigger_Rec(Testmode, UseCam, dio)
 % put TTL signal and start timer
 
 global recobj
@@ -218,9 +218,6 @@ if recobj.cycleNum == -recobj.prestim +1
     generate_trigger([1,1]); % Start AI & FV
     sobj.vbl_1 = Screen('Flip', sobj.wPtr);
     disp('Timer Start')
-    recobj.aiTimer = tic;
-    disp('after flip')
-    toc(recobj.aiTimer)
     recobj.t_START = sobj.vbl_1;
     recobj.t_AIstart = 0;
 else
