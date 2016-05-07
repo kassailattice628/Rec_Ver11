@@ -224,8 +224,6 @@ else
     %background ScreenON;
     generate_trigger([1,0]); % Start AI
     sobj.vbl_1 = Screen('Flip', sobj.wPtr);
-    disp('after flip')
-    toc(recobj.aiTimer)
     recobj.t_AIstart = sobj.vbl_1 - recobj.t_START;
 end
 
@@ -673,7 +671,6 @@ end
         [sobj.vbl_2, ~, ~, ~, sobj.BeamposON] =...
             Screen('Flip', sobj.wPtr, sobj.vbl_1 + sobj.delayPTB);% put some delay for PTB
         TriggerVSon(Testmode, dio,1)
-        disp(['AITrig; ',sobj.pattern, ': #', num2str(recobj.cycleNum)]);
         
         for count = 1:flipnum
             Rect = CenterRectOnPointd([0, 0, count .* scaleFactor], sobj.stim_center(1), sobj.stim_center(2));
@@ -787,7 +784,6 @@ end
             Screen('Flip', sobj.wPtr, sobj.vbl_1 + sobj.delayPTB);% put some delay for PTB
         
         TriggerVSon(Testmode, dio, 1);
-        disp(['AITrig; ',sobj.pattern, ': #', num2str(recobj.cycleNum)]);
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         for count = 1:sobj.flipNum-1
             phase = count * 360/sobj.frameRate * sobj.shiftSpd;
@@ -1059,7 +1055,7 @@ else % during stimulation
     set(figUIobj.StimMonitor2, 'string',['POS: ',num2str(sobj.center_index), '/',num2str(sobj.divnum^2)], 'ForeGroundColor', 'k', 'BackGroundColor', bgcol);
     set(figUIobj.StimMonitor3, 'string', stim_str3, 'BackGroundColor',bgcol);
 end
-drawnow;
+drawnow update;
 end
 %%
 function stim_monitor_reset
@@ -1068,6 +1064,6 @@ global figUIobj
 set(figUIobj.StimMonitor1, 'BackGroundColor', 'w');
 set(figUIobj.StimMonitor2, 'BackGroundColor', 'w');
 set(figUIobj.StimMonitor3, 'BackGroundColor', 'w');
-drawnow;
+drawnow update;
 end
 %%

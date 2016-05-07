@@ -153,9 +153,9 @@ elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) > c.Tim
     %%%%%% save setting %%%%%%
     if get(hGui.save, 'value') == 1 % Saving
         ParamsSave{1, trigCount} = get_save_params(recobj, sobj);
-        DataSave(:, :, trigCount) = captureData;
+        %DataSave(:, :, trigCount) = captureData;
         
-        %{
+        %
         % when DataSave is saved as a discrete file.
         [dirname, fname] = fileparts(recobj.savefilename);
         fid = fopen([dirname, '/', fname, '_Data.mat'], 'a');
