@@ -64,6 +64,7 @@ end
         % ready to start DAQ
         if Testmode == 0
             if s.IsRunning == false
+                recobj.aiTimer = tic;
                 s.startBackground; %session start, listener ON, *** Waiting Analog Trigger (AI3)
             end
             
@@ -216,8 +217,14 @@ Screen('FillRect', sobj.wPtr, sobj.bgcol); %prepare background
 % timer start, digital out
 if recobj.cycleNum == -recobj.prestim +1
     %background ScreenON;
+    disp('before flip')
+    toc(recobj.aiTimer)
     [sobj.vbl_1, ~, sobj.end_1] = Screen('Flip', sobj.wPtr);
+    disp('after flip')
+    toc(recobj.aiTimer)
     generate_trigger([1,1]); % Start AI & FV
+    disp('after trigger AIFV')
+    toc(recobj.aiTimer)
     
     recobj.t_START = sobj.vbl_1;
     recobj.t_AIstart = 0;
