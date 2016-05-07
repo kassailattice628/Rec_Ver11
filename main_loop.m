@@ -217,16 +217,15 @@ Screen('FillRect', sobj.wPtr, sobj.bgcol); %prepare background
 if recobj.cycleNum == -recobj.prestim +1
     %background ScreenON;
     [sobj.vbl_1, ~, sobj.end_1] = Screen('Flip', sobj.wPtr);
-    generate_trigger([0,1]); % Start AI & FV
+    generate_trigger([1,1]); % Start AI & FV
     
     recobj.t_START = sobj.vbl_1;
     recobj.t_AIstart = 0;
 else
     %background ScreenON;
     [sobj.vbl_1, ~, sobj.end_1] = Screen('Flip', sobj.wPtr);
-    tic
-    generate_trigger([0,0]); % Start AI
-    toc
+    generate_trigger([1,0]); % Start AI
+    
     recobj.t_AIstart = sobj.vbl_1 - recobj.t_START;
 end
 
@@ -234,8 +233,10 @@ if UseCam && isrunning(imaq.vid)
     trigger(imaq.vid)
 end
 
+disp(sobj.end_1 - sobj.vbl_1);
+
 %reset Trigger level
-generate_trigger([1,0]);
+generate_trigger([0,0]);
 
 %%nested%%
     function generate_trigger(pattern)
@@ -258,7 +259,7 @@ end
 function ResetTTLall(Testmode, dio, sobj)
 % Reset all TTL leve to zero.
 if Testmode == 0; %Test mode off
-    outputSingleScan(dio.TrigAIFV,[1,0]);
+    outputSingleScan(dio.TrigAIFV,[0,0]);
     outputSingleScan(dio.VSon,0);
 else
     if sobj.Num_screens == 1

@@ -161,13 +161,11 @@ elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) > c.Tim
         %}
     end
     
-    %{
     %%%%%% save imaq %%%%%
     if SetCam
         disp([num2str(imaq.vid.DiskLoggerFrameCount), '/',...
             num2str(imaq.vid.FramesAcquired),' frames are written in disk.'])
     end
-    %}
     
 elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) < c.TimeSpan)
     %disp('data short ')
