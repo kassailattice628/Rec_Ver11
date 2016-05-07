@@ -61,23 +61,8 @@ end
 %% %%%%%%%%%%%% nested functions %%%%%%%%%%%%%%
 %%
     function Loop_contents(dio, hGui, Testmode, SetCam)
-        % ready to start DAQ
-        if Testmode == 0
-            if s.IsRunning == false
-                recobj.aiTimer = tic;
-                s.startBackground; %session start, listener ON, *** Waiting Analog Trigger (AI3)
-            end
-            
-            if get(hGui.TTL3, 'value') == 1
-                %TTLpulse
-                queueOutputData(sOut, 5 * recobj.TTL3AO); %max 10V
-                sOut.startBackground
-            end
-        end
-        
-        
+        % ready to start USB Cam
         if SetCam && get(hGui.save, 'value')
-            
             [~, fname] = fileparts([recobj.dirname, recobj.fname]);
             if exist([recobj.dirname, 'Movie_', fname, num2str(recobj.savecount)], 'dir') == 0
                 mkdir([recobj.dirname, 'Movie_', fname, num2str(recobj.savecount)]);
@@ -94,13 +79,26 @@ end
             end
         end
         
+        % ready to start DAQ
+        if Testmode == 0
+            if get(hGui.TTL3, 'value') == 1
+                %TTLpulse
+                queueOutputData(sOut, 5 * recobj.TTL3AO); %max 10V
+                sOut.startBackground
+            end
+            %DAQ timer start
+            if s.IsRunning == false
+                s.startBackground; %session start, listener ON, *** Waiting Analog Trigger (AI3)
+            end
+        end
+        
         try %error check
             switch get(hGui.stim, 'value')
                 %%%%%%%%%%%%%%%%%%%% Visual Stimulus OFF %%%%%%%%%%%%%%%%%%%%
                 case 0
                     % start timer and start FV
+                    disp(['AITrig; NoStim', ': #', num2str(recobj.cycleNum)]);
                     Trigger_Rec(Testmode, SetCam, dio);
-                    disp(['AITrig; PreStim', ': #', num2str(recobj.cycleNum)]);
                     
                     % loop interval %
                     pause(recobj.rect/1000 + recobj.interval);
@@ -217,30 +215,26 @@ Screen('FillRect', sobj.wPtr, sobj.bgcol); %prepare background
 % timer start, digital out
 if recobj.cycleNum == -recobj.prestim +1
     %background ScreenON;
-    disp('before flip')
-    toc(recobj.aiTimer)
-    [sobj.vbl_1, ~, sobj.end_1] = Screen('Flip', sobj.wPtr);
+    generate_trigger([1,1]); % Start AI & FV
+    sobj.vbl_1 = Screen('Flip', sobj.wPtr);
+    disp('Timer Start')
+    recobj.aiTimer = tic;
     disp('after flip')
     toc(recobj.aiTimer)
-    generate_trigger([1,1]); % Start AI & FV
-    disp('after trigger AIFV')
-    toc(recobj.aiTimer)
-    
     recobj.t_START = sobj.vbl_1;
     recobj.t_AIstart = 0;
 else
     %background ScreenON;
-    [sobj.vbl_1, ~, sobj.end_1] = Screen('Flip', sobj.wPtr);
     generate_trigger([1,0]); % Start AI
-    
+    sobj.vbl_1 = Screen('Flip', sobj.wPtr);
+    disp('after flip')
+    toc(recobj.aiTimer)
     recobj.t_AIstart = sobj.vbl_1 - recobj.t_START;
 end
 
 if UseCam && isrunning(imaq.vid)
     trigger(imaq.vid)
 end
-
-disp(sobj.end_1 - sobj.vbl_1);
 
 %reset Trigger level
 generate_trigger([0,0]);
@@ -292,6 +286,7 @@ global sobj
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if recobj.cycleNum <= 0 % Prestimulus
     % Start AI
+    disp(['AITrig; PreStim', ': #', num2str(recobj.cycleNum)]);
     Trigger_Rec(Testmode, UseCam, dio)
     stim_monitor;
     pause_time = recobj.rect/1000 + recobj.interval;
@@ -299,6 +294,7 @@ if recobj.cycleNum <= 0 % Prestimulus
     
 elseif recobj.cycleNum > 0 %StimON
     % Start AI
+    disp(['AITrig; ',sobj.pattern, ': #', num2str(recobj.cycleNum)]);
     Trigger_Rec(Testmode, UseCam, dio)
     %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     switch sobj.pattern
@@ -985,7 +981,6 @@ end
             Screen('Flip', sobj.wPtr, sobj.vbl_1 + sobj.delayPTB);% put some delay for PTB
         
         TriggerVSon(Testmode, dio, 1)
-        disp(['AITrig; ',sobj.pattern, ': #', num2str(recobj.cycleNum)]);
         stim_monitor;
     end
 
@@ -1008,7 +1003,6 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % end of VisStim
 end
-
 
 
 %%

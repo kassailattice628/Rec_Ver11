@@ -24,7 +24,7 @@ global sobj
 global DataSave
 global ParamsSave
 
-global imaq
+%global imaq
 
 
 %% keep parameter during loop
@@ -32,6 +32,8 @@ persistent dataBuffer trigActive trigMoment trigCount
 %%
 % If dataCapture is running for the first time, initialize persistent vars
 if event.TimeStamps(1)==0
+    disp('Timer2 Start')
+    recobj.aiTimer2 = tic;
     dataBuffer = [];          % data buffer
     trigActive = false;       % trigger condition flag
     trigMoment = [];          % data timestamp when trigger condition met
@@ -80,7 +82,7 @@ if captureRequested && (~trigActive)
     % State: "Looking for trigger event"
     % Trigger Configuration
     trigConfig.Channel = 4; %Trigger monitor
-    trigConfig.Level = 2; %(V) Trigger threshold
+    trigConfig.Level = 3; %(V) Trigger threshold
     % Determine whether trigger condition is met in the latest acquired data
     [trigActive, trigMoment] = trigDetectNBA(latestData, trigConfig);
     
@@ -147,6 +149,8 @@ elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) > c.Tim
         drawnow update;
     end
     trigActive = false;
+    disp(['AIStartTime: ', num2str(captureData(1,1))]);
+    
     
     %%%%%% save setting %%%%%%
     if get(hGui.save, 'value') == 1 % Saving
@@ -163,8 +167,8 @@ elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) > c.Tim
     
     %%%%%% save imaq %%%%%
     if SetCam
-        disp([num2str(imaq.vid.DiskLoggerFrameCount), '/',...
-            num2str(imaq.vid.FramesAcquired),' frames are written in disk.'])
+        %disp([num2str(imaq.vid.DiskLoggerFrameCount), '/',...
+        %   num2str(imaq.vid.FramesAcquired),' frames are written in disk.'])
     end
     
 elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) < c.TimeSpan)
