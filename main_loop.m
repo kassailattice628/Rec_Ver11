@@ -117,23 +117,28 @@ end
             % IMAQ save data check
             if SetCam && get(hGui.save, 'value')
                 while islogging(imaq.vid)
-                    disp('waiting save vid.')
+                    disp('waiting for video logging.')
                     pause(.2);
                 end
-                
-                clear logvid
-                flushdata(imaq.vid)
-                delete(imaq.vid)
-                imaqreset;
-                imaq = imaq_ini(recobj, get(hGui.saveCam, 'value'));
-                %{
-                check actual FPS
-                [~ , timeStamp] = getdata(imaq.vid);
+                while imaq.vid.FramesAcquired ~= vidobj.DiskLoggerFrameCount
+                    disp('data is writing to the disk')
+                    pause(.2)
+                end
+                %check actual FPS if img is saved to disk & memory
+                if get(figUIobj.saveCam, 'value')
+                    [Img, timeStamp] = getdata(imaq.vid, imaq.vid.FramesAcquired);
+                end
                 %figure;
                 %plot(timeStamp,'x');
                 FPS = imaq.vid.DiskLoggerFrameCount/(timeStamp(end)-timeStamp(1));
                 disp(['actual FPS = ', num2str(FPS)]);
-                %}
+                
+                clear logvid
+                clear Img
+                flushdata(imaq.vid)
+                delete(imaq.vid)
+                imaqreset;
+                imaq = imaq_ini(recobj, get(hGui.saveCam, 'value'));
             end
             
         catch ME1

@@ -97,8 +97,3 @@ if get(figUIobj.stim,'value') && recobj.cycleNum > 0
             save.stim1.center_position_FineMap = sobj.center_index_FineMap;
     end
 end
-
-if get(figUIobj.saveCam, 'value')
-    numAcquired = imaq.vid.FramesAcquired;
-    save.Img = getdata(imaq.vid, numAcquired);
-end
