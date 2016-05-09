@@ -120,19 +120,19 @@ end
                     disp('waiting for video logging.')
                     pause(.2);
                 end
-                while imaq.vid.FramesAcquired ~= vidobj.DiskLoggerFrameCount
+                while imaq.vid.FramesAcquired ~= imaq.vid.DiskLoggerFrameCount
                     disp('data is writing to the disk')
                     pause(.2)
                 end
                 %check actual FPS if img is saved to disk & memory
-                if get(figUIobj.saveCam, 'value')
+                if get(hGui.saveCam, 'value')
                     [Img, timeStamp] = getdata(imaq.vid, imaq.vid.FramesAcquired);
+                    %figure;
+                    %plot(timeStamp,'x');
+                    FPS = imaq.vid.DiskLoggerFrameCount/(timeStamp(end)-timeStamp(1));
+                    disp(['actual FPS = ', num2str(FPS)]);
+                    
                 end
-                %figure;
-                %plot(timeStamp,'x');
-                FPS = imaq.vid.DiskLoggerFrameCount/(timeStamp(end)-timeStamp(1));
-                disp(['actual FPS = ', num2str(FPS)]);
-                
                 clear logvid
                 clear Img
                 flushdata(imaq.vid)
