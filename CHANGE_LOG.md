@@ -1,5 +1,12 @@
 # Change_log
 
+## 11.5.2
+画像の書き出しは， VideoWrite がデフォルト．  
+memory にもおいて，元の画像を保存できるようにする．  
+PTB の vbl で時間計測できるかとおもったが，DAQ AI の時間と 0 があわせられない．  
+やめる．刺激提示の時間は，Photo-sensor の時間をもとにする．  
+（一応 tic, toc でも AI の開始時間を計測）．
+
 ## 11.5.1
 Looming, Grating の時に，最初のフレームを出した後に stim_monitor
 （おそらく drawnow で時間食ってる？） 呼ぶと，カメラ使用時に動きが

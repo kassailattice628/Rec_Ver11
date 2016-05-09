@@ -347,6 +347,9 @@ switch UseCam
         hGui.imaqPrev = uicontrol('style', 'togglebutton', 'position', [470 290 100 30],...
             'string', 'Preview', 'Callback', @Cam_Preview,'FontSize', 13);
         
+        hGui.saveCam = uicontrol('style', 'togglebutton', 'position', [410 250 50 30],...
+            'string', 'Disk', 'Callback', {@ch_saveCam}, 'FontSize', 13);
+        
         
 end
 
@@ -752,6 +755,16 @@ else
     end
 end
 ch_ButtonColor(hObject, [], 'g')
+end
+
+%%
+function ch_saveCam(hObject, ~)
+global imaq
+if get(hObject, 'value')
+    imaq.vid.LoggingMode = 'disk&memory';
+else
+    imaq.vid.LoggingMode = 'disk';
+end
 end
 
 

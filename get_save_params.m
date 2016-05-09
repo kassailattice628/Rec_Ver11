@@ -3,6 +3,7 @@ function save = get_save_params(recobj, sobj)
 % these paraemters are updated in evely loop and saved in a cell.
 
 global figUIobj
+global imaq
 
 %%
 pattern = sobj.pattern;
@@ -97,4 +98,6 @@ if get(figUIobj.stim,'value') && recobj.cycleNum > 0
     end
 end
 
+if get(figUIobj.saveCam, 'value')
+    save.Img = getdata(imaq.vid);
 end

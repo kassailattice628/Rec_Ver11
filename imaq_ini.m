@@ -1,4 +1,13 @@
-function imaq = imaq_ini(recobj)
+function imaq = imaq_ini(varargin)
+
+if narargin == 1
+    recobj = varargin{1};
+    save_mode = 0;
+elseif narargin == 2
+    recobj = varargin{1};
+    save_mode = varargin{2};
+end
+    
 
 imaq.vid = videoinput( 'pointgrey' , 1, 'F7_Raw8_640x512_Mode1');
 imaq.src = getselectedsource(imaq.vid);
@@ -12,8 +21,11 @@ imaq.vid.TriggerFrameDelay = 0;
 imaq.src.FrameRatePercentage = 100;
 
 % set save mode
-imaq.vid.LoggingMode = 'disk';% 'memory' ;
-%imaq.vid.LoggingMode = 'disk&memory';% 'memory' ;
+if save_mode == 0
+    imaq.vid.LoggingMode = 'disk';
+elseif save_mode == 1
+    imaq.vid.LoggingMode = 'disk&memory';
+end
 
 
 %triggerconfig(vid, 'immediate' ); % cature when calls start(vid)

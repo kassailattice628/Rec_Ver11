@@ -21,7 +21,7 @@ function dataCaptureNBA(src, event, c, hGui, Recmode, SetCam)
 global plotUIobj
 global recobj
 global sobj
-global DataSave
+%global DataSave
 global ParamsSave
 
 %global imaq
@@ -144,7 +144,7 @@ elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) > c.Tim
             set(plotUIobj.plot3, 'XData', captureData(:, 1), 'YData', positionDataDeg)%Decoded Angular position data
         end
         %update plot
-        drawnow update;
+        drawnow limitrated;
     end
     trigActive = false;
     disp(['AIStartTime: ', num2str(captureData(1,1))]);
@@ -154,7 +154,6 @@ elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) > c.Tim
     if get(hGui.save, 'value') == 1 % Saving
         ParamsSave{1, trigCount} = get_save_params(recobj, sobj);
         %DataSave(:, :, trigCount) = captureData;
-        
         %
         % when DataSave is saved as a discrete file.
         [dirname, fname] = fileparts(recobj.savefilename);

@@ -122,6 +122,9 @@ end
                 end
                 
                 clear logvid
+                flushdata(imaq.vid)
+                delete(imaq.vid)
+                clear(imaq.vid)
                 imaqreset;
                 imaq = imaq_ini(recobj);
                 %{
@@ -216,15 +219,19 @@ Screen('FillRect', sobj.wPtr, sobj.bgcol); %prepare background
 if recobj.cycleNum == -recobj.prestim +1
     %background ScreenON;
     generate_trigger([1,1]); % Start AI & FV
-    sobj.vbl_1 = Screen('Flip', sobj.wPtr);
     disp('Timer Start')
-    recobj.t_START = sobj.vbl_1;
+    recobj.t_START = tic;
     recobj.t_AIstart = 0;
+    [sobj.vbl_1, sobj.onset, sobj.flipend] = Screen('Flip', sobj.wPtr);
+    %recobj.t_START = sobj.vbl_1;
+
 else
     %background ScreenON;
+    AItime = toc(recobj.t_START);
+    recobj.t_AIstart = AItime - recobj.t_START;
     generate_trigger([1,0]); % Start AI
-    sobj.vbl_1 = Screen('Flip', sobj.wPtr);
-    recobj.t_AIstart = sobj.vbl_1 - recobj.t_START;
+    [sobj.vbl_1, sobj.onset, sobj.flipend] = Screen('Flip', sobj.wPtr);
+    %recobj.t_AIstart = sobj.vbl_1 - recobj.t_START;
 end
 
 if UseCam && isrunning(imaq.vid)
@@ -1055,7 +1062,7 @@ else % during stimulation
     set(figUIobj.StimMonitor2, 'string',['POS: ',num2str(sobj.center_index), '/',num2str(sobj.divnum^2)], 'ForeGroundColor', 'k', 'BackGroundColor', bgcol);
     set(figUIobj.StimMonitor3, 'string', stim_str3, 'BackGroundColor',bgcol);
 end
-drawnow update;
+drawnow limitrate;
 end
 %%
 function stim_monitor_reset
@@ -1064,6 +1071,6 @@ global figUIobj
 set(figUIobj.StimMonitor1, 'BackGroundColor', 'w');
 set(figUIobj.StimMonitor2, 'BackGroundColor', 'w');
 set(figUIobj.StimMonitor3, 'BackGroundColor', 'w');
-drawnow update;
+drawnow limitrate;
 end
 %%
