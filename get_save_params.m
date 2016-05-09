@@ -3,7 +3,6 @@ function save = get_save_params(recobj, sobj)
 % these paraemters are updated in evely loop and saved in a cell.
 
 global figUIobj
-global imaq
 
 %%
 pattern = sobj.pattern;

@@ -127,6 +127,8 @@ end
                 %check actual FPS if img is saved to disk & memory
                 if get(hGui.saveCam, 'value')
                     [Img, timeStamp] = getdata(imaq.vid, imaq.vid.FramesAcquired);
+                    ParamsSave{1, recobj.cycleCount}.Img = Img;
+                    clear Img
                     %figure;
                     %plot(timeStamp,'x');
                     FPS = imaq.vid.DiskLoggerFrameCount/(timeStamp(end)-timeStamp(1));
@@ -134,7 +136,6 @@ end
                     
                 end
                 clear logvid
-                clear Img
                 flushdata(imaq.vid)
                 delete(imaq.vid)
                 imaqreset;
