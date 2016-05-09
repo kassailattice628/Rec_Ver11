@@ -1,9 +1,9 @@
 function imaq = imaq_ini(varargin)
 
-if narargin == 1
+if nargin == 1
     recobj = varargin{1};
     save_mode = 0;
-elseif narargin == 2
+elseif nargin == 2
     recobj = varargin{1};
     save_mode = varargin{2};
 end
@@ -26,7 +26,6 @@ if save_mode == 0
 elseif save_mode == 1
     imaq.vid.LoggingMode = 'disk&memory';
 end
-
 
 %triggerconfig(vid, 'immediate' ); % cature when calls start(vid)
 triggerconfig(imaq.vid, 'manual' ); % capture when calls trigger(vid)

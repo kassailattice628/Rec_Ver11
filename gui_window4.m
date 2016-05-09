@@ -347,7 +347,7 @@ switch UseCam
         hGui.imaqPrev = uicontrol('style', 'togglebutton', 'position', [470 290 100 30],...
             'string', 'Preview', 'Callback', @Cam_Preview,'FontSize', 13);
         
-        hGui.saveCam = uicontrol('style', 'togglebutton', 'position', [410 250 50 30],...
+        hGui.saveCam = uicontrol('style', 'togglebutton', 'position', [410 250 120 30],...
             'string', 'Disk', 'Callback', {@ch_saveCam}, 'FontSize', 13);
         
         
@@ -450,11 +450,13 @@ global imaq
 delete(s)
 
 if UseCam==1
-    if isrunning(imaq.vid)
-        stop(imaq.vid)
+    if exist('imaq' ,'var')
+        if isrunning(imaq.vid)
+            stop(imaq.vid)
+        end
+        delete(imaq.vid)
+        clear imaq
     end
-    delete(imaq.vid)
-    clear imaq
 end
 
 if isempty(dev)
@@ -759,11 +761,13 @@ end
 
 %%
 function ch_saveCam(hObject, ~)
-global imaq
+global recobj
 if get(hObject, 'value')
-    imaq.vid.LoggingMode = 'disk&memory';
+    set(hObject ,'string', 'disk&memory');
+    imaq_ini(recobj, 1)
 else
-    imaq.vid.LoggingMode = 'disk';
+    set(hObject ,'string', 'disk');
+    imaq_ini(recobj, 0)
 end
 end
 

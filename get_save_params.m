@@ -99,5 +99,6 @@ if get(figUIobj.stim,'value') && recobj.cycleNum > 0
 end
 
 if get(figUIobj.saveCam, 'value')
-    save.Img = getdata(imaq.vid);
+    numAcquired = imaq.vid.FramesAcquired;
+    save.Img = getdata(imaq.vid, numAcquired);
 end

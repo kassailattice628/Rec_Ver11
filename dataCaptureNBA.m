@@ -144,7 +144,8 @@ elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) > c.Tim
             set(plotUIobj.plot3, 'XData', captureData(:, 1), 'YData', positionDataDeg)%Decoded Angular position data
         end
         %update plot
-        drawnow limitrated;
+        %drawnow limitrate;
+        refreshdata(plotUIobj.fig, 'caller')
     end
     trigActive = false;
     disp(['AIStartTime: ', num2str(captureData(1,1))]);

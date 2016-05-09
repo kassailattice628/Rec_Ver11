@@ -124,9 +124,8 @@ end
                 clear logvid
                 flushdata(imaq.vid)
                 delete(imaq.vid)
-                clear(imaq.vid)
                 imaqreset;
-                imaq = imaq_ini(recobj);
+                imaq = imaq_ini(recobj, get(hGui.saveCam, 'value'));
                 %{
                 check actual FPS
                 [~ , timeStamp] = getdata(imaq.vid);
@@ -1062,7 +1061,7 @@ else % during stimulation
     set(figUIobj.StimMonitor2, 'string',['POS: ',num2str(sobj.center_index), '/',num2str(sobj.divnum^2)], 'ForeGroundColor', 'k', 'BackGroundColor', bgcol);
     set(figUIobj.StimMonitor3, 'string', stim_str3, 'BackGroundColor',bgcol);
 end
-drawnow limitrate;
+drawnow limitrate nocallbacks;
 end
 %%
 function stim_monitor_reset
@@ -1071,6 +1070,6 @@ global figUIobj
 set(figUIobj.StimMonitor1, 'BackGroundColor', 'w');
 set(figUIobj.StimMonitor2, 'BackGroundColor', 'w');
 set(figUIobj.StimMonitor3, 'BackGroundColor', 'w');
-drawnow limitrate;
+drawnow limitrate nocallbacks;
 end
 %%
