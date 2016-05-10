@@ -126,9 +126,14 @@ end
                     pause(.2);
                 end
                 %}
+                FA = imaq.vid.FramesAcquired;
                 while imaq.vid.FramesAcquired ~= imaq.vid.DiskLoggerFrameCount
                     disp('data is writing to the disk')
                     pause(.2)
+                    if imaq.vid.FramesAcquired == FA
+                        disp('error disk writing')
+                        break;
+                    end
                 end
                 
                 %check actual FPS if img is saved to disk & memory
