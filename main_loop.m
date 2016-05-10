@@ -106,7 +106,7 @@ end
                     % loop interval %
                     pause(recobj.rect/1000 + recobj.interval);
                     
-                %%%%%%%%%%%%%%%%%%%% Visual Stimulus ON %%%%%%%%%%%%%%%%%%%%%
+                    %%%%%%%%%%%%%%%%%%%% Visual Stimulus ON %%%%%%%%%%%%%%%%%%%%%
                 case 1
                     % start timer, start FV and start Visu Stim
                     VisStim(Testmode, SetCam, dio);
@@ -119,22 +119,20 @@ end
             
             % IMAQ save data check
             if SetCam && get(hGui.save, 'value')
+                
                 disp('log Img')
-                %{
-                while islogging(imaq.vid)
-                    disp('waiting for video logging.')
-                    pause(.2);
-                end
-                %}
                 FA = imaq.vid.FramesAcquired;
                 while imaq.vid.FramesAcquired ~= imaq.vid.DiskLoggerFrameCount
                     disp('data is writing to the disk')
-                    pause(.2)
+                    disp(FA)
+                    disp(imaq.vid.DiskLoggerFrameCount)
+                    pause(0.1)
                     if imaq.vid.FramesAcquired == FA
                         disp('error disk writing')
                         break;
                     end
                 end
+                disp('finish saving image.')
                 
                 %check actual FPS if img is saved to disk & memory
                 if get(hGui.saveCam, 'value')
@@ -146,7 +144,6 @@ end
                     FPS = imaq.vid.DiskLoggerFrameCount/(timeStamp(end)-timeStamp(1));
                     disp(['actual FPS = ', num2str(FPS)]);
                 end
-                
                 clear logvid
                 flushdata(imaq.vid)
                 delete(imaq.vid)
@@ -186,12 +183,13 @@ end
         if SetCam == 1
             if isrunning(imaq.vid)
                 stop(imaq.vid)
-                flushdata(imaq.vid)
-                delete(imaq.vid)
-                imaqreset;
-                imaq = imaq_ini(recobj, get(hGui.saveCam, 'value'));
-                disp('stop & delete imaq.')
+                disp('stopimaq.')
             end
+            flushdata(imaq.vid)
+            delete(imaq.vid)
+            imaqreset;
+            imaq = imaq_ini(recobj, get(hGui.saveCam, 'value'));
+            disp('reset imaq.')
         end
         
         %%%%%% Save Data %%%%%%
