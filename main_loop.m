@@ -61,7 +61,7 @@ end
 %% %%%%%%%%%%%% nested functions %%%%%%%%%%%%%%
 %%
     function Loop_contents(dio, hGui, Testmode, SetCam)
-        % ready to start USB Cam
+        %% ready to start USB Cam
         if SetCam && get(hGui.save, 'value')
             [~, fname] = fileparts([recobj.dirname, recobj.fname]);
             if exist([recobj.dirname, 'Movie_', fname, num2str(recobj.savecount)], 'dir') == 0
@@ -78,8 +78,9 @@ end
                 start(imaq.vid)
             end
         end
+        disp('Cam ready')
         
-        % ready to start DAQ
+        %% ready to start DAQ
         if Testmode == 0
             if get(hGui.TTL3, 'value') == 1
                 %TTLpulse
@@ -91,7 +92,9 @@ end
                 s.startBackground; %session start, listener ON, *** Waiting Analog Trigger (AI3)
             end
         end
+        disp('DAQ ready')
         
+        %%
         try %error check
             switch get(hGui.stim, 'value')
                 %%%%%%%%%%%%%%%%%%%% Visual Stimulus OFF %%%%%%%%%%%%%%%%%%%%
@@ -116,14 +119,18 @@ end
             
             % IMAQ save data check
             if SetCam && get(hGui.save, 'value')
+                disp('log Img')
+                %{
                 while islogging(imaq.vid)
                     disp('waiting for video logging.')
                     pause(.2);
                 end
+                %}
                 while imaq.vid.FramesAcquired ~= imaq.vid.DiskLoggerFrameCount
                     disp('data is writing to the disk')
                     pause(.2)
                 end
+                
                 %check actual FPS if img is saved to disk & memory
                 if get(hGui.saveCam, 'value')
                     [Img, timeStamp] = getdata(imaq.vid, imaq.vid.FramesAcquired);
@@ -133,8 +140,8 @@ end
                     %plot(timeStamp,'x');
                     FPS = imaq.vid.DiskLoggerFrameCount/(timeStamp(end)-timeStamp(1));
                     disp(['actual FPS = ', num2str(FPS)]);
-                    
                 end
+                
                 clear logvid
                 flushdata(imaq.vid)
                 delete(imaq.vid)
@@ -167,13 +174,18 @@ end
                 stop(sOut)
             end
             delete(lh)
-            disp('stop daq sessions, delete event listenner')
+            disp('stop daq sessions, delete event listenner.')
         end
         
         %%%%%% Stop Cam %%%%%%
         if SetCam == 1
             if isrunning(imaq.vid)
                 stop(imaq.vid)
+                flushdata(imaq.vid)
+                delete(imaq.vid)
+                imaqreset;
+                imaq = imaq_ini(recobj, get(hGui.saveCam, 'value'));
+                disp('stop & delete imaq.')
             end
         end
         
@@ -185,9 +197,9 @@ end
                 save(recobj.savefilename, 'ParamsSave', 'recobj', 'sobj');
             end
             
-            disp(['Captured Data was saved as :: ' recobj.savefilename])
+            disp(['Captured Data was saved as :: ', recobj.savefilename])
             recobj.savecount = recobj.savecount + 1;
-            set(hGui.save, 'value', 0, 'string', 'Unsave', 'BackGroundColor',[0.9400 0.9400 0.9400])
+            set(hGui.save, 'value', 0, 'string', 'Unsave', 'BackGroundColor', [0.9400 0.9400 0.9400])
         end
         
         % clear save data from memory
@@ -201,6 +213,7 @@ end
         %reset all triggers
         ResetTTLall(Testmode, dio, sobj);
     end
+
 
 end
 

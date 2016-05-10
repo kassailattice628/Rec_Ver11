@@ -23,12 +23,12 @@ set(h.fig, 'position',[20, 500, 150, 200], 'Name', 'Open NBA', 'NumberTitle', 'o
 h.SelectTest = uicontrol('style', 'togglebutton', 'position',[10 155 100 40],...
     'string', 'TEST Mode', 'Callback', {@UseTestmode},...
     'FontSize', 12, 'Horizontalalignment', 'center');
+
 name_toolbox = ver;
+
 if isempty(find(strcmp({name_toolbox.Name}, 'Data Acquisition Toolbox'), 1))
     set(h.SelectTest, 'value', 1, 'BackGroundColor', 'g')
 end
-
-
 
 h.SelectRecmode = uicontrol('style', 'popupmenu', 'position',[10 120 100 20],...
     'string', {'iRecHS', 'Electrophsy'}, 'Callback', {@ch_ButtonColor, 'g'},...
@@ -93,7 +93,7 @@ end
 ch_ButtonColor(hObject, [], 'g')
 end
 
-
+%%
 function ch_ButtonColor(hObject, ~, col)
 % button push event: change button color
 switch get(hObject, 'Value')

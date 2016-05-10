@@ -6,6 +6,9 @@ global recobj
 recobj.rect = re_write(figUIobj.rect);% ms
 rectime = recobj.rect/1000;% ms -> s
 
+recobj.interval = re_write(figUIobj.interval);
+recobj.prestim = re_write(figUIobj.prestimN);
+
 flipNum1 = re_write(figUIobj.flipNum);
 dur1 = flipNum1*sobj.m_int;
 
@@ -35,11 +38,13 @@ else % Error Reset
         end
     end
 end
+
 % update GUI
-set(figUIobj.stimDur, 'string', ['flips=',num2str(floor(dur1*1000)), 'ms']);
-set(figUIobj.delayPTB, 'string', ['flips=',num2str(floor(delay1*1000)), 'ms']);
-set(figUIobj.stimDur2, 'string', ['flips=',num2str(floor(dur2*1000)), 'ms']);
-set(figUIobj.delayPTB2, 'string', ['flips=',num2str(floor(delay2*1000)), 'ms']);
+set(figUIobj.stimDur, 'string', ['flips=', num2str(floor(dur1 * 1000)), 'ms']);
+set(figUIobj.delayPTB, 'string', ['flips=', num2str(floor(delay1 * 1000)), 'ms']);
+set(figUIobj.stimDur2, 'string', ['flips=', num2str(floor(dur2 * 1000)), 'ms']);
+set(figUIobj.delayPTB2, 'string', ['flips=', num2str(floor(delay2 * 1000)), 'ms']);
+set(figUIobj.prestim, 'string', ['loops=', num2str(recobj.prestim * (rectime + recobj.interval)), 'sec']);
 
 %%
     function reset_stim_duration

@@ -115,7 +115,7 @@ hGui.delayPTB = uicontrol('style', 'text', 'position', [45 405 75 15],...
 %%% Blank Frames
 uicontrol('style', 'text', 'string', 'Set Blank', 'position', [10 380 70 15], 'Horizontalalignment', 'left');
 hGui.prestimN = uicontrol('style', 'edit', 'string', recobj.prestim, 'position', [10 355 30 25], 'BackGroundColor', 'w');
-set(hGui.prestimN, 'Callback', {@reload_params, Testmode, Recmode, 0});
+set(hGui.prestimN, 'Callback', @check_stim_duration);
 
 hGui.prestim = uicontrol('style', 'text', 'position', [45 355 100 15],...
     'string', ['loops=',num2str(recobj.prestim * (recobj.rect/1000 + recobj.interval)), 'sec'], 'Horizontalalignment', 'left');
@@ -796,13 +796,14 @@ switch get(hObject, 'value')
     case 1 %saving
         set(hObject, 'string', 'Saving')
         
-        if isfield(recobj, 'fname') == 1 && ischar(recobj.fname)
-        else
+        if isfield(recobj, 'fname') == 0 && ischar(recobj.fname)==0
             SelectSaveFile;
         end
+        
         [~, fname, ext] = fileparts([recobj.dirname, recobj.fname]);
         
-        e_fname = dir([recobj.dirname, '*.mat']);
+        e_fname = dir([recobj.dirname, fname, '*.mat']);
+        
         if size(e_fname, 1) == 0
             recobj.savecount = 1;
         else
@@ -817,6 +818,7 @@ switch get(hObject, 'value')
         recobj.savefilename  = [recobj.dirname, fname, num2str(recobj.savecount), ext];
         set(hGui.showfname, 'string', [fname, num2str(recobj.savecount), ext]);
         disp(['Save as :: ', recobj.savefilename]);
+        
     case 0 %unsave
         set(hObject, 'string', 'Unsave')
         set(hGui.showfname, 'string', 'unset');
