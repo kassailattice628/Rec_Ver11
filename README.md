@@ -98,21 +98,19 @@ Single-display 環境では ５回 刺激出したら Screen('Close') を読ん�
 動画データは "Movie" フォルダに トライアルごとに連番が追加．   
 
 ---
-## Information about parameters (MATLAB structures)
+## Parameter structures
 ### recobj
-記録全般に関わるパラメタをまとめた構造体．
+記録全般に関わるパラメタをまとめた．
 
 ### sobj
-視覚刺激に関するパラメタをまとめた構造体．
+視覚刺激に関するパラメタをまとめた．
 
 ### imaq
-カメラ動画記録に関するパラメタをまとめた構造体．
+カメラ動画記録に関するパラメタをまとめた．
 
----
 ### figUIobj
 Figure components（ボタンなど）をまとめたもの．
 
----
 ### s, sOut, dio
 DAQ toolbox で生成した AI, AO, DIO セッションをまとめた構造体．
 

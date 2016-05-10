@@ -796,7 +796,8 @@ switch get(hObject, 'value')
     case 1 %saving
         set(hObject, 'string', 'Saving')
         
-        if isfield(recobj, 'fname') == 0 && ischar(recobj.fname)==0
+        if isfield(recobj, 'fname') && ischar(recobj.fname)
+        else
             SelectSaveFile;
         end
         
