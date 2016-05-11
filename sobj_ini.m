@@ -51,8 +51,6 @@ sobj.black = BlackIndex(sobj.ScrNum);
 sobj.white = WhiteIndex(sobj.ScrNum);
 sobj.gray = round((sobj.white+sobj.black)/2);
 
-i
-
 sobj.stimlumi = sobj.white;
 sobj.bgcol = sobj.black;
 if sobj.gray == sobj.stimlumi

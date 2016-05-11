@@ -1,19 +1,14 @@
 function imaq = imaq_ini(varargin)
 
-if nargin == 1
-    recobj = varargin{1};
-    save_mode = 0;
-elseif nargin == 2
-    recobj = varargin{1};
-    save_mode = varargin{2};
-end
-    
+recobj = varargin{1};
+save_mode = 1;
+
 
 imaq.vid = videoinput( 'pointgrey' , 1, 'F7_Raw8_640x512_Mode1');
 imaq.src = getselectedsource(imaq.vid);
 
 % set the number of frame
-imaq.frame_rate = 460;
+imaq.frame_rate = 470;
 
 rec_time = recobj.rect / 1000; % sec
 imaq.vid.FramesPerTrigger = rec_time * imaq.frame_rate;
@@ -23,7 +18,7 @@ imaq.vid.TriggerFrameDelay = 0;
 if save_mode == 0
     imaq.vid.LoggingMode = 'disk';
 elseif save_mode == 1
-    imaq.vid.LoggingMode = 'disk&memory';
+    imaq.vid.LoggingMode = 'memory';
 end
 
 triggerconfig(imaq.vid, 'manual' ); % capture when calls trigger(vid)
@@ -38,7 +33,4 @@ imaq.src.Exposure = 1.6;
 imaq.src.FrameRatePercentage = 100;
 imaq.src.Gain = 16;
 imaq.src.Shutter=1.3;
-
-
-
 end

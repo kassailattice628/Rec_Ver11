@@ -1,4 +1,4 @@
-function save = get_save_params(recobj, sobj)
+function save = get_save_params(recobj, sobj, data)
 % save parameters for Ver11
 % these paraemters are updated in evely loop and saved in a cell.
 
@@ -9,6 +9,9 @@ pattern = sobj.pattern;
 %%%% Timing Data %%%%
 save.cycleNum = recobj.cycleNum; % > Visual Stim ON
 save.RecStartTime = recobj.t_AIstart; % AI trigger time from the first AI Trigger.
+save.AIStartTime = data(1, 1);
+save.AIEndTime = data(end, 1);
+save.AIstep = data(2,1) - data(1,1);
 save.vbl_1 = sobj.vbl_1;
 
 if get(figUIobj.stim,'value') && recobj.cycleNum > 0

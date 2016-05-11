@@ -21,10 +21,9 @@ function dataCaptureNBA(src, event, c, hGui, Recmode, SetCam)
 global plotUIobj
 global recobj
 global sobj
-%global DataSave
+global DataSave
 global ParamsSave
 
-global imaq
 
 
 %% keep parameter during loop
@@ -148,14 +147,12 @@ elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) > c.Tim
         refreshdata(plotUIobj.fig, 'caller')
     end
     trigActive = false;
-    disp(['AIStartTime: ', num2str(captureData(1,1))]);
-    
-    
     %%%%%% save setting %%%%%%
     if get(hGui.save, 'value') == 1 % Saving
-        ParamsSave{1, trigCount} = get_save_params(recobj, sobj);
-        %DataSave(:, :, trigCount) = captureData;
+        ParamsSave{1, trigCount} = get_save_params(recobj, sobj, captureData);
+        DataSave(:, :, trigCount) = captureData(:,[2, 3, 4, 6]);
         %
+        %{
         % when DataSave is saved as a discrete file.
         [dirname, fname] = fileparts(recobj.savefilename);
         fid = fopen([dirname, '/', fname, '_Data.mat'], 'a');

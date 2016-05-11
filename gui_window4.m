@@ -347,8 +347,8 @@ switch UseCam
         hGui.imaqPrev = uicontrol('style', 'togglebutton', 'position', [470 290 100 30],...
             'string', 'Preview', 'Callback', @Cam_Preview,'FontSize', 13);
         
-        hGui.saveCam = uicontrol('style', 'togglebutton', 'position', [410 250 120 30],...
-            'string', 'Disk', 'Callback', {@ch_saveCam}, 'FontSize', 13);
+        %hGui.saveCam = uicontrol('style', 'togglebutton', 'position', [410 250 120 30],...
+        %   'string', 'Disk', 'Callback', {@ch_saveCam}, 'FontSize', 13);
         
         
 end
@@ -451,9 +451,6 @@ delete(s)
 
 if UseCam==1
     if exist('imaq' ,'var')
-        if isrunning(imaq.vid)
-            stop(imaq.vid)
-        end
         delete(imaq.vid)
         clear imaq
     end
@@ -760,17 +757,19 @@ ch_ButtonColor(hObject, [], 'g')
 end
 
 %%
+%{
 function ch_saveCam(hObject, ~)
 global recobj
+global imaq
 if get(hObject, 'value')
-    set(hObject ,'string', 'disk&memory');
-    imaq_ini(recobj, 1)
-else
+    set(hObject ,'string', 'memory');
+    imaq = imaq_ini(recobj, 1);
+elseif get(hObject, 'value')==0
     set(hObject ,'string', 'disk');
-    imaq_ini(recobj, 0)
+    imaq = imaq_ini(recobj, 0);
 end
 end
-
+%}
 
 %%%%%%%%%%%%% save setting %%%%%%%%%%%%%%
 %%

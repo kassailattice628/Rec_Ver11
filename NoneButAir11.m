@@ -46,6 +46,7 @@ end
 
 %% Initialize IMAQ params
 if UseCam
+    imaqreset;
     imaq = imaq_ini(recobj);
 end
 

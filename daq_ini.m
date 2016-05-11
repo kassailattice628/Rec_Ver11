@@ -95,3 +95,4 @@ varargout{1,2} = sOut;
 varargout{1,3} = dio;
 varargout{1,4} = capture;
 varargout{1,5} = dev;
+

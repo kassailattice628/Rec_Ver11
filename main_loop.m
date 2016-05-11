@@ -62,22 +62,20 @@ end
 %% %%%%%%%%%%%% nested functions %%%%%%%%%%%%%%
 %%                      
     function Loop_contents(dio, hGui, Testmode, SetCam)
+        persistent fname
+        
         %% ready to start USB Cam
         if SetCam && get(hGui.save, 'value')
-            % reset imaq
-            %imaq = imaq_ini(recobj, get(hGui.saveCam, 'value'));
             if recobj.cycleCount == 1
                 [~, fname] = fileparts([recobj.dirname, recobj.fname]);
                 if exist([recobj.dirname, 'Movie_', fname, num2str(recobj.savecount)], 'dir') == 0
                     mkdir([recobj.dirname, 'Movie_', fname, num2str(recobj.savecount)]);
-                end 
+                end
             end
             dirname_movie = [recobj.dirname, 'Movie_', fname, num2str(recobj.savecount), '/'];
             logvid = VideoWriter([dirname_movie, 'mov_', num2str(recobj.cycleCount)], 'MPEG-4');
             logvid.FrameRate = imaq.frame_rate;
             logvid.Quality = 50;
-            imaq.vid.DiskLogger = logvid;
-            
             if isrunning(imaq.vid) == 0
                 start(imaq.vid)
             end
@@ -106,7 +104,7 @@ end
                     Trigger_Rec(Testmode, SetCam, dio);
                     
                     % loop interval %
-                    pause(recobj.rect/1000 + recobj.interval);
+                    pause(recobj.rect/1000);
                     
                 %%%%%%%%%%%%%%%%%%%% Visual Stimulus ON %%%%%%%%%%%%%%%%%%%%%
                 case 1
@@ -121,33 +119,32 @@ end
             
             %%%%%%%%%%%%%%%%%%%% SAVE IMAQ %%%%%%%%%%%%%%%%%%%%%
             if SetCam && get(hGui.save, 'value')
-                
-                FA = imaq.vid.FramesAcquired;
-                while imaq.vid.FramesAcquired ~= imaq.vid.DiskLoggerFrameCount
-                    disp('data is writing to the disk')
-                    pause(0.1)
-                    
-                    if imaq.vid.FramesAcquired == FA
-                        disp('error disk writing')
-                        break;
-                    end
+                disp('save movie')
+                [Img, timeStamp] = getdata(imaq.vid, imaq.vid.FramesAcquired);
+                open(logvid)
+                start_vid = tic;
+                for ii = 1:length(timeStamp)
+                    writeVideo(logvid, Img(:,:,:,ii))
                 end
+                t_vid_save = toc(start_vid);
+                close(logvid)
+                disp('finish save movie')
                 
-                %check actual FPS if img is saved to disk & memory
-                if get(hGui.saveCam, 'value')
-                    [Img, timeStamp] = getdata(imaq.vid, imaq.vid.FramesAcquired);
-                    ParamsSave{1, recobj.cycleCount}.Img = Img;
-                    clear Img
-                    %figure;
-                    %plot(timeStamp,'x');
-                    FPS = imaq.vid.DiskLoggerFrameCount/(timeStamp(end)-timeStamp(1));
-                    disp(['actual FPS = ', num2str(FPS)]);
-                end
+                %ParamsSave{1, recobj.cycleCount}.Img = Img;
+                clear Img
+                %figure;
+                %plot(timeStamp,'x');
+                FPS = length(timeStamp)/(timeStamp(end)-timeStamp(1));
+                disp(['actual FPS = ', num2str(FPS)]);
                 
                 flushdata(imaq.vid)
                 clear logvid
             end
             
+            %%%%% loop interval %%%%%
+            if exist('t_vid_save', 'var') && t_vid_save < recobj.interval
+                pause(recobj.interval - t_vid_save)
+            end
         catch ME1
             % if any error occurs
             Screen('CloseAll');
@@ -180,12 +177,9 @@ end
         if SetCam == 1
             if isrunning(imaq.vid)
                 stop(imaq.vid)
-                disp('stopimaq.')
+                disp('stop imaq.')
             end
-            flushdata(imaq.vid)
             delete(imaq.vid)
-            imaq = imaq_ini(recobj, get(hGui.saveCam, 'value'));
-            disp('reset imaq.')
         end
         
         %%%%%% Save Data %%%%%%
@@ -205,7 +199,7 @@ end
         DataSave = [];
         ParamsSave = [];
         
-        disp('Loop-Out; RESET TTLs');
+        disp(':::Loop-Out:::');
         
         %reset all triggers
         ResetTTLall(Testmode, dio, sobj);
@@ -230,6 +224,9 @@ global imaq
 Screen('FillRect', sobj.wPtr, sobj.bgcol); %prepare background
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+if UseCam && isrunning(imaq.vid)
+    trigger(imaq.vid)
+end
 % timer start, digital out
 if recobj.cycleNum == -recobj.prestim +1
     %background ScreenON;
@@ -238,21 +235,13 @@ if recobj.cycleNum == -recobj.prestim +1
     recobj.t_START = tic;
     recobj.t_AIstart = 0;
     [sobj.vbl_1, sobj.onset, sobj.flipend] = Screen('Flip', sobj.wPtr);
-    %recobj.t_START = sobj.vbl_1;
 
 else
     %background ScreenON;
+    generate_trigger([1,0]); % Start AI
     AItime = toc(recobj.t_START);
     recobj.t_AIstart = AItime - recobj.t_START;
-    generate_trigger([1,0]); % Start AI
     [sobj.vbl_1, sobj.onset, sobj.flipend] = Screen('Flip', sobj.wPtr);
-    %recobj.t_AIstart = sobj.vbl_1 - recobj.t_START;
-end
-
-if UseCam && isrunning(imaq.vid)
-    trigger(imaq.vid)
-    wait(imaq.vid)
-    disp('imaq.vid: running=off');
 end
 
 %reset Trigger level
@@ -308,7 +297,7 @@ if recobj.cycleNum <= 0 % Prestimulus
     disp(['AITrig; PreStim', ': #', num2str(recobj.cycleNum)]);
     Trigger_Rec(Testmode, UseCam, dio)
     stim_monitor;
-    pause_time = recobj.rect/1000 + recobj.interval;
+    pause_time = recobj.rect/1000;
     pause(pause_time);
     
 elseif recobj.cycleNum > 0 %StimON
@@ -340,7 +329,7 @@ elseif recobj.cycleNum > 0 %StimON
             Conc_2P;
             time1 = recobj.rect/1000 - (sobj.vbl_3 - sobj.vbl_1);
             time2 = recobj.rect/1000 - (sobj.vbl2_3 - sobj.vbl_1);
-            pause_time = min([time1, time2] + recobj.interval);
+            pause_time = min([time1, time2]);
             
         case 'Looming'
             %Prep ON, OFF
@@ -348,7 +337,7 @@ elseif recobj.cycleNum > 0 %StimON
             %GUI stim indicater
             stim_monitor_reset;
             time1 = recobj.rect/1000 - (sobj.vbl_3 - sobj.vbl_1);
-            pause_time = time1 + recobj.interval;
+            pause_time = time1;
             
         case {'Sin', 'Rect', 'Gabor'}
             %Prep, ON
@@ -1014,7 +1003,7 @@ end
         %GUI stim indicater
         stim_monitor_reset;
         time1 = recobj.rect/1000 - (sobj.vbl_3 - sobj.vbl_1);
-        pause_time = time1 + recobj.interval;
+        pause_time = time1;
     end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1079,7 +1068,7 @@ else % during stimulation
     set(figUIobj.StimMonitor2, 'string',['POS: ',num2str(sobj.center_index), '/',num2str(sobj.divnum^2)], 'ForeGroundColor', 'k', 'BackGroundColor', bgcol);
     set(figUIobj.StimMonitor3, 'string', stim_str3, 'BackGroundColor',bgcol);
 end
-drawnow limitrate;
+drawnow;
 %drawnow nocallbacks;
 end
 %%
@@ -1089,7 +1078,7 @@ global figUIobj
 set(figUIobj.StimMonitor1, 'BackGroundColor', 'w');
 set(figUIobj.StimMonitor2, 'BackGroundColor', 'w');
 set(figUIobj.StimMonitor3, 'BackGroundColor', 'w');
-drawnow limitrate;
+drawnow;
 %drawnow nocallbacks;
 end
 %%
