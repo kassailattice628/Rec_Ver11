@@ -1,6 +1,5 @@
 function reload_params(~, ~, Testmode, Recmode, SetCam)
 % reload all paraemter and settings before start loop.
-% 
 
 %% call global vars
 global sobj
@@ -19,6 +18,8 @@ global lh
 
 global DataSave
 global ParamsSave
+
+global imaq
 
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -199,7 +200,6 @@ sobj.stimsz2 = getStimSize(sobj.MonitorDist,figUIobj.size2, sobj.pixpitch);
 %%%%%%% NIDAQ Recording %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-
 recobj.interval = re_write(figUIobj.interval);
 recobj.sampf = re_write(figUIobj.sampf)*1000;
 recobj.recp = recobj.sampf*recobj.rect/1000;
@@ -285,6 +285,7 @@ end
 %%%%%%% IMAQ Camera %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if SetCam == 1
+    imaq = imaq_ini(recobj);
     %imaq.vid.FramesPerTrigger = (recobj.rect/1000 * imaq.frame_rate)-10; 
 end
 

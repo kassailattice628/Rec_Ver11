@@ -144,6 +144,9 @@ end
             %%%%% loop interval %%%%%
             if exist('t_vid_save', 'var') && t_vid_save < recobj.interval
                 pause(recobj.interval - t_vid_save)
+      
+            else
+                pause(recobj.interval)
             end
         catch ME1
             % if any error occurs
