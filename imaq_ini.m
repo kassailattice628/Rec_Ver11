@@ -13,7 +13,7 @@ imaq.vid = videoinput( 'pointgrey' , 1, 'F7_Raw8_640x512_Mode1');
 imaq.src = getselectedsource(imaq.vid);
 
 % set the number of frame
-imaq.frame_rate = 450;
+imaq.frame_rate = 460;
 
 rec_time = recobj.rect / 1000; % sec
 imaq.vid.FramesPerTrigger = rec_time * imaq.frame_rate;
@@ -26,7 +26,6 @@ elseif save_mode == 1
     imaq.vid.LoggingMode = 'disk&memory';
 end
 
-%triggerconfig(vid, 'immediate' ); % cature when calls start(vid)
 triggerconfig(imaq.vid, 'manual' ); % capture when calls trigger(vid)
 % set external trigger and trigger source
 %triggerconfig(vid, 'hardware' , 'risingEdge', 'externalTriggerMode0-Source0' );

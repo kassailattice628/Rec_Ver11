@@ -17,8 +17,6 @@ global dio
 global capture
 global lh
 
-global imaq
-
 global DataSave
 global ParamsSave
 
@@ -287,8 +285,7 @@ end
 %%%%%%% IMAQ Camera %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if SetCam == 1
-    imaq.vid.FramesPerTrigger = (recobj.rect/1000 * imaq.frame_rate)-10; 
-
+    %imaq.vid.FramesPerTrigger = (recobj.rect/1000 * imaq.frame_rate)-10; 
 end
 
 %% figures
