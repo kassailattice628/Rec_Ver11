@@ -182,7 +182,7 @@ end
                 stop(imaq.vid)
                 disp('stop imaq.')
             end
-            delete(imaq.vid)
+            %delete(imaq.vid)
         end
         
         %%%%%% Save Data %%%%%%
