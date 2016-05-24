@@ -2,9 +2,6 @@ function main_loop(hObject, ~, hGui, Testmode, Recmode)
 % Main loop structure and subfunctions for GUI setting and visual stimuli
 
 %% call global vars
-
-
-%% call global vars
 global sobj
 global recobj
 
@@ -982,8 +979,9 @@ end
 %%
     function VisStimON
         %AddPhoto Sensor (Left, UP in the monitor) for the stimulus timing check
-        Screen('FillRect', sobj.wPtr, 255, [0 0 40 40]);
-        
+        %Screen('FillRect', sobj.wPtr, 255, [0 0 40 40]);
+        %(Left, Bottum)
+        Screen('FillRect', sobj.wPtr, 255, [0 sobj.RECT(4)-40, 40 sobj.RECT(4)]);
         %%% stim ON %%%%%%%%%%%%%%%%%%%%%%%%%%%
         % Flip and rap timer
         [sobj.vbl_2, ~, ~, ~, sobj.BeamposON] = ...
