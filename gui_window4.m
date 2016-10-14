@@ -1,6 +1,6 @@
 function hGui = gui_window4(Testmode, Recmode, UseCam, GUI_x)
-% gui_window3 creates a None But Air Graphical User Interface
-% hGui = gui_window3(s, sTrig) returns a structure of graphics components
+% gui_window4 creates a None But Air Graphical User Interface
+% hGui = gui_window4(s, sTrig) returns a structure of graphics components
 % handles (hGui) and create a GUI for PTB visual stimuli, data acquisition
 % from a DAQ session (s), and control TTL output
 
@@ -262,55 +262,55 @@ if Recmode == 2
     uicontrol('style', 'text', 'position', [540 580 80 15], 'string', 'V range (mV)')
     hGui.VYmin = uicontrol('style', 'edit', 'position', [540 555 40 25], 'string', -100, 'BackGroundColor', 'w');
     hGui.VYmax = uicontrol('style', 'edit', 'position', [590 555 40 25], 'string', 30, 'BackGroundColor', 'w');
-    
+
     uicontrol('style', 'text', 'position', [635 580 80 15], 'string', 'C range (nA)')
     hGui.CYmin = uicontrol('style', 'edit', 'position', [635 555 40 25], 'string', -5, 'BackGroundColor', 'w');
     hGui.CYmax = uicontrol('style', 'edit', 'position', [680 555 40 25], 'string', 3, 'BackGroundColor', 'w');
-    
+
     %% pulse %%%
     %Duration
     uicontrol('style', 'text', 'position', [485 530 60 15], 'string', 'Duration', 'Horizontalalignment', 'left');
     hGui.pulseDuration = uicontrol('style', 'edit', 'position', [485 505 40 25],...
         'string', recobj.pulseDuration, 'Callback', @check_pulse_duration, 'BackGroundColor', 'w');
     uicontrol('style', 'text', 'position', [525 505 25 15], 'string', 'sec', 'Horizontalalignment', 'left');
-    
+
     %Delay
     uicontrol('style', 'text', 'position', [555 530 60 15], 'string', 'Delay', 'Horizontalalignment', 'left');
     hGui.pulseDelay = uicontrol('style', 'edit', 'position', [555 505 40 25],...
         'string', recobj.pulseDelay, 'Callback', @check_pulse_duration, 'BackGroundColor', 'w');
     uicontrol('style', 'text', 'position', [595 505 25 15], 'string', 'sec', 'Horizontalalignment', 'left');
-    
+
     %Amplitude
     uicontrol('style', 'text', 'position', [625 530 60 15], 'string', 'Amp.', 'Horizontalalignment', 'left');
     hGui.pulseAmp = uicontrol('style', 'edit', 'position', [625 505 40 25], 'string', recobj.pulseAmp, 'BackGroundColor', 'w');
     set(hGui.pulseAmp, 'Callback', @check_pulse_Amp);
     hGui.ampunit = uicontrol('style', 'text', 'position', [665 505 25 15], 'string', 'nA', 'Horizontalalignment', 'left');
-    
+
     %Step
     uicontrol('style', 'text', 'position', [450 485 30 15], 'string', 'start', 'Horizontalalignment', 'left');
     uicontrol('style', 'text', 'position', [485 485 30 15], 'string', 'end', 'Horizontalalignment', 'left');
     uicontrol('style', 'text', 'position', [520 485 30 15], 'string', 'step', 'Horizontalalignment', 'left');
-    
+
     %for Current Clamp
     uicontrol('style', 'text', 'position', [410 460 40 15], 'string', 'C (nA)', 'Horizontalalignment', 'left');
     hGui.Cstart = uicontrol('style', 'edit', 'position', [450 460 30 25], 'string', recobj.stepCV(1,1), 'Callback', @check_pulse_Amp, 'BackGroundColor', 'w');
     hGui.Cend = uicontrol('style', 'edit', 'position', [485 460 30 25], 'string', recobj.stepCV(1,2), 'Callback', @check_pulse_Amp, 'BackGroundColor', 'w');
     hGui.Cstep = uicontrol('style', 'edit', 'position', [520 460 30 25], 'string', recobj.stepCV(1,3), 'Callback', @check_pulse_Amp, 'BackGroundColor', 'w');
-    
+
     %for Voltage Clamp
     uicontrol('style', 'text', 'position', [410 430 40 15], 'string', 'V (mV)', 'Horizontalalignment', 'left');
     hGui.Vstart = uicontrol('style', 'edit', 'position', [450 430 30 25], 'string', recobj.stepCV(2,1), 'Callback', @check_pulse_Amp, 'BackGroundColor', 'w');
     hGui.Vend = uicontrol('style', 'edit', 'position', [485 430 30 25], 'string', recobj.stepCV(2,2), 'Callback', @check_pulse_Amp, 'BackGroundColor', 'w');
     hGui.Vstep = uicontrol('style', 'edit', 'position', [520 430 30 25], 'string', recobj.stepCV(2,3), 'Callback', @check_pulse_Amp, 'BackGroundColor', 'w');
-    
+
     hGui.stepf = uicontrol('style', 'togglebutton', 'position', [555 455 40 30], 'string', 'step', 'Callback', @change_plot);
     hGui.pulse = uicontrol('style', 'togglebutton', 'position', [410 505 70 30], 'string', 'Pulse ON', 'Callback', @change_plot);
-    
+
     % preset_Testpulse Amplitude
     uicontrol('style', 'text', 'position', [695 530 40 15], 'string', 'Preset', 'Horizontalalignment', 'left');
     hGui.presetAmp = uicontrol('style', 'togglebutton', 'position', [690 505 50 25], 'string', '10 mV');
     set(hGui.presetAmp, 'Callback', @preset_pulseAmp);
-    
+
     % DAQ range:: TTL3 out put is 5V, iRecHS2 is +-10 V input.
     %{
         uicontrol('style', 'text', 'position', [410 405 80 15], 'string', 'Daq Range (V)', 'Horizontalalignment', 'left');
@@ -318,16 +318,16 @@ if Recmode == 2
             'string', [{'x1: [-10,10]'}, {'x10: [-1,1]'}, {'x50: [-0.2,0.2]'}, {'x100: [-0.1,0.1]'}], 'value',1);
         set(hGui.DAQrange, 'Callback', @ch_DaqRange);
     %}
-    
+
     % select plot channel %%
     uicontrol('style', 'text', 'position', [410 580 55 15], 'string', 'Plot Type ', 'Horizontalalignment', 'left');
     hGui.plot = uicontrol('style', 'togglebutton', 'position', [410 550 60 30], 'string', 'V-plot', 'ForegroundColor', 'white', 'BackGroundColor', 'b');
     set(hGui.plot, 'Callback', @change_plot);
-    
+
     uicontrol('style', 'text', 'position', [475 580 55 15], 'string', 'Y-axis', 'Horizontalalignment', 'left');
     hGui.yaxis = uicontrol('style', 'togglebutton', 'position', [475 550 60 30], 'value', 0, 'string', [{'Auto'}, {'Fix'}]);
     set(hGui.yaxis, 'Callback', @ch_yaxis);
-    
+
 end
 
 %%
@@ -343,14 +343,14 @@ switch UseCam
     case 1
         hGui.setCam = uicontrol('style', 'togglebutton', 'position', [410 290 50 30],...
             'string', 'ON', 'Callback', {@ch_ButtonColor, 'g'},'FontSize', 13);
-        
+
         hGui.imaqPrev = uicontrol('style', 'togglebutton', 'position', [470 290 100 30],...
             'string', 'Preview', 'Callback', @Cam_Preview,'FontSize', 13);
-        
+
         %hGui.saveCam = uicontrol('style', 'togglebutton', 'position', [410 250 120 30],...
         %   'string', 'Disk', 'Callback', {@ch_saveCam}, 'FontSize', 13);
-        
-        
+
+
 end
 
 %%
@@ -574,7 +574,7 @@ if get(hObject, 'value')==1
     sobj.stimsz = [Rx,Ry];
     stimsz_deg = round(Pix2Deg([sobj.stimsz], sobj.MonitorDist));
     set(hGui.size, 'string', [num2str(stimsz_deg(1)), ' x ', num2str(stimsz_deg(2))]);
-    
+
 elseif get(hObject, 'value')==0
     set(hObject, 'string', 'Auto OFF');
     % seg to 1 deg
@@ -609,24 +609,24 @@ if get(hObject, 'value')==1
     %Stim.Shape2
     set(hGui.shape2, 'value', get(hGui.shape, 'value'));
     sobj.shape2 = sobj.shapelist{get(hGui.shape2, 'value'),1};
-    
+
     %Stim.Lumi2
     set(hGui.stimlumi2, 'string', get(hGui.stimlumi, 'string'));
     sobj.stimlumi2 = str2double(get(hGui.stimlumi2, 'string'));
-    
+
     %Stim.Duration2
     set(hGui.flipNum2, 'string',get(hGui.flipNum, 'string'));
     sobj.flipNum2 = str2double(get(hGui.flipNum2, 'string'));
     sobj.duration2 = sobj.flipNum2*sobj.m_int;
     set(hGui.stimDur2, 'string', ['flips=',num2str(floor(sobj.duration2*1000)), 'ms']);
-    
+
     %PTB delay2
     set(hGui.delayPTBflip2, 'string', get(hGui.delayPTBflip, 'string'));
     sobj.delayPTBflip2 = str2double(get(hGui.delayPTBflip2, 'string'));
     sobj.delayPTB2 = sobj.delayPTBflip2*sobj.m_int;
     set(hGui.delayPTB2, 'string', ['flips=',num2str(floor(sobj.delayPTB2*1000)), 'ms']);
-    
-    
+
+
     %Stim.Size2
     set(hGui.size2, 'string', get(hGui.size, 'string'));
     sobj.stimsz2 = sobj.stimsz;
@@ -728,7 +728,7 @@ switch get(figUIobj.plot, 'value')
                 set(figUIobj.pulseAmp, 'string', '10')
                 recobj.pulseAmp = 10;
         end
-        
+
 end
 end
 
@@ -794,16 +794,16 @@ global recobj
 switch get(hObject, 'value')
     case 1 %saving
         set(hObject, 'string', 'Saving')
-        
+
         if isfield(recobj, 'fname') && ischar(recobj.fname)
         else
             SelectSaveFile;
         end
-        
+
         [~, fname, ext] = fileparts([recobj.dirname, recobj.fname]);
-        
+
         e_fname = dir([recobj.dirname, fname, '*.mat']);
-        
+
         if size(e_fname, 1) == 0
             recobj.savecount = 1;
         else
@@ -814,11 +814,11 @@ switch get(hObject, 'value')
             end
             recobj.savecount = max(ind) + 1;
         end
-        
+
         recobj.savefilename  = [recobj.dirname, fname, num2str(recobj.savecount), ext];
         set(hGui.showfname, 'string', [fname, num2str(recobj.savecount), ext]);
         disp(['Save as :: ', recobj.savefilename]);
-        
+
     case 0 %unsave
         set(hObject, 'string', 'Unsave')
         set(hGui.showfname, 'string', 'unset');
