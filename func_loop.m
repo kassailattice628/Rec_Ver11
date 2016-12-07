@@ -412,6 +412,8 @@ end
         stim_size =  [0, 0, sobj.loomSize_pix];% max_Stim_Size
         sobj.stim_size = sobj.loomSize_pix;
         
+        %Set stim lumi
+        sobj.stimcol = sobj.stimlumi;
         %set flipnum
         flipnum = round(sobj.loomDuration/sobj.m_int);
         scaleFactor = sobj.loomSize_pix./flipnum;
@@ -422,7 +424,7 @@ end
         %Prep first frame
         Rect = CenterRectOnPointd(stim_size .* 0, sobj.stim_center(1), sobj.stim_center(2));
         
-        Screen(sobj.shape, sobj.wPtr, 255, Rect);
+        Screen(sobj.shape, sobj.wPtr, sobj.stimcol, Rect);
         Screen('FillRect', sobj.wPtr, 255, [0 0 40 40]);
         
         %%% flip 1st img %%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -434,7 +436,7 @@ end
         
         for count = 1:flipnum
             Rect = CenterRectOnPointd([0, 0, count .* scaleFactor], sobj.stim_center(1), sobj.stim_center(2));
-            Screen(sobj.shape, sobj.wPtr, 255, Rect);
+            Screen(sobj.shape, sobj.wPtr, sobj.stimcol, Rect);
             Screen('FillRect', sobj.wPtr, 255, [0 0 40 40]);
             Screen('Flip', sobj.wPtr);
         end
