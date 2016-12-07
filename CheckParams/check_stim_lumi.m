@@ -17,9 +17,11 @@ if stimlumi2 > 255 || stimlumi2 < 0
     set(figUIobj.stimlumi2,'string', 255);
 end
 
-if bgcol > 255 || bgcol <0 || bgcol > stimlumi || bgcol > stimlumi2
+%
+if bgcol > 255 || bgcol <0 %|| bgcol > stimlumi || bgcol > stimlumi2
     errordlg(' BackGround Lumience is out of range!!');
     set(figUIobj.bgcol,'string',0);
 end
+
 
 end
