@@ -22,7 +22,7 @@ if Recmode == 1
     %(5):Refrect_Vertical, (6):Refrect_Horizontal
     InCh = addAnalogInputChannel(s, dev.ID, 0:3, 'Voltage');
     
-    % default SingleEnded, -> DifferentialD
+    % default SingleEnded, -> Differential (default)
     InCh(1).TerminalConfig = 'Differential';
     InCh(2).TerminalConfig = 'Differential';
     InCh(3).TerminalConfig = 'Differential';
@@ -37,7 +37,7 @@ elseif Recmode == 2
     %(1):AI0Vm, (2):Im, (3):photo sensor, (4):Trigger pulse
     InCh = addAnalogInputChannel(s, dev.ID, 0:3, 'Voltage');
     
-    % default SingleEnded, -> DifferentialD
+    % default SingleEnded, -> Differential (default)
     InCh(1).TerminalConfig = 'Differential';
     InCh(2).TerminalConfig = 'Differential';
     InCh(3).TerminalConfig = 'Differential';
