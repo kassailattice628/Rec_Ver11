@@ -258,6 +258,7 @@ if Testmode == 0
     capture.bufferSize =  round(capture.bufferTimeSpan * s.Rate);
     
     delete(lh)% <-- important!!!
+    
     DataSave =[]; %reset save data
     ParamsSave =[]; % reset save parameters
     lh = addlistener(s, 'DataAvailable', @(src,event) dataCaptureNBA(src, event, capture, figUIobj, Recmode, SetCam)); 

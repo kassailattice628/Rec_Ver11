@@ -19,7 +19,7 @@ sobj.ScrNum = max(sobj.screens);
 
 %% Set horizontal cordinate for GUI Controler
 if sobj.Num_screens > 1
-    if sobj.ScrNum == 0;
+    if sobj.ScrNum == 0
         GUI_Display_x = MP(3) + 1;
     else
         GUI_Display_x = 0;

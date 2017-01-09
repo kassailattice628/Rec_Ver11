@@ -1,4 +1,4 @@
-function h = open_get_fine_pos(figUIobj)
+function h = open_get_fine_pos(figUIobj, GUI_x)
 %open window to get fin position in 1P_Conc
 global sobj
 %% %---------- Create plot window ----------%
@@ -7,7 +7,7 @@ grid_size = 200;
 str = [num2str(grid_size),' x ',num2str(grid_size),' mat<='];
 
 %open window
-h.fig = figure('Position',[sobj.GUI_Display_x+50, 770, 250, 100], 'Name','Get Fine Pos', 'NumberTitle', 'off', 'Menubar','none', 'Resize', 'off');
+h.fig = figure('Position',[GUI_x+50, 770, 250, 100], 'Name','Get Fine Pos', 'NumberTitle', 'off', 'Menubar','none', 'Resize', 'off');
 set(h.fig, 'DeleteFcn', {@close_Plot, figUIobj});
 
 uicontrol('style', 'text', 'string', 'Division', 'position', [5 80 60 20], 'FontSize', 13, 'BackGroundColor', [0.9400 0.9400 0.9400]);
