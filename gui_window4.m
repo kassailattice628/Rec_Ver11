@@ -255,6 +255,7 @@ uicontrol('style', 'text', 'string', 'ms', 'position', [550 600 20 15], 'Horizon
 
 uicontrol('style', 'text', 'string', 'Loop Interval', 'position', [580 625 80 15], 'Horizontalalignment', 'left');
 hGui.interval = uicontrol('style', 'edit', 'string', recobj.interval, 'position', [580 600 50 25], 'BackGroundColor', 'g');
+set(hGui.interval, 'Callback', @check_stim_duration);
 uicontrol('style', 'text', 'string', 'sec', 'position', [635 600 25 15], 'Horizontalalignment', 'left');
 
 
@@ -334,7 +335,6 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%   Imaq Camera     %%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
 uipanel('Title', 'CAM Setting', 'FontSize', 12, 'Units', 'Pixels', 'Position', [405 10 340 330]);
 switch UseCam
     case 0
