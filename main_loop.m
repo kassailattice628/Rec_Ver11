@@ -363,6 +363,7 @@ elseif recobj.cycleNum > 0 %StimON
             VisStimOFF;
     end
     pause(pause_time);
+    
 end
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -530,19 +531,20 @@ end
         % Stim1 only
         Stim1 = Screen('OpenOffscreenWindow', sobj.ScrNum, sobj.bgcol);
         Screen(sobj.shape, Stim1, sobj.stimcol, Rect, maxDiameter);
-        Screen('FillRect', Stim1, 180, [0 0 40 40]);
-        
+        %Screen('FillRect', Stim1, 180, [0 0 40 40]);
+        Screen('FillRect', Stim1, 180, [0 sobj.RECT(4)-40, 40 sobj.RECT(4)]);
         % Stim2 only
         Stim2 = Screen('OpenOffscreenWindow', sobj.ScrNum, sobj.bgcol);
         Screen(sobj.shape2, Stim2, sobj.stimcol2, Rect2, maxDiameter2);
-        Screen('FillRect', Stim2, 180, [0 0 40 40]);
+        %Screen('FillRect', Stim2, 180, [0 0 40 40]);
+        Screen('FillRect', Stim2, 180, [0 sobj.RECT(4)-40, 40 sobj.RECT(4)]);
         
         % Both Stim1 & Stim2
         Both_Stim1_Stim2 = Screen('OpenOffscreenWindow', sobj.ScrNum, sobj.bgcol);
         Screen(sobj.shape, Both_Stim1_Stim2, sobj.stimcol, Rect);
         Screen(sobj.shape2, Both_Stim1_Stim2, sobj.stimcol2, Rect2);
-        Screen('FillRect', Both_Stim1_Stim2, 255, [0 0 40 40]);
-        
+        %Screen('FillRect', Both_Stim1_Stim2, 255, [0 0 40 40]);
+        Screen('FillRect', Both_Stim1_Stim2, 255, [0 sobj.RECT(4)-40, 40 sobj.RECT(4)]);
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         %ScreenFlip
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -681,8 +683,8 @@ end
         
         
         Screen(sobj.shape, sobj.wPtr, sobj.stimcol, Rect);
-        Screen('FillRect', sobj.wPtr, 255, [0 0 40 40]);
-        
+        %Screen('FillRect', sobj.wPtr, 255, [0 0 40 40]);
+        Screen('FillRect', sobj.wPtr, 255, [0 sobj.RECT(4)-40, 40 sobj.RECT(4)]);
         stim_monitor;
         %%% flip 1st img %%%%%%%%%%%%%%%%%%%%%%%%%%%
         [sobj.vbl_2, ~, ~, ~, sobj.BeamposON] =...
@@ -692,7 +694,8 @@ end
         for count = 1:flipnum
             Rect = CenterRectOnPointd([0, 0, count .* scaleFactor], sobj.stim_center(1), sobj.stim_center(2));
             Screen(sobj.shape, sobj.wPtr, sobj.stimcol, Rect);
-            Screen('FillRect', sobj.wPtr, 255, [0 0 40 40]);
+            %Screen('FillRect', sobj.wPtr, 255, [0 0 40 40]);
+            Screen('FillRect', sobj.wPtr, 255, [0 sobj.RECT(4)-40, 40 sobj.RECT(4)]);
             Screen('Flip', sobj.wPtr);
         end
         
@@ -794,8 +797,8 @@ end
         stim_monitor;
         % prep 1st frame
         %%%%%%%%%%%%%%%%%%
-        %AddPhoto Sensor (Left, UP in the monitor) for the stimulus timing check
-        Screen('FillRect', sobj.wPtr, 255, [0 0 40 40]);
+        %AddPhoto Sensor (Left, Bottom in the monitor) for the stimulus timing check
+        Screen('FillRect', sobj.wPtr, 255, [0 sobj.RECT(4)-40, 40 sobj.RECT(4)]);
         % Flip and rap timer
         [sobj.vbl_2, ~, ~, ~, sobj.BeamposON] = ...
             Screen('Flip', sobj.wPtr, sobj.vbl_1 + sobj.delayPTB);% put some delay for PTB
@@ -811,8 +814,8 @@ end
                 %Screen('DrawTexture', sobj.wPtr, gabortex, sRect, stimRect, angle, [], [], [], [], kPsychDontDoRotation, [phase, gratFreq_deg, 50, 100, 1.0, 0, 0, 0]);
                 Screen('DrawTexture', sobj.wPtr, gabortex, [], stimRect, angle, [], [], [], [], kPsychDontDoRotation, [phase, cycles_per_pix, sc, contrast, 1, 0, 0, 0]);
             end
-            
-            Screen('FillRect', sobj.wPtr, 255, [0 0 40 40]);
+            %Add Photo Sensor (Left, Bottom)
+            Screen('FillRect', sobj.wPtr, 255, [0 sobj.RECT(4)-40, 40 sobj.RECT(4)]);
             Screen('Flip', sobj.wPtr);
         end
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
