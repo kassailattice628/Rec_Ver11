@@ -230,18 +230,29 @@ end
 % timer start, digital out
 if recobj.cycleNum == -recobj.prestim +1
     %background ScreenON;
+    %{
     generate_trigger([1,1]); % Start AI & FV
     disp('Timer Start')
     recobj.t_START = tic;
     recobj.t_AIstart = 0;
+    %}
     [sobj.vbl_1, sobj.onset, sobj.flipend] = Screen('Flip', sobj.wPtr);
+    generate_trigger([1,1]); % Start AI & FV
+    disp('Timer Start')
+    recobj.t_START = tic;
+    recobj.t_AIstart = 0;
 
 else
     %background ScreenON;
+    %{
     generate_trigger([1,0]); % Start AI
     AItime = toc(recobj.t_START);
     recobj.t_AIstart = AItime - recobj.t_START;
+    %}
     [sobj.vbl_1, sobj.onset, sobj.flipend] = Screen('Flip', sobj.wPtr);
+    generate_trigger([1,0]); % Start AI
+    AItime = toc(recobj.t_START);
+    recobj.t_AIstart = AItime - recobj.t_START;
 end
 
 %reset Trigger level

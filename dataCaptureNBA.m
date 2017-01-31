@@ -151,6 +151,8 @@ elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) > c.Tim
     if get(hGui.save, 'value') == 1 % Saving
         ParamsSave{1, trigCount} = get_save_params(recobj, sobj, captureData);
         DataSave(:, :, trigCount) = captureData(:,[2, 3, 4, 6]);
+        %170120
+        %DataSave(:, :, trigCount) = captureData(:,[2, 3, 4, 6, 1]);
         %
         %{
         % when DataSave is saved as a discrete file.
