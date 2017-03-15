@@ -18,7 +18,7 @@ NIDAQ サポートパッケージ (MATLAB アドオンから入手)．
 Image acquisition toolbox．  
 Point Gray サポートパッケージ (MATLAB アドオンから入手)．  
 
-OSX 10.9 -10.11 では 記録系は動かせないが，刺激パタンの確認等は可能．  
+OSX 10.9 -10.12 では 記録系は動かせないが，刺激パタンの確認等は可能．  
 
 ### ドライバインストール注意
 おそらく R2016a 以降は MATLAB のアドオン追加機能でドライバを入れたほうが良い．  
@@ -161,3 +161,15 @@ AI 記録で実行されるイベントの，event handle.
 
 ### MP4 ビデオ
 カメラを ON にして save すると MP4 形式でトライアルごとの動画を保存．
+
+---
+### .m ファイル説明
+1. OpenNBA.m
+  Start NBA_rec and select Recording Mode.
+2. main_loop.m
+
+
+
+---
+### To Do
+
