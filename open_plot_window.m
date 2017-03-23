@@ -17,22 +17,21 @@ Xpos_axes = 70;
 Xpos_button = 575;
 
 if Recmode == 1
-    % Vertical position
+    % Horizontal position
     hGui.axes1_1 = axes('Units', 'Pixels', 'Position', [Xpos_axes, 600, 500, 130], 'XLimMode', 'manual', 'YlimMode', 'Auto');
     hGui.plot1_1 = plot(0, NaN);
     set(gca, 'xticklabel', [])
-    ylabel('Vertical (V)');
+    ylabel('Horizontal (V)');
     hGui.button1_1 = uicontrol('style', 'togglebutton', 'string', 'ON', 'position', [Xpos_button 700 45 30],...
         'value', 1, 'callback', {@ch_ButtonColor, 'g'}, 'BackGroundColor', 'g', 'Horizontalalignment', 'center');
     
-    % Horizontal position
+    % Vertical position
     hGui.axes1_2 = axes('Units', 'Pixels', 'Position', [Xpos_axes, 450, 500, 130], 'XLimMode', 'manual', 'YlimMode', 'Auto');
     hGui.plot1_2 = plot(0, NaN);
     set(gca, 'xticklabel', [])
-    ylabel('Horizontal (V)');
+    ylabel('Vertical (V)');
     hGui.button1_2 = uicontrol('style', 'togglebutton', 'string', 'ON', 'position', [Xpos_button 550 45 30],...
         'value', 1, 'callback', {@ch_ButtonColor, 'g'}, 'BackGroundColor', 'g', 'Horizontalalignment', 'center');
-
     
 elseif Recmode == 2
     hGui.axes1 = axes('Units', 'Pixels', 'Position', [Xpos_axes, 530, 500, 200], 'XLimMode', 'manual', 'YlimMode', 'Auto');
