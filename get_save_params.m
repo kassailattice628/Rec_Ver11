@@ -33,6 +33,7 @@ if recobj.cycleNum > 0
             % looming speed and maximum size
             save.stim1.LoomingSpd_deg_s = sobj.loomSpd_deg;
             save.stim1.LoomingMaxSize_deg =sobj.maxSize_deg;
+            save.stim1.TTL3 = sobj.TTL3;
             
         case {'1P_Conc','2P_Conc','B/W'}
             % concentric_position stim1 or stim 2

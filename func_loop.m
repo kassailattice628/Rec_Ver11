@@ -160,8 +160,19 @@ generate_trigger([0,0]);
     function generate_trigger(pattern)
         if Testmode == 0
             %temporary randomize TTL3, ON/OFF 
-            if strcomp(sobj.pattern, 'Looming')
+            if strcmp(sobj.pattern, 'Looming')
                 outputSingleScan(dio.TrigAIFV, pattern)
+                %
+                %
+                %
+                [lumi_mat, sobj.conc_index] = get_condition(4, sobj.loom_lumi_mat, recobj.cycleNum,...
+                    size(sobj.loom_lumi_mat,1), 1);
+                sobj.lumi = lumi_mat(1);
+                sobj.TTL3 = lumi_mat(2);
+                sobj.stimcol = sobj.lumi;
+                %
+                %
+                %
                 outputSingleScan(dio.TTL3, sobj.TTL3)
             else
                 outputSingleScan(dio.TrigAIFV, pattern)
@@ -169,6 +180,44 @@ generate_trigger([0,0]);
                     outputSingleScan(dio.TTL3, pattern(1))
                 end
             end
+        end
+    end
+%%
+    function [out, index] = get_condition(n, list_mat, cycleNum, list_size, flag_random, fix)
+        % generate list order
+        % n is the number of conditions
+        % 1: stimulus center, 2: stimulus size, 3: luminace
+        % 4: concentric_angle & distance matrix
+        % 5: grating angle
+        % 6: tif images
+        % 7: stimulus center for Fine Mapping
+        
+        persistent list_order %keep in this function
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        if flag_random == 2 %fixed condition
+            %list_order{n} = fix * ones(1,list_size);
+            index = [];
+            out = fix;
+        else
+            if cycleNum == 1 && n == 1
+                list_order = cell(6,1);
+            end
+            i_in_cycle = mod(cycleNum, list_size);
+            
+            if i_in_cycle == 0
+                i_in_cycle = list_size;
+                disp('reset_rand_cycle')
+                
+            elseif i_in_cycle == 1 %Reset list order
+                switch flag_random
+                    case 1 %randomize
+                        list_order{n,1} = randperm(list_size);
+                    case 3 %ordered
+                        list_order{n,1} = 1:list_size;
+                end
+            end
+            index = list_order{n,1}(i_in_cycle);
+            out = list_mat(index,:);
         end
     end
 end
@@ -428,12 +477,13 @@ end
         
         %set stim lumi, randomize luminance, stimlumi_list is defined in
         %reload_params
-
+%{
         [lumi_mat, sobj.conc_index] = get_condition(4, sobj.loom_lumi_mat, recobj.cycleNum,...
-                    size(sobj.loom_lumi_mat,1), 2); 
+                    size(sobj.loom_lumi_mat,1), 1); 
         sobj.lumi = lumi_mat(1);
         sobj.TTL3 = lumi_mat(2);
         sobj.stimcol = sobj.lumi;
+%}
         
         %Prep first frame
         Rect = CenterRectOnPointd(stim_size .* 0, sobj.stim_center(1), sobj.stim_center(2));
