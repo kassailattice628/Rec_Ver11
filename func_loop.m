@@ -31,6 +31,7 @@ if get(hObject, 'value')==1 % loop ON
         %%%%%%%%%%%%%% loop contentes %%%%%%%%%%%%%%%
         % start loop (Trigger + Visual Stimulus)
         MainLoop(dio, hGui, Testmode)
+        ParamsSave{1,recobj.cycleCount} = get_save_params(recobj, sobj); %ad2016.5/14
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
         if sobj.Num_screens == 1 && recobj.cycleNum == 5
@@ -78,7 +79,7 @@ end
         % Reset Cycle Counter %
         recobj.cycleNum = 0- recobj.prestim;
         disp(['Loop-Out:', num2str(recobj.cycleNum)]);
-        recobj = rmfield(recobj,'STARTloop');
+%        recobj = rmfield(recobj,'STARTloop');
         
         %reset all triggers
         ResetTTLall(Testmode, dio, sobj);
@@ -412,9 +413,8 @@ end
         stim_size =  [0, 0, sobj.loomSize_pix];% max_Stim_Size
         sobj.stim_size = sobj.loomSize_pix;
         
-        %Set stim lumi
-        sobj.stimcol = sobj.stimlumi;
         %set flipnum
+        sobj.stimcol = sobj.stimlumi;
         flipnum = round(sobj.loomDuration/sobj.m_int);
         scaleFactor = sobj.loomSize_pix./flipnum;
          

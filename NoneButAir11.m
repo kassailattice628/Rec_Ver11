@@ -30,7 +30,7 @@ recobj.cycleNum = 0 - recobj.prestim; %loop cycle number
 %% Initialize Stimulus params
 
 % monitor dependent prameter (DeLL 19-inch)
-pixpitch = 0.264;%(mm)
+pixpitch = 0.248;%(mm)
 sobj = sobj_ini(pixpitch); %i=0:test, i=1:working
 
 %% Initialize DAQ params
@@ -44,7 +44,7 @@ end
 %PsychDefaultSetup(2);
 
 %[sobj.wPtr, sobj.RECT] = Screen('OpenWindow', sobj.ScrNum,sobj.bgcol);
-[sobj.wPtr, sobj.RECT] = PsychImaging('OpenWindow', sobj.ScrNum, sobj.bgcol);
+[sobj.wPtr, sobj.RECT] = PsychImaging('OpenWindow',1, sobj.bgcol);
 [sobj.ScrCenterX, sobj.ScrCenterY] = RectCenter(sobj.RECT);% center positionof of stim monitor
 sobj.m_int = Screen('GetFlipInterval', sobj.wPtr);
 sobj.frameRate = Screen('FrameRate',sobj.ScrNum);
@@ -54,7 +54,7 @@ end
 sobj.duration = sobj.flipNum * sobj.m_int;% sec
 
 %% open GUI window
-if sobj.Num_screens == 1 %Single monitor condition
+if sobj.Num_screens == 1%Single monitor condition
     Screen('Close', sobj.wPtr);
 end
 figUIobj = gui_window4(Testmode);

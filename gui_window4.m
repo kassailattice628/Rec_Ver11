@@ -340,6 +340,7 @@ uicontrol('style','text','position',[325 50 20 15],'string','ms','Horizontalalig
 %}
 
 hGui.TTL3=uicontrol('style','togglebutton','position',[210 185 65 30],'string','TTL-OFF','Horizontalalignment','left');
+hGui.TTL33=uicontrol('style','togglebutton','position',[220 100 65 30],'string','TTL-OF','Horizontalalignment','left');
 set(hGui.TTL3, 'Callback',{@TTL3, Testmode})
 
 %hGui.TTL3_select=uicontrol('style','togglebutton','position',[285 185 90 30],'string','Fix:Duration','Horizontalalignment','left');

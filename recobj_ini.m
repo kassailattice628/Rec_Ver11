@@ -5,12 +5,12 @@ function recobj = recobj_ini(varargin)
 recobj.NBAver = '11.4';
 
 %% Recording Parameters: HEADER Information
-recobj.interval = 1; %loop interval(s);
+recobj.interval = 4; %loop interval(s);
 recobj.sampf = 5000; %samoling rate (Hz)
-recobj.rect = 2*1000; %recording time (1s<-1000ms)
+recobj.rect = 900; %recording time (1s<-1000ms)
 recobj.recp = recobj.sampf*recobj.rect/1000;
 
-recobj.prestim = 2; % recobj.prestim * recobj.rect (ms) blank loop
+recobj.prestim = 0; % recobj.prestim * recobj.rect (ms) blank loop
 
 %open flag for saving file
 recobj.fopenflag = 0;

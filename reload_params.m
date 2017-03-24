@@ -55,7 +55,11 @@ sobj.duration = sobj.flipNum*sobj.m_int;
 sobj.delayPTBflip = re_write(figUIobj.delayPTBflip);
 sobj.delayPTB = sobj.delayPTBflip*sobj.m_int;
 
-sobj.stimsz_deg_list = [0.5; 1; 3; 5; 10];
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+sobj.stimsz_deg_list = [  0.5; 15;]; %size of Sz trails
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
 sobj.size_pix_list = repmat(round(Deg2Pix(sobj.stimsz_deg_list, sobj.MonitorDist, sobj.pixpitch)),1,2);
 
 if get(figUIobj.auto_size,'value')==1
@@ -203,10 +207,10 @@ if Testmode == 0
         s.stop;
         disp('stop s')
     end
-    if sOut.IsRunning
-        sOut.stop;
-        disp('stop sOut')
-    end
+%    if sOut.IsRunning
+%        sOut.stop;
+%        disp('stop sOut')
+%    end
     s.Rate = recobj.sampf;
     sOut.Rate = recobj.sampf;
     %s.DurationInSeconds = recobj.rect/1000;%sec
@@ -240,15 +244,15 @@ if Testmode == 0
       
     %%%%%% session for TTL3 counter pulse generation %%%%%%
     if get(figUIobj.TTL3, 'value')
-        delay = zeros(recobj.sampf*recobj.TTL3.delay/1000,1);
-        size_pulseON = round(recobj.sampf/recobj.TTL3.Freq*recobj.TTL3.DutyCycle);
-        pulseON = ones(size_pulseON, 1);
-        size_pulseOFF = round(recobj.sampf/recobj.TTL3.Freq*(1-recobj.TTL3.DutyCycle));
-        pulseOFF = zeros(size_pulseOFF, 1);
-        pulse = repmat([pulseON;pulseOFF], str2double(get(figUIobj.pulsenumTTL3,'string')),1);
-        recobj.TTL3AO = [delay; pulse; zeros(recobj.recp-size(delay,2)-size(pulse,2),1)];
+%        delay = zeros(recobj.sampf*recobj.TTL3.delay/1000,1);
+%        size_pulseON = round(recobj.sampf/recobj.TTL3.Freq*recobj.TTL3.DutyCycle);
+%        pulseON = ones(size_pulseON, 1);
+%        size_pulseOFF = round(recobj.sampf/recobj.TTL3.Freq*(1-recobj.TTL3.DutyCycle));
+%        pulseOFF = zeros(size_pulseOFF, 1);
+%        pulse = repmat([pulseON;pulseOFF], str2double(get(figUIobj.pulsenumTTL3,'string')),1);
+%        recobj.TTL3AO = [delay; pulse; zeros(recobj.recp-size(delay,2)-size(pulse,2),1)];
         recobj.TTL3AO = zeros(recobj.recp, 1);
-        recobj.TTL3AO(1:size([delay;pulse],1),1)=[delay;pulse];
+%        recobj.TTL3AO(1:size([delay;pulse],1),1)=[delay;pulse];
     end
     
 end
