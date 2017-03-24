@@ -123,7 +123,7 @@ end
 %% for Looming ON/OFF and Laser (TTL3) ON/OFF 
 sobj.loom_lumi_mat = zeros(6,2);
 l_list = linspace(sobj.bgcol, sobj.stimlumi, 4)';
-sobj.loom_lumi_mat(:,1) = [l_list;l_list];
+sobj.loom_lumi_mat(:,1) = [l_list(2:end);l_list(2:end)];
 sobj.loom_lumi_mat(:,2) = [0,0,0,1,1,1]; %laser, OFF/ON:
 
 %% Select Image Set
