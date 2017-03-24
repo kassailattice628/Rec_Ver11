@@ -162,7 +162,7 @@ generate_trigger([0,0]);
             %temporary randomize TTL3, ON/OFF 
             if strcomp(sobj.pattern, 'Looming')
                 outputSingleScan(dio.TrigAIFV, pattern)
-                outputSingleScan(dio.TTL3, sobj,sobj.TTL3)
+                outputSingleScan(dio.TTL3, sobj.TTL3)
             else
                 outputSingleScan(dio.TrigAIFV, pattern)
                 if get(figUIobj.TTL3,'value')
