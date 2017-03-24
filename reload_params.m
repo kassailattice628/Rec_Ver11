@@ -47,7 +47,9 @@ sobj.shape = sobj.shapelist{get(figUIobj.shape, 'value'), 1};
 sobj.stimlumi = re_write(figUIobj.stimlumi);
 sobj.stimcol = sobj.stimlumi * sobj.stimRGB;
 
+%list for random luminace (temporary for TOKU)
 sobj.stimlumi_list = linspace(sobj.bgcol, sobj.stimlumi, 5)';
+
 
 sobj.flipNum = re_write(figUIobj.flipNum);
 sobj.duration = sobj.flipNum*sobj.m_int;
@@ -57,7 +59,7 @@ sobj.delayPTB = sobj.delayPTBflip*sobj.m_int;
 
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-sobj.stimsz_deg_list = [  0.5; 15;]; %size of Sz trails
+sobj.stimsz_deg_list = [0.5; 15;]; %size of Sz trails
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 sobj.size_pix_list = repmat(round(Deg2Pix(sobj.stimsz_deg_list, sobj.MonitorDist, sobj.pixpitch)),1,2);
@@ -117,6 +119,12 @@ for n = 1:num_directions
     sobj.concentric_mat(sobj.concentric_mat(:,2)==n, 2) = conc_angle_rad_list(n);
     sobj.concentric_mat_deg(sobj.concentric_mat_deg(:,2)==n, 2) = sobj.concentric_angle_deg_list(n);
 end
+
+%% for Looming ON/OFF and Laser (TTL3) ON/OFF 
+sobj.loom_lumi_mat = zeros(6,2);
+l_list = linspace(sobj.bgcol, sobj.stimlumi, 4)';
+sobj.loom_lumi_mat(:,1) = [l_list;l_list];
+sobj.loom_lumi_mat(:,2) = [0,0,0,1,1,1]; %laser, OFF/ON:
 
 %% Select Image Set
 sobj.img_list = randperm(256);

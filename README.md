@@ -23,6 +23,14 @@ R2016 以降は, MATLAB のメニュー，アドオン　＞　ハードウェ�
 [Psychtoolbox3]("http://psychtoolbox.org/download/") から指示に従って最新版を入れる．  
 USB6001 を使った機能制限版．
 
+## Change programs
+func_loop.m にループ内の記述は大体まとまって入っている．\
+刺激の設定は，sub function の VisStim 内で設定．\
+parameter を randomize するときは，リストを作って，get_condition を回す．
+
+
+
+
 ###注意  
 DAQ は 使用する PC に 1 台だけつなげばその認識してくれる．  
 複数使用する場合は，daq_ini.m の中で機器名を指定する必要あり．

@@ -159,9 +159,15 @@ generate_trigger([0,0]);
 %%nested%%
     function generate_trigger(pattern)
         if Testmode == 0
-            outputSingleScan(dio.TrigAIFV, pattern)
-            if get(figUIobj.TTL3,'value')
-                outputSingleScan(dio.TTL3, pattern(1))
+            %temporary randomize TTL3, ON/OFF 
+            if strcomp(sobj.pattern, 'Looming')
+                outputSingleScan(dio.TrigAIFV, pattern)
+                outputSingleScan(dio.TTL3, sobj,sobj.TTL3)
+            else
+                outputSingleScan(dio.TrigAIFV, pattern)
+                if get(figUIobj.TTL3,'value')
+                    outputSingleScan(dio.TTL3, pattern(1))
+                end
             end
         end
     end
@@ -405,12 +411,11 @@ end
 %%
     function Looming
         % Looming parameters
-        
         % Set stim center as fixed position
         sobj.stim_center = sobj.center_pos_list(sobj.fixpos,:); %fixed position
         sobj.center_index = sobj.fixpos;
         
-        stim_size =  [0, 0, sobj.loomSize_pix];% max_Stim_Size
+        stim_size = [0, 0, sobj.loomSize_pix];% max_Stim_Size
         sobj.stim_size = sobj.loomSize_pix;
         
         %set flipnum
@@ -420,6 +425,15 @@ end
          
         topPriorityLevel =  MaxPriority(sobj.wPtr);
         Priority(topPriorityLevel);
+        
+        %set stim lumi, randomize luminance, stimlumi_list is defined in
+        %reload_params
+
+        [lumi_mat, sobj.conc_index] = get_condition(4, sobj.loom_lumi_mat, recobj.cycleNum,...
+                    size(sobj.loom_lumi_mat,1), 2); 
+        sobj.lumi = lumi_mat(1);
+        sobj.TTL3 = lumi_mat(2);
+        sobj.stimcol = sobj.lumi;
         
         %Prep first frame
         Rect = CenterRectOnPointd(stim_size .* 0, sobj.stim_center(1), sobj.stim_center(2));
