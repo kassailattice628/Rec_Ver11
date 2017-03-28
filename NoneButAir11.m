@@ -72,7 +72,9 @@ if sobj.Num_screens == 1
     Screen('Close', sobj.wPtr);
 end
 % open main GUI ctr window.
-figUIobj = gui_window4(Testmode, Recmode, UseCam, GUI_x);
+%figUIobj = gui_window4(Testmode, Recmode, UseCam, GUI_x);
+figUIobj = gui_window5(Testmode, Recmode, UseCam, GUI_x);
+change_stim_pattern2([],[]);
 
 % open plot window.
 plotUIobj = open_plot_window(figUIobj, Recmode, GUI_x);

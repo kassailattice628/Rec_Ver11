@@ -173,3 +173,12 @@ AI 記録で実行されるイベントの，event handle.
 ---
 ### To Do
 
+
+---
+## 刺激セットを追加・変更するとき
+gui_window.m 内，figUIobj.mode, figUIobj.pattern に内容を変更．＼
+
+main_loop.m > function VisStim > に GUI で追加した pattern を追加，内容を変更＼
+刺激に合わせて スクリプトを追加．
+
+main_loop.m > finction stim_monitor をに追加した条件を追加．

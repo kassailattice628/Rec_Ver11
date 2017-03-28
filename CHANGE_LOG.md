@@ -1,4 +1,17 @@
 # Change_log
+## developping 11.5.4 (todo)
+どの刺激でも, position randomize できるようにする．
+1. Mode(Position) を
+現状の Random, Fix_rep, Ordered から \
+Random_mat, Random_conc, Fix_rep, Ordered_mat, Ordered_conc に変更 \
+2. Stim.Pattern は
+Uni, Size_rand, 1P_Conc, 2P_Conc, B/W, 
+Looming, 
+Sin, Rect, Gabor,
+Images, Mosaic, FineMap から \
+Uni に 1P_Concも含める？
+
+
 ## 11.5.3
 Looming 時，刺激と背景の明るさの設定で，どちらが明るくても良いようにチェックを外した．
 保存するファイル名は，入力した名前に自動で _ を入れて，その後ろに連番をつける．途中ファイルを消すなどしても，save file フォルダにある一番大きい番号に

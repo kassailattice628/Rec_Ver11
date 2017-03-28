@@ -205,7 +205,6 @@ end
         ResetTTLall(Testmode, dio, sobj);
     end
 
-
 end
 
 %%
@@ -230,12 +229,6 @@ end
 % timer start, digital out
 if recobj.cycleNum == -recobj.prestim +1
     %background ScreenON;
-    %{
-    generate_trigger([1,1]); % Start AI & FV
-    disp('Timer Start')
-    recobj.t_START = tic;
-    recobj.t_AIstart = 0;
-    %}
     [sobj.vbl_1, sobj.onset, sobj.flipend] = Screen('Flip', sobj.wPtr);
     generate_trigger([1,1]); % Start AI & FV
     disp('Timer Start')
@@ -244,11 +237,6 @@ if recobj.cycleNum == -recobj.prestim +1
 
 else
     %background ScreenON;
-    %{
-    generate_trigger([1,0]); % Start AI
-    AItime = toc(recobj.t_START);
-    recobj.t_AIstart = AItime - recobj.t_START;
-    %}
     [sobj.vbl_1, sobj.onset, sobj.flipend] = Screen('Flip', sobj.wPtr);
     generate_trigger([1,0]); % Start AI
     AItime = toc(recobj.t_START);
@@ -319,23 +307,23 @@ elseif recobj.cycleNum > 0 %StimON
     switch sobj.pattern
         case 'Uni'
             %Prep
-            Uni_stim(2);
+            Uni_stim(3); %fixed size (=3)
             VisStimON;
             VisStimOFF;
             
         case 'Size_rand'
             %Prep
-            Uni_stim(1);
+            Uni_stim(1); %random size (=1)
             VisStimON;
             VisStimOFF;
             
-        case {'1P_Conc', 'B/W'}
+        case {'B/W'}
             %Prep
             Conc_1P;
             VisStimON;
             VisStimOFF;
             
-        case '2P_Conc'
+        case '2P'
             %Prep, ON, OFF
             Conc_2P;
             time1 = recobj.rect/1000 - (sobj.vbl_3 - sobj.vbl_1);
@@ -353,6 +341,11 @@ elseif recobj.cycleNum > 0 %StimON
         case {'Sin', 'Rect', 'Gabor'}
             %Prep, ON
             GratingGLSL;
+            VisStimOFF;
+            
+        case {'Movebar'}
+            Movebar_stim;
+            VisStimON;
             VisStimOFF;
             
         case 'Images'
@@ -382,31 +375,82 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%
     function Uni_stim(flag_size_random)
-        % Set stim center
-        fix_center = sobj.center_pos_list(sobj.fixpos,:);
-        [sobj.stim_center, sobj.center_index] = get_condition(1, sobj.center_pos_list, recobj.cycleNum,...
-            sobj.divnum^2, get(figUIobj.mode, 'value'), fix_center);
-        if get(figUIobj.mode, 'value') == 2
+        %<get_condition ‚Ì random_flag ‚Í 1:random, 2:ordered, 3:fix>
+        %%%%%%%%%%%%%%%%%%%
+        % Set stim center %
+        %%%%%%%%%%%%%%%%%%%
+        f_pos = get(figUIobj.mode, 'Value');
+        
+        if f_pos == 1
+            %randomize list
+            fix_center = [];
+            f_pos_rand = 1;
+            list_mat = sobj.center_pos_list;
+            list_size = sobj.divnum^2;
+        elseif f_pos == 2
+            %ordered list
+            fix_center = [];
+            f_pos_rand = 2;
+            list_mat = sobj.center_pos_list;
+            list_size = sobj.divnum^2;
+        elseif f_pos == 4 ||  f_pos ==  3
+            %fixed, (use fixed position as the center
+            list_mat = [];
+            list_size = [];
+            fix_center = sobj.center_pos_list(sobj.fixpos,:);
+            f_pos_rand = 3;
+        end 
+        
+        % get a list of stimulus positions, and randomization 
+        [sobj.stim_center, sobj.center_index] = get_condition(1, list_mat, recobj.cycleNum,...
+            list_size, f_pos_rand, fix_center);
+        if f_pos == 4 || f_pos == 3
             sobj.center_index = sobj.fixpos;
         end
         
+        %%%%%%%%%%%%%%%%
+        % concentric
+        %%%%%%%%%%%%%%%%
+        if f_pos == 3
+            if get(figUIobj.shiftDir, 'value') == 9 %ord8
+                f_rand_dir = 2; %ord
+            else
+                f_rand_dir = 1; %random
+            end
+            
+            [conc_pos_mat, sobj.conc_index] = get_condition(4,...
+                sobj.concentric_mat(1:end/2,:), recobj.cycleNum,... 
+                size(sobj.concentric_mat,1)/2, f_rand_dir);
+            
+            [concX , concY] = pol2cart(conc_pos_mat(2), conc_pos_mat(1));
+            sobj.stim_center  = [sobj.stim_center(1) + concX, sobj.stim_center(2) - concY];
+        end
+        
+        %%%%%%%%%%%%%%%%
         % Set stim size
+        %%%%%%%%%%%%%%%%
         [sobj.stim_size, sobj.size_index] = get_condition(2, sobj.size_pix_list, recobj.cycleNum,...
             length(sobj.size_pix_list), flag_size_random, sobj.stimsz);
-        if flag_size_random == 2
+        if flag_size_random == 3
+            %fix size
             sobj.size_deg = str2double(get(figUIobj.size, 'string'));
         else
+            %random size
             sobj.size_deg = sobj.stimsz_deg_list(sobj.size_index);
         end
         
         maxDiameter = max(sobj.stim_size) * 1.01;
+        
+        %%%%%%%%%%%%%%%%
         % define stim position using center and size
         Rect = CenterRectOnPointd([0,0,sobj.stim_size], sobj.stim_center(1), sobj.stim_center(2));
         
+        %%%%%%%%%%%%%%%%
         % Set Luminance
+        %%%%%%%%%%%%%%%%
         switch get(figUIobj.lumi, 'value')
             case 1
-                flag_lumi_random = 2; %fix
+                flag_lumi_random = 3; %fix
             case 2
                 flag_lumi_random = 1; %randomize
         end
@@ -415,6 +459,7 @@ end
         
         sobj.stimcol = sobj.lumi * sobj.stimRGB;
         
+        %%%%%%%%%%%%%%%%%%%
         %PrepScreen Screen
         Screen(sobj.shape, sobj.wPtr, sobj.stimcol, Rect, maxDiameter);
     end
@@ -424,7 +469,7 @@ end
         %Set concentric position and luminance
         
         if get(figUIobj.shiftDir, 'value') == 9 %ord8
-            flag_random_dir = 3;%ordered
+            flag_random_dir = 2;%ordered
         else
             flag_random_dir = 1;%random distance, direction
         end
@@ -631,7 +676,7 @@ end
                     Screen('Flip', sobj.wPtr, sobj.vbl_1 + sobj.delayPTB);
                 
                 TriggerVSon(Testmode, dio,1)
-                disp(['AITrig; ',sobj.pattern, ': #', num2str(recobj.cycleNum)]);
+                disp(['AITrig; ',sobj.pattern, ': #', num2str(recobj.cycleNum)]); 
                 
                 Screen('DrawTexture', sobj.wPtr, Both_Stim1_Stim2)
                 [sobj.vbl2_2, ~, ~, ~, sobj.BeamposON_2] =...
@@ -967,7 +1012,7 @@ end
         
         persistent list_order %keep in this function
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        if flag_random == 2 %fixed condition
+        if flag_random == 3 %fixed condition
             %list_order{n} = fix * ones(1,list_size);
             index = [];
             out = fix;
@@ -985,7 +1030,7 @@ end
                 switch flag_random
                     case 1 %randomize
                         list_order{n,1} = randperm(list_size);
-                    case 3 %ordered
+                    case 2 %ordered
                         list_order{n,1} = 1:list_size;
                 end
             end
@@ -1051,13 +1096,18 @@ else % during stimulation
     switch sobj.pattern
         case 'Uni'
             bgcol = 'm';
-            stim_str3 = '';
+            if get(figUIobj.mode, 'Value') == 3
+                stim_str3 = ['Dist:',num2str(sobj.concentric_mat_deg(sobj.conc_index,1)),...
+                    '/Ang:', num2str(sobj.concentric_mat_deg(sobj.conc_index,2))];
+            else
+                stim_str3 = '';
+            end
             
         case 'Size_rand'
             bgcol = 'y';
             stim_str3 = ['Size: ', num2str(sobj.size_deg), 'deg'];
             
-        case {'1P_Conc', '2P_Conc', 'B/W'}
+        case {'2P', 'B/W'}
             bgcol = 'm';
             stim_str3 = ['Dist:',num2str(sobj.concentric_mat_deg(sobj.conc_index,1)),...
                 '/Ang:', num2str(sobj.concentric_mat_deg(sobj.conc_index,2))];
@@ -1066,7 +1116,7 @@ else % during stimulation
             bgcol = 'y';
             stim_str3 = ['Spd: ', num2str(sobj.loomSpd_deg), 'deg/s'];
             
-        case {'Sin', 'Rect', 'Gabor'}
+        case {'Sin', 'Rect', 'Gabor','Movebar'}
             bgcol = 'c';
             stim_str3 = ['Dir: ', num2str(sobj.angle), ' deg'];
             

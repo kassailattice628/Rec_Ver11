@@ -77,7 +77,13 @@ end
 
 %% Stim specific parameters.
 switch sobj.pattern
-    case {'Sin', 'Rect', 'Gabor', '1P_Conc', '2P_Conc', 'B/W'}
+    case 'Uni'
+        mode =  get(figUIobj.mode, 'Value');
+        if mode ==  3
+            get_concentric_position;
+        end
+        
+    case {'Sin', 'Rect', 'Gabor', '2P', 'B/W'}
         %% Grating
         
         sobj.shiftDir = get(figUIobj.shiftDir, 'value');
@@ -328,7 +334,58 @@ end
 
 end
 
+%%
+function get_concentric_position
+global sobj
+global figUIobj
+%% Concentric positions
 
+sobj.shiftDir = get(figUIobj.shiftDir, 'value');
+% chekc_concentric_position
+% Max distance = sobj.dist
+% number of division = sobj.div_zoom
+sobj.concentric_dist_deg_list = (sobj.dist/sobj.div_zoom) : (sobj.dist/sobj.div_zoom) : sobj.dist; % for save
+conc_dist_pix_list = Deg2Pix(sobj.concentric_dist_deg_list, sobj.MonitorDist, sobj.pixpitch);
+
+if get(figUIobj.shiftDir, 'value') < 9
+    % when angle is fixed
+    prep_mat = [[0,1:sobj.div_zoom]; [0, get(figUIobj.shiftDir, 'value')*ones(1, sobj.div_zoom)]];
+    sobj.concentric_angle_deg_list = linspace(0, 315, 8);
+    conc_angle_rad_list = linspace(0, 2*pi- 2*pi/8, 8);
+    num_directions = get(figUIobj.shiftDir, 'value');
+else
+    if get(figUIobj.shiftDir, 'value') < 11
+        % when angle is random or ordered
+        num_directions = 8;
+    else
+        num_directions = 16;
+    end
+    % 8 or 16 directions and center (: +1)
+    prep_mat = zeros(2,sobj.div_zoom*num_directions + 1);
+    for i_div = 1:sobj.div_zoom
+        prep_mat(1,num_directions*(i_div-1)+2:num_directions*i_div+1) = i_div*ones(1,num_directions);
+    end
+    prep_mat(2,:) = [0,repmat(1:num_directions, 1,sobj.div_zoom)];
+    sobj.concentric_angle_deg_list = 0: 360/num_directions: 360-360/num_directions;
+    conc_angle_rad_list = 0: 2*pi/num_directions: 2*pi-2*pi/num_directions;
+end
+
+% for BW:Black/White concentric mapping (position + color)
+% 1st: distance, 2nd: direction, 3rd: 1=white, 2=black
+sobj.concentric_mat = ones(size(prep_mat,2)*2, 3);
+sobj.concentric_mat(:, 1:2) = repmat(prep_mat', 2, 1);
+sobj.concentric_mat(1+size(sobj.concentric_mat,1)/2:end, 3) = 2;
+sobj.concentric_mat_deg = sobj.concentric_mat;
+for n = sobj.div_zoom:-1:1
+    %distance in pixel length
+    sobj.concentric_mat(sobj.concentric_mat(:,1)==n, 1) = conc_dist_pix_list(n);
+    sobj.concentric_mat_deg(sobj.concentric_mat_deg(:,1)==n, 1) = sobj.concentric_dist_deg_list(n);
+end
+for n = 1:num_directions
+    sobj.concentric_mat(sobj.concentric_mat(:,2)==n, 2) = conc_angle_rad_list(n);
+    sobj.concentric_mat_deg(sobj.concentric_mat_deg(:,2)==n, 2) = sobj.concentric_angle_deg_list(n);
+end
+end
 
 
 

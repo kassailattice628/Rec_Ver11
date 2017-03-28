@@ -2,7 +2,7 @@ function OpenNBA
 %%% Open NBA %%%
 % Select Open mode.
 % if 'TEST mode' is ON, DAQ parameters are not read. Visual stimuli can be
-% tested in single display environment.
+ % tested in single display environment.
 
 % Select recording 
 % 'iRecHS2': AI0:1 <= center of pupil
