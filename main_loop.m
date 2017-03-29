@@ -376,56 +376,8 @@ end
 %%
     function Uni_stim(flag_size_random)
         %<get_condition ‚Ì random_flag ‚Í 1:random, 2:ordered, 3:fix>
-        %%%%%%%%%%%%%%%%%%%
-        % Set stim center %
-        %%%%%%%%%%%%%%%%%%%
-        f_pos = get(figUIobj.mode, 'Value');
         
-        if f_pos == 1
-            %randomize list
-            fix_center = [];
-            f_pos_rand = 1;
-            list_mat = sobj.center_pos_list;
-            list_size = sobj.divnum^2;
-        elseif f_pos == 2
-            %ordered list
-            fix_center = [];
-            f_pos_rand = 2;
-            list_mat = sobj.center_pos_list;
-            list_size = sobj.divnum^2;
-        elseif f_pos == 4 ||  f_pos ==  3
-            %fixed, (use fixed position as the center
-            list_mat = [];
-            list_size = [];
-            fix_center = sobj.center_pos_list(sobj.fixpos,:);
-            f_pos_rand = 3;
-        end 
-        
-        % get a list of stimulus positions, and randomization 
-        [sobj.stim_center, sobj.center_index] = get_condition(1, list_mat, recobj.cycleNum,...
-            list_size, f_pos_rand, fix_center);
-        if f_pos == 4 || f_pos == 3
-            sobj.center_index = sobj.fixpos;
-        end
-        
-        %%%%%%%%%%%%%%%%
-        % concentric
-        %%%%%%%%%%%%%%%%
-        if f_pos == 3
-            if get(figUIobj.shiftDir, 'value') == 9 %ord8
-                f_rand_dir = 2; %ord
-            else
-                f_rand_dir = 1; %random
-            end
-            
-            [conc_pos_mat, sobj.conc_index] = get_condition(4,...
-                sobj.concentric_mat(1:end/2,:), recobj.cycleNum,... 
-                size(sobj.concentric_mat,1)/2, f_rand_dir);
-            
-            [concX , concY] = pol2cart(conc_pos_mat(2), conc_pos_mat(1));
-            sobj.stim_center  = [sobj.stim_center(1) + concX, sobj.stim_center(2) - concY];
-        end
-        
+        Set_stim_position;
         %%%%%%%%%%%%%%%%
         % Set stim size
         %%%%%%%%%%%%%%%%
@@ -466,8 +418,9 @@ end
 
 %%
     function Conc_1P
+        %%%%%%%%%%
         %Set concentric position and luminance
-        
+        %%%%%%%%%%
         if get(figUIobj.shiftDir, 'value') == 9 %ord8
             flag_random_dir = 2;%ordered
         else
@@ -475,23 +428,6 @@ end
         end
         
         switch sobj.pattern
-            case '1P_Conc'
-                %conc_pos_mat(1,i): distance(pix), conc_pos_mat(2,i): angle(rad)
-                [conc_pos_mat, sobj.conc_index] = get_condition(4, sobj.concentric_mat(1:end/2,:), recobj.cycleNum,...
-                    size(sobj.concentric_mat,1)/2, flag_random_dir);
-                
-                % Set Luminance
-                switch get(figUIobj.lumi, 'value')
-                    case 1
-                        flag_lumi_random = 2; %fix
-                    case 2
-                        flag_lumi_random = 1; %randomize
-                end
-                sobj.lumi = get_condition(3, sobj.stimlumi_list, recobj.cycleNum,...
-                    length(sobj.stimlumi_list), flag_lumi_random, sobj.stimlumi);
-                
-                sobj.stimcol = sobj.lumi * sobj.stimRGB;
-                
             case 'B/W'
                 [conc_pos_mat, sobj.conc_index] = get_condition(4, sobj.concentric_mat, recobj.cycleNum,...
                     size(sobj.concentric_mat,1), flag_random_dir);
@@ -503,13 +439,14 @@ end
                     case 2
                         sobj.lumi = 0;
                 end
-                sobj.stimcol = sobj.lumi;
-                
+                sobj.stimcol = sobj.lumi;   
         end
         
         [concX, concY] = pol2cart(conc_pos_mat(2),conc_pos_mat(1));
         
+        %%%%%%%%%%%%%%%%%
         % Set stim center
+        %%%%%%%%%%%%%%%%%s
         fix_center = sobj.center_pos_list(sobj.fixpos,:);
         [sobj.stim_center, sobj.center_index] = get_condition(1, sobj.center_pos_list, recobj.cycleNum,...
             sobj.divnum^2, get(figUIobj.mode, 'value'), fix_center);
@@ -520,7 +457,7 @@ end
         % if conc_pos_mat is defined, changes stim_cneter position
         sobj.stim_center = [sobj.stim_center(1) + concX, sobj.stim_center(2) - concY];
         
-        % Set stim size
+        % Set stim size, fixed
         sobj.stim_size = sobj.stimsz;
         sobj.size_deg = str2double(get(figUIobj.size, 'string'));
         maxDiameter = max(sobj.stim_size) * 1.01;
@@ -712,14 +649,8 @@ end
     function Looming
         % Looming parameters
         
-        % Set stim center
-        fix_center = sobj.center_pos_list(sobj.fixpos,:);
-        [sobj.stim_center, sobj.center_index] = get_condition(1, sobj.center_pos_list, recobj.cycleNum,...
-            sobj.divnum^2, get(figUIobj.mode, 'value'), fix_center);
-        if get(figUIobj.mode, 'value') == 2
-            sobj.center_index = sobj.fixpos;
-        end
-        
+        Set_stim_position;
+
         stim_size =  [0, 0, sobj.loomSize_pix];% max_Stim_Size
         sobj.stim_size = sobj.loomSize_pix;
         sobj.size_deg = NaN;
@@ -780,24 +711,22 @@ end
         angle_list = sobj.concentric_angle_deg_list';
         
         if get(figUIobj.shiftDir, 'value') < 9
-            flag_rand_dir = 2;
+            flag_rand_dir = 3;
             angle_list = sobj.concentric_angle_deg_list(get(figUIobj.shiftDir, 'value'));
         elseif get(figUIobj.shiftDir, 'value') == 9 %ord8
-            flag_rand_dir=3;
+            flag_rand_dir = 2;
         else %randomize
-            flag_rand_dir=1;
+            flag_rand_dir = 1;
         end
-        % Set grating direction
+
+        
         [sobj.angle, sobj.angle_index] = get_condition(5, angle_list, recobj.cycleNum,...
             length(angle_list), flag_rand_dir, angle_list);
         
-        % Set stim center
-        fix_center = sobj.center_pos_list(sobj.fixpos,:);
-        [sobj.stim_center, sobj.center_index] = get_condition(1, sobj.center_pos_list, recobj.cycleNum,...
-            sobj.divnum^2, get(figUIobj.mode, 'value'), fix_center);
-        if get(figUIobj.mode, 'value') == 2
-            sobj.center_index = sobj.fixpos;
-        end
+        % Position
+        % caution, if mode:concentric is selected, grating direction and
+        % concentirc position is same...
+        Set_stim_position;
         
         % Set stim size
         sobj.stim_size = sobj.stimsz;
@@ -807,7 +736,7 @@ end
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
-        % get  Spatial frequency of the grating
+        % get Spatial frequency of the grating
         % cycles/deg
         gratFreq_list_deg = get(figUIobj.gratFreq, 'string');
         sobj.gratFreq_deg = str2double(gratFreq_list_deg(get(figUIobj.gratFreq, 'value')));
@@ -877,6 +806,18 @@ end
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
     end
+%%
+    function Movebar_stim
+        % length of the bar is matched
+        % set direction
+        s
+        % set color / luminance
+        sobj.stimcol = sobj.stimlumi;
+        
+        % Pref first frame
+        Rect = CenterRectOnPointd(stim_size .* 0, sobj.stim_center(1), sobj.stim_center(2));
+        Screen(sobj.shape, sobj.wPtr, sobj.stimcol, Rect);
+    end
 
 %% Simple simbols, alphabet
     function Img_stim
@@ -892,14 +833,8 @@ end
         imgdata = imread(imgFileName2, 'TIFF');
         imgtex = Screen('MakeTexture',sobj.wPtr,imgdata);
         
-        % Set stim center as fixed position
         % Set stim center
-        fix_center = sobj.center_pos_list(sobj.fixpos,:);
-        [sobj.stim_center, sobj.center_index] = get_condition(1, sobj.center_pos_list, recobj.cycleNum,...
-            sobj.divnum^2, get(figUIobj.mode, 'value'), fix_center);
-        if get(figUIobj.mode, 'value') == 2
-            sobj.center_index = sobj.fixpos;
-        end
+        Set_stim_position;
         
         % Set stim size
         sobj.stim_size = sobj.stimsz;
@@ -915,14 +850,8 @@ end
 
 %%
     function Mosaic_Dots
-        % Set stim area center
         % Set stim center
-        fix_center = sobj.center_pos_list(sobj.fixpos,:);
-        [sobj.stim_center, sobj.center_index] = get_condition(1, sobj.center_pos_list, recobj.cycleNum,...
-            sobj.divnum^2, get(figUIobj.mode, 'value'), fix_center);
-        if get(figUIobj.mode, 'value') == 2
-            sobj.center_index = sobj.fixpos;
-        end
+        Set_stim_position;
         
         % Fix stim luminance
         sobj.lumi = sobj.stimlumi;
@@ -1000,7 +929,59 @@ end
         
     end
 
-%% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %%
+%% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %%   
+    function Set_stim_position
+        % set stim position that is defined by figUIobj.mode
+        %%%%% stim center position %%%%%
+        f_pos =  get(figUIobj.mode, 'Value');
+        if f_pos ==  1
+            %rrandom matrix
+            fix_center = [];
+            f_pos_rand = 1;
+            list_mat = sobj.center_pos_list;
+            list_size = sobj.divnum^2;
+            
+        elseif f_pos == 2
+            %orderd matrix
+            fix_center = [];
+            f_pos_rand = 2;
+            list_mat = sobj.center_pos_list;
+            list_size = sobj.divnum^2;
+            
+        elseif f_pos == 3 || f_pos == 4
+            %concentric random or fixed center
+            fix_center = sobj.center_pos_list(sobj.fixpos,:);
+            f_pos_rand = 3;
+            list_mat = [];
+            list_size = [];
+        end
+        
+        [sobj.stim_center, sobj.center_index] =  get_condition(1, list_mat, recobj.cycleNum,...
+            list_size, f_pos_rand, fix_center);
+        
+        if f_pos == 3 || f_pos == 4
+            sobj.center_index = sobj.fixpos;
+        end
+        
+        %%%%% for concentric position %%%%%
+        if f_pos ==  3
+            if get(figUIobj.shiftDir, 'Value') ==  9 %ord8
+                f_dir_rand = 2; % ord
+            else
+                f_dir_rand = 1; % randomize
+            end
+            
+            [conc_pos_mat, sobj.conc_index] = get_condition(4, sobj.concentric_mat(1:end/2,:),...
+                recobj.cycleNum, size(sobj.concentric_mat,1)/2, f_dir_rand);
+            
+            [concX, concY] = pol2cart(conc_pos_mat(2), conc_pos_mat(1));
+            sobj.stim_center = [sobj.stim_center(1) + concX, sobj.stim_center(2) - concY];
+        end
+        
+        %
+    end
+
+%%
     function [out, index] = get_condition(n, list_mat, cycleNum, list_size, flag_random, fix)
         % generate list order
         % n is the number of conditions
