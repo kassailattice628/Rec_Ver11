@@ -57,7 +57,7 @@ else %loop OFF
 end
 
 %% %%%%%%%%%%%% nested functions %%%%%%%%%%%%%%
-%%                      
+%%
     function Loop_contents(dio, hGui, Testmode, SetCam)
         persistent fname
         
@@ -103,7 +103,7 @@ end
                     % loop interval %
                     pause(recobj.rect/1000);
                     
-                %%%%%%%%%%%%%%%%%%%% Visual Stimulus ON %%%%%%%%%%%%%%%%%%%%%
+                    %%%%%%%%%%%%%%%%%%%% Visual Stimulus ON %%%%%%%%%%%%%%%%%%%%%
                 case 1
                     % start timer, start FV and start Visu Stim
                     VisStim(Testmode, SetCam, dio);
@@ -141,7 +141,7 @@ end
             %%%%% loop interval %%%%%
             if exist('t_vid_save', 'var') && t_vid_save < recobj.interval
                 pause(recobj.interval - t_vid_save)
-      
+                
             else
                 pause(recobj.interval)
             end
@@ -234,7 +234,7 @@ if recobj.cycleNum == -recobj.prestim +1
     disp('Timer Start')
     recobj.t_START = tic;
     recobj.t_AIstart = 0;
-
+    
 else
     %background ScreenON;
     [sobj.vbl_1, sobj.onset, sobj.flipend] = Screen('Flip', sobj.wPtr);
@@ -343,10 +343,14 @@ elseif recobj.cycleNum > 0 %StimON
             GratingGLSL;
             VisStimOFF;
             
-        case {'Movebar'}
+        case {'MoveBar'}
             Movebar_stim;
-            VisStimON;
-            VisStimOFF;
+            
+            stim_monitor_reset;
+            time1 = recobj.rect/1000 - (sobj.vbl_3 - sobj.vbl_1);
+            pause_time = time1;
+            %VisStimON;
+            %VisStimOFF;
             
         case 'Images'
             %Prep
@@ -439,7 +443,7 @@ end
                     case 2
                         sobj.lumi = 0;
                 end
-                sobj.stimcol = sobj.lumi;   
+                sobj.stimcol = sobj.lumi;
         end
         
         [concX, concY] = pol2cart(conc_pos_mat(2),conc_pos_mat(1));
@@ -613,7 +617,7 @@ end
                     Screen('Flip', sobj.wPtr, sobj.vbl_1 + sobj.delayPTB);
                 
                 TriggerVSon(Testmode, dio,1)
-                disp(['AITrig; ',sobj.pattern, ': #', num2str(recobj.cycleNum)]); 
+                disp(['AITrig; ',sobj.pattern, ': #', num2str(recobj.cycleNum)]);
                 
                 Screen('DrawTexture', sobj.wPtr, Both_Stim1_Stim2)
                 [sobj.vbl2_2, ~, ~, ~, sobj.BeamposON_2] =...
@@ -650,7 +654,7 @@ end
         % Looming parameters
         
         Set_stim_position;
-
+        
         stim_size =  [0, 0, sobj.loomSize_pix];% max_Stim_Size
         sobj.stim_size = sobj.loomSize_pix;
         sobj.size_deg = NaN;
@@ -718,7 +722,7 @@ end
         else %randomize
             flag_rand_dir = 1;
         end
-
+        
         
         [sobj.angle, sobj.angle_index] = get_condition(5, angle_list, recobj.cycleNum,...
             length(angle_list), flag_rand_dir, angle_list);
@@ -808,15 +812,100 @@ end
     end
 %%
     function Movebar_stim
-        % length of the bar is matched
-        % set direction
-        s
+        % get grating direction
+        angle_list = sobj.concentric_angle_deg_list';
+        
+        if get(figUIobj.shiftDir, 'value') < 9
+            flag_rand_dir = 3;
+            angle_list = sobj.concentric_angle_deg_list(get(figUIobj.shiftDir, 'value'));
+            
+        elseif get(figUIobj.shiftDir, 'value') == 9 %ord8
+            flag_rand_dir = 2;
+        else %randomize
+            flag_rand_dir = 1;
+        end
+        
         % set color / luminance
         sobj.stimcol = sobj.stimlumi;
         
-        % Pref first frame
-        Rect = CenterRectOnPointd(stim_size .* 0, sobj.stim_center(1), sobj.stim_center(2));
-        Screen(sobj.shape, sobj.wPtr, sobj.stimcol, Rect);
+        % set size
+        sobj.stim_size = sobj.stimsz;
+        sobj.size_deg = str2double(get(figUIobj.size, 'string'));
+        
+        % set flipnum
+        flipnum = round(sobj.moveDuration/sobj.m_int);
+        transFactor = round(sobj.RECT(3)/flipnum);
+        
+        %moving direction setting
+        topPriorityLevel =  MaxPriority(sobj.wPtr);
+        Priority(topPriorityLevel);
+        % Make base stim texture
+        bar_h = ceil(sobj.RECT(4)*sqrt(2));
+        bar_w = sobj.stim_size(1);
+        mat_bar = ones(bar_h, bar_w) * sobj.stimlumi;
+        
+        %%%
+        [sobj.angle, sobj.angle_index] = get_condition(5, angle_list, recobj.cycleNum,...
+            length(angle_list), flag_rand_dir, angle_list);
+        angle  = 180-sobj.angle;
+        
+        %%%
+        x0 = 0;
+        y0 = 0;
+        x0_di = -round(sobj.RECT(4)/2);
+        %MakeTexture
+        im_tex = Screen('MakeTexture', sobj.wPtr, mat_bar, angle);
+        
+        %%% Stim on %%%
+        
+        for count = 1:flipnum-1
+            switch sobj.angle
+                case 0 %horizontal rightward
+                    xmove = x0 + count*transFactor;
+                    tex_pos = [xmove-(bar_w/2), sobj.ScrCenterY-(bar_h/2), xmove+(bar_w/2), sobj.ScrCenterY+(bar_h/2)];
+                    
+                case {45, 315} %diagonal rightward
+                    xmove = x0_di + count*transFactor;
+                    tex_pos = [xmove-(bar_w/2), sobj.ScrCenterY-(bar_h/2), xmove+(bar_w/2), sobj.ScrCenterY+(bar_h/2)];
+                    
+                case {135, 225} %diagonal leftward
+                    xmove = sobj.RECT(3)+round(sobj.RECT(4)/2) - count*transFactor;
+                    tex_pos = [xmove-(bar_w/2), sobj.ScrCenterY-(bar_h/2), xmove+(bar_w/2), sobj.ScrCenterY+(bar_h/2)];
+                    
+                case 180 %leftward
+                    xmove = sobj.RECT(3) - count*transFactor;
+                    tex_pos = [xmove-(bar_w/2), sobj.ScrCenterY-(bar_h/2), xmove+(bar_w/2), sobj.ScrCenterY+(bar_h/2)];
+                    
+                case 90 %upward
+                    ymove = sobj.RECT(4) - count*transFactor;
+                    tex_pos = [sobj.ScrCenterX-(bar_w/2), ymove-(bar_h/2), sobj.ScrCenterX+(bar_w/2), ymove+(bar_h/2)];
+                    
+                case 270 %downward
+                    ymove = y0 + count*transFactor;
+                    tex_pos = [sobj.ScrCenterX-(bar_w/2), ymove-(bar_h/2), sobj.ScrCenterX+(bar_w/2), ymove+(bar_h/2)];
+            end
+            
+            Screen('DrawTexture', sobj.wPtr, im_tex, [], tex_pos, angle);
+            Screen('FillRect', sobj.wPtr, 255, [0 sobj.RECT(4)-40, 40 sobj.RECT(4)]);
+            if count ==  1
+                [sobj.vbl_2, ~, ~, ~, sobj.BeamposON] =...
+                    Screen('Flip', sobj.wPtr, sobj.vbl_1 + sobj.delayPTB);% put some delay for PTB
+                stim_monitor;
+                TriggerVSon(Testmode, dio,1)
+            else
+                Screen('Flip', sobj.wPtr);
+                %vbl=Screen('Flip', sobj.wPtr, vbl+sobj.m_int);
+            end
+        end
+        
+        %%% stim off %%%
+        Screen('FillRect', sobj.wPtr, sobj.bgcol);
+        [sobj.vbl_3, ~, ~, ~, sobj.BeamposOFF] =...
+            Screen('Flip', sobj.wPtr, sobj.vbl_1 + sobj.moveDuration);
+        
+        TriggerVSon(Testmode, dio,0)
+        
+        
     end
 
 %% Simple simbols, alphabet
@@ -929,7 +1018,7 @@ end
         
     end
 
-%% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %%   
+%% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %%
     function Set_stim_position
         % set stim position that is defined by figUIobj.mode
         %%%%% stim center position %%%%%
@@ -1097,9 +1186,10 @@ else % during stimulation
             bgcol = 'y';
             stim_str3 = ['Spd: ', num2str(sobj.loomSpd_deg), 'deg/s'];
             
-        case {'Sin', 'Rect', 'Gabor','Movebar'}
+        case {'Sin', 'Rect', 'Gabor','MoveBar'}
             bgcol = 'c';
             stim_str3 = ['Dir: ', num2str(sobj.angle), ' deg'];
+            sobj.center_index = sobj.fixpos;
             
         case 'Images'
             bgcol = 'y';

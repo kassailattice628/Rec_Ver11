@@ -4,7 +4,7 @@ global sobj
 
 %defcol = [0.9400 0.9400 0.9400];
 pattern_list = get(figUIobj.pattern,'string');
-sobj.pattern = pattern_list{get(figUIobj.pattern,'value'),1};
+sobj.pattern = pattern_list{get(figUIobj.pattern,'Value'),1};
 
 
 key ={'div_zoom', 'dist_deg', 'shiftDir', 'shiftSpd', 'gratFreq',...
@@ -18,10 +18,9 @@ switch sobj.pattern
             'off', 'off', 'off', 'off',...
             'off',...
             'g'};
-        map_list = containers.Map(key, val);
         
-        set(figUIobj.mode, 'value', 1); % position rand_mat
-        set(figUIobj.shape, 'value', 2); % circular
+        set(figUIobj.mode, 'Value', 1); % position rand_mat
+        set(figUIobj.shape, 'Value', 2); % circular
         
         set(figUIobj.div_zoom_txt, 'Position', [10 135 45 15]);
         set(figUIobj.div_zoom, 'Position', [10 110 40 25]);
@@ -34,82 +33,88 @@ switch sobj.pattern
             'off', 'off', 'off', 'off',...
             'off',...
             'g'};
-        map_list = containers.Map(key, val);
         
-        set(figUIobj.mode, 'value', 4); % position fix
-        set(figUIobj.shape, 'value', 2); % circular
+        set(figUIobj.mode, 'Value', 4); % position fix
+        set(figUIobj.shape, 'Value', 2); % circular
         
     case '2P'
         val = {'on', 'on', 'on', 'off', 'off'...
             'off', 'off', 'off', 'off',...
             'on',...
             'g'};
-        map_list = containers.Map(key, val);
         
-        set(figUIobj.mode, 'value', 4); % position fix
-        set(figUIobj.shape, 'value', 2); % circular
+        set(figUIobj.mode, 'Value', 4); % position fix
+        set(figUIobj.shape, 'Value', 2); % circular
         
     case 'B/W'
         val = {'on', 'on', 'on', 'off', 'off'...
             'off', 'off', 'off', 'off',...
             'off',...
             'g'};
-        map_list = containers.Map(key, val);
         
-        set(figUIobj.mode, 'value', 4); % position fix
-        set(figUIobj.shape, 'value', 2); % circular
+        set(figUIobj.mode, 'Value', 4); % position fix
+        set(figUIobj.shape, 'Value', 2); % circular
         
     case 'Looming'
-        change_looming_params([],[]);
+        change_moving_params([],[]);
         val = {'off', 'off', 'off', 'off', 'off',...
             'on', 'on', 'off', 'off',...
             'off',...
             'y'};
-        map_list = containers.Map(key, val);
         
-        set(figUIobj.mode, 'value', 4); % position fix
-        set(figUIobj.shape, 'value', 2); % circular
+        set(figUIobj.mode, 'Value', 4); % position fix
+        set(figUIobj.shape, 'Value', 2); % circular
+        set(figUIobj.loomSpd_txt, 'String', 'Loom Spd/Size')
         
-    case {'Sin', 'Rect', 'Gabor', 'MoveBar'}
+    case {'Sin', 'Rect', 'Gabor'}
         val = {'off', 'off', 'on', 'on', 'on',...
             'off', 'off', 'off', 'off',...
             'off',...
             'g'};
-        map_list = containers.Map(key, val);
         
-        set(figUIobj.mode, 'value', 4); % position fix
-        set(figUIobj.shape, 'value', 2); % circular
+        set(figUIobj.mode, 'Value', 4); % position fix
+        set(figUIobj.shape, 'Value', 2); % circular
+        
+    case 'MoveBar'
+        change_moving_params([],[]);
+        val = {'off', 'off', 'on', 'off', 'off'...
+            'on', 'off', 'off', 'off',...
+            'off',...
+            'g'};
+        
+        set(figUIobj.mode, 'Value', 4); % position fix
+        set(figUIobj.shape, 'Value', 2); % circular
+        
+        set(figUIobj.loomSpd_txt, 'String', 'Move Spd');%
         
     case 'Images'
         val = {'off', 'off', 'off', 'off', 'off',...
             'off', 'off', 'on', 'off',...
             'off',...
             'g'};
-        map_list = containers.Map(key, val);
         
-        set(figUIobj.mode, 'value', 4); % position fix
+        set(figUIobj.mode, 'Value', 4); % position fix
         
     case 'Mosaic'
         val = {'on', 'on', 'off', 'off', 'off',...
             'off', 'off', 'off', 'on',...
             'off',... 
             'g'};
-        map_list = containers.Map(key, val);
         
-        set(figUIobj.mode, 'value', 4); % position fix
-        set(figUIobj.shape, 'value', 1); % rectangle
+        set(figUIobj.mode, 'Value', 4); % position fix
+        set(figUIobj.shape, 'Value', 1); % rectangle
         
     case 'FineMap'
         val = {'on', 'on', 'off', 'off', 'off',...
             'off', 'off', 'off', 'off',...
             'off',...
             'g'};
-        map_list = containers.Map(key, val);
         
-        set(figUIobj.mode, 'value', 1); % position rand_mat
-        set(figUIobj.shape, 'value', 2); % circular
+        set(figUIobj.mode, 'Value', 1); % position rand_mat
+        set(figUIobj.shape, 'Value', 2); % circular
 end
 
+map_list = containers.Map(key, val);
 set_fig_stim_color(map_list)
 
 %%

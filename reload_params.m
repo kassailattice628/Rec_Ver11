@@ -83,7 +83,7 @@ switch sobj.pattern
             get_concentric_position;
         end
         
-    case {'Sin', 'Rect', 'Gabor', '2P', 'B/W'}
+    case {'Sin', 'Rect', 'Gabor', '2P', 'B/W', 'MoveBar'}
         %% Grating
         
         sobj.shiftDir = get(figUIobj.shiftDir, 'value');

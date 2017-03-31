@@ -184,17 +184,17 @@ hGui.gratFreq = uicontrol('Style', 'popupmenu', 'Position', [10 65 100 25],...
     'String', [{'0.01'}, {'0.02'}, {'0.04'}, {'0.08'}, {'0.16'}, {'0.32'}], 'value',4, 'BackGroundColor', 'w');
 hGui.gratFreq_txt2 = uicontrol('Style', 'text', 'String', 'cycle/deg', 'Position', [110 70 60 15], 'Horizontalalignment', 'left');
 
-%%% Looming Speed
+%%% Looming Speed/MoveBar Speed
 hGui.loomSpd_txt = uicontrol('Style', 'text', 'String', 'Loom Spd/Size', 'Position', [10 135 100 15], 'Horizontalalignment', 'left');
 hGui.loomSpd = uicontrol('Style', 'popupmenu', 'Position', [10, 110, 70, 25],...
     'String', [{'5'}, {'10'}, {'20'}, {'40'}, {'80'}, {'160'}]);
-set(hGui.loomSpd, 'Callback', @change_looming_params);
+set(hGui.loomSpd, 'Callback', @change_moving_params);
 hGui.loomSpd_txt2 = uicontrol('Style', 'text', 'String', 'deg/s', 'Position', [80 110 35 15], 'Horizontalalignment', 'left');
 
 % Looming Max Size
 hGui.loomSize_txt = uicontrol('Style', 'text', 'String', 'Max Size', 'Position', [125 135 100 15], 'Horizontalalignment', 'left');
 hGui.loomSize = uicontrol('Style', 'edit', 'String', sobj.looming_Size, 'Position', [125 110 30 25], 'BackGroundColor', 'w');
-set(hGui.loomSize, 'Callback',  @change_looming_params);
+set(hGui.loomSize, 'Callback',  @change_moving_params);
 hGui.loomSize_txt2 = uicontrol('Style', 'text', 'String', 'deg', 'Position', [160 110 35 15], 'Horizontalalignment', 'left');
 
 %%
