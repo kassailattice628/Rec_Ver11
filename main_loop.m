@@ -655,6 +655,7 @@ end
         
         Set_stim_position;
         
+        % Spd
         stim_size =  [0, 0, sobj.loomSize_pix];% max_Stim_Size
         sobj.stim_size = sobj.loomSize_pix;
         sobj.size_deg = NaN;
@@ -834,8 +835,16 @@ end
         
         % set flipnum
         flipnum = round(sobj.moveDuration/sobj.m_int);
-        transFactor = round(sobj.RECT(3)/flipnum);
         
+        %transFactor = round(sobj.RECT(3)/flipnum);
+        switch get(figUIobj.shiftDir, 'value')
+            case {1, 5} %horizontal
+                transFactor = round(sobj.RECT(3)/flipnum);
+            case {2, 4, 6, 8, 9, 10, 11} % diagonal
+                transFactor = round((sobj.RECT(3) + sobj.RECT(4))/flipnum);
+            case {3, 7} %vertical
+                transFactor = round(sobj.RECT(3)/flipnum);
+        end
         %moving direction setting
         topPriorityLevel =  MaxPriority(sobj.wPtr);
         Priority(topPriorityLevel);
@@ -852,7 +861,6 @@ end
         %%%
         x0 = 0;
         y0 = 0;
-        x0_di = -round(sobj.RECT(4)/2);
         %MakeTexture
         im_tex = Screen('MakeTexture', sobj.wPtr, mat_bar, angle);
         
@@ -865,7 +873,7 @@ end
                     tex_pos = [xmove-(bar_w/2), sobj.ScrCenterY-(bar_h/2), xmove+(bar_w/2), sobj.ScrCenterY+(bar_h/2)];
                     
                 case {45, 315} %diagonal rightward
-                    xmove = x0_di + count*transFactor;
+                    xmove = -round(sobj.RECT(4)/2) + count*transFactor;
                     tex_pos = [xmove-(bar_w/2), sobj.ScrCenterY-(bar_h/2), xmove+(bar_w/2), sobj.ScrCenterY+(bar_h/2)];
                     
                 case {135, 225} %diagonal leftward
@@ -901,7 +909,7 @@ end
         %%% stim off %%%
         Screen('FillRect', sobj.wPtr, sobj.bgcol);
         [sobj.vbl_3, ~, ~, ~, sobj.BeamposOFF] =...
-            Screen('Flip', sobj.wPtr, sobj.vbl_1 + sobj.moveDuration);
+            Screen('Flip', sobj.wPtr, sobj.vbl_2 + sobj.moveDuration);
         
         TriggerVSon(Testmode, dio,0)
         
@@ -1186,9 +1194,14 @@ else % during stimulation
             bgcol = 'y';
             stim_str3 = ['Spd: ', num2str(sobj.loomSpd_deg), 'deg/s'];
             
-        case {'Sin', 'Rect', 'Gabor','MoveBar'}
+        case {'Sin', 'Rect', 'Gabor'}
             bgcol = 'c';
             stim_str3 = ['Dir: ', num2str(sobj.angle), ' deg'];
+            sobj.center_index = sobj.fixpos;
+            
+        case 'MoveBar'
+            bgcol = 'c';
+            stim_str3 = ['Dir: ', num2str(sobj.angle), 'deg', '; Spd: ', num2str(sobj.loomSpd_deg), 'deg/s'];
             sobj.center_index = sobj.fixpos;
             
         case 'Images'

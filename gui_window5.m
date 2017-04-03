@@ -170,6 +170,7 @@ hGui.dots_density_txt2 = uicontrol('Style', 'text', 'String', '%', 'Position', [
 hGui.shiftDir_txt = uicontrol('Style', 'text', 'Position', [10 180 180 15], 'String', 'Direction (0 => right)', 'Horizontalalignment', 'left');
 hGui.shiftDir = uicontrol('Style', 'popupmenu', 'Position', [10 155 90 25],...
     'String', [{'0'}, {'45'}, {'90'}, {'135'}, {'180'}, {'225'}, {'270'}, {'315'}, {'Ord8'}, {'Rand8'}, {'Rand16'}]);
+set(hGui.shiftDir, 'Callback', @change_moving_params);
 hGui.shiftDir_txt2 = uicontrol('Style', 'text', 'String', 'deg', 'Position', [100 160 25 15], 'Horizontalalignment', 'left');
 
 %%% Temporal Frequecy for grating stimuli

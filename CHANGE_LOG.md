@@ -1,15 +1,18 @@
 # Change_log
-## developping 11.5.4 (todo)
-どの刺激でも, position randomize できるようにする．
+## (to do)
+
+## 11.5.4 - 170403
+どの刺激でも, position randomize できるようにした．
 1. Mode(Position) を
 現状の Random, Fix_rep, Ordered から \
 Random_mat, Random_conc, Fix_rep, Ordered_mat, Ordered_conc に変更 \
 2. Stim.Pattern は
-Uni, Size_rand, 1P_Conc, 2P_Conc, B/W, 
-Looming, 
-Sin, Rect, Gabor,
+Uni (1P_Conc は Position で選択） \
+Size_rand, 2P_Conc, B/W, \
+Looming, \
+Sin, Rect, Gabor, \
+Movebar を新たに入れた． \
 Images, Mosaic, FineMap から \
-Uni に 1P_Concも含める？
 
 
 ## 11.5.3

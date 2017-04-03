@@ -6,6 +6,9 @@ global figUIobj
 
 %%
 pattern = sobj.pattern;
+mode = sobj.mode;
+
+
 %%%% Timing Data %%%%
 save.cycleNum = recobj.cycleNum; % > Visual Stim ON
 save.RecStartTime = recobj.t_AIstart; % AI trigger time from the first AI Trigger.
@@ -40,12 +43,18 @@ if get(figUIobj.stim,'value') && recobj.cycleNum > 0
     
     %%% Stim.Pattern Specific Parameters %%%
     switch pattern
-        case {'1P_Conc','2P_Conc','B/W'}
+        case {'Uni'}
+            if strsmp(mode, 'Concentric')
+                save.stim1.dist_deg = sobj.concentric_mat_deg(sobj.conc_index, 1);
+                save.stim1.angle_deg = sobj.concentric_mat_deg(sobj.conc_index, 2);
+            end
+            
+        case {'2P','B/W'}
             % concentric_position stim1 or stim 2
             save.stim1.dist_deg = sobj.concentric_mat_deg(sobj.conc_index, 1);
             save.stim1.angle_deg = sobj.concentric_mat_deg(sobj.conc_index, 2);
             
-            if strcmp(pattern, '2P_Conc')
+            if strcmp(pattern, '2P')
                 % params for stim2
                 % timing
                 if get(figUIobj.stim,'value')
@@ -70,8 +79,13 @@ if get(figUIobj.stim,'value') && recobj.cycleNum > 0
             
         case 'Looming'
             % looming speed and maximum size
-            save.stim1.LoomingSpd_deg_s = sobj.loomSpd_deg;
+            save.stim1.LoomingSpd_deg_s = sobj.moveSpd_deg;
             save.stim1.LoomingMaxSize_deg =sobj.maxSize_deg;
+            
+        case 'MoveBar'
+            % Mogving direction and speed.
+            save.stim1.MovebarSpd_deg_s = sobj.LoomSpd_deg;
+            save.stim1.MovebarDir_angle_deg = sobj.concentric_mat_deg(sobj.conc_index, 2);
             
         case {'Sin', 'Rect', 'Gabor'}
             % Sin, Rect, Gabor, Grating pramas

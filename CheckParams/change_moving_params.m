@@ -34,19 +34,19 @@ switch sobj.pattern
                 case {1, 5} %horizontal
                     sobj.moveDuration = round(sobj.RECT(3)/ moveSpd_pix);
                 case {2, 4, 6, 8} % diagonal
-                    sobj.moveDuration = round((sobj.RECT(3) + 2*ceil(sobj.RECT(4)*sqrt(2)))/ moveSpd_pix);
+                    sobj.moveDuration = round((sobj.RECT(3) + sobj.RECT(4)*sqrt(2))/ moveSpd_pix);
                 case {3, 7} %vertical
                     sobj.moveDuration = round(sobj.RECT(4)/ moveSpd_pix);
             end
             
         else % diagonal
-            sobj.moveDuration = round((sobj.RECT(3) + ceil(sobj.RECT(4)*sqrt(2)))/ moveSpd_pix);
+            sobj.moveDuration = round((sobj.RECT(3) + sobj.RECT(4)*sqrt(2))/ moveSpd_pix);
         end
         
         %change recording duration
         rect_in_sec = (sobj.moveDuration+1)*10; %add 1sec
         recobj.rect =  100*round(rect_in_sec);
         set(figUIobj.rect, 'String', recobj.rect);
-        disp(recobj.rect)
+        disp(['Recording Time:: ', num2str(recobj.rect), ' ms'])
 end
 end

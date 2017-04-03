@@ -57,7 +57,7 @@ sobj.stimcol = sobj.stimlumi * sobj.stimRGB;
 
 sobj.stimlumi_list = linspace(sobj.bgcol, sobj.stimlumi, 5)';
 
-if strcmp(sobj.pattern, 'Looming')
+if strcmp(sobj.pattern, 'Looming') || strcmp(sobj.pattern, 'MoveBar')
     %stimu duration is automatically changes in Looming mode
 else
     sobj.flipNum = re_write(figUIobj.flipNum);
