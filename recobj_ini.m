@@ -9,7 +9,7 @@ recobj.NBAver = '11.5.4';
 recobj.interval = 1; %loop interval(s);
 if Recmode == 1
     recobj.Recmode = 1;
-    recobj.sampf = 3000;
+    recobj.sampf = 2000;
     
 elseif Recmode == 2
     recobj.Recmode = 2;

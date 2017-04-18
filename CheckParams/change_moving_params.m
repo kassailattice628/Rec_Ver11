@@ -29,19 +29,24 @@ switch sobj.pattern
         moveSpd_pix = Deg2Pix(sobj.moveSpd_deg, sobj.MonitorDist, sobj.pixpitch);
         
         %duration = monitor witdh(pix) / Spd
-        if get(figUIobj.shiftDir, 'value') < 9
-            switch get(figUIobj.shiftDir, 'value')
-                case {1, 5} %horizontal
-                    sobj.moveDuration = round(sobj.RECT(3)/ moveSpd_pix);
-                case {2, 4, 6, 8} % diagonal
-                    sobj.moveDuration = round((sobj.RECT(3) + sobj.RECT(4)*sqrt(2))/ moveSpd_pix);
-                case {3, 7} %vertical
-                    sobj.moveDuration = round(sobj.RECT(4)/ moveSpd_pix);
-            end
-            
-        else % diagonal
-            sobj.moveDuration = round((sobj.RECT(3) + sobj.RECT(4)*sqrt(2))/ moveSpd_pix);
+        switch get(figUIobj.shiftDir, 'value')
+            case {1, 5} %horizontal
+                dist = sobj.RECT(3) + sobj.stimsz(1);
+                spd = moveSpd_pix;
+                
+            case {3, 7} %vertical
+                dist = sobj.RECT(4) + sobj.stimsz(1);
+                spd = moveSpd_pix;
+                
+            case {2, 4, 6, 8, 9, 10} % diagonal
+                dist = sobj.RECT(3) + sobj.RECT(4) + sobj.stimsz(1);
+                spd = moveSpd_pix * cos(pi/4);
+                
+            case 11
+                dist = sobj.RECT(3) + sobj.RECT(4)*2 + sobj.stimsz(1);
+                spd = moveSpd_pix * cos(pi/8);
         end
+        sobj.moveDuration = round(dist/spd);
         
         %change recording duration
         rect_in_sec = (sobj.moveDuration+1)*10; %add 1sec

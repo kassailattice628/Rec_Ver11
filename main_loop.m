@@ -345,7 +345,6 @@ elseif recobj.cycleNum > 0 %StimON
             
         case {'MoveBar'}
             Movebar_stim;
-            
             stim_monitor_reset;
             time1 = recobj.rect/1000 - (sobj.vbl_3 - sobj.vbl_1);
             pause_time = time1;
@@ -542,6 +541,7 @@ end
         Screen(sobj.shape2, Both_Stim1_Stim2, sobj.stimcol2, Rect2);
         %Screen('FillRect', Both_Stim1_Stim2, 255, [0 0 40 40]);
         Screen('FillRect', Both_Stim1_Stim2, 255, [0 sobj.RECT(4)-40, 40 sobj.RECT(4)]);
+        
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         %ScreenFlip
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -683,9 +683,14 @@ end
             Screen('Flip', sobj.wPtr, sobj.vbl_1 + sobj.delayPTB);% put some delay for PTB
         TriggerVSon(Testmode, dio,1)
         
-        for count = 1:flipnum
-            Rect = CenterRectOnPointd([0, 0, count .* scaleFactor], sobj.stim_center(1), sobj.stim_center(2));
-            Screen(sobj.shape, sobj.wPtr, sobj.stimcol, Rect);
+        %Prep flip
+        Rect = zeros(flipnum-1, 4);
+        for i = 1:flipnum
+            Rect(i,:) = CenterRectOnPointd([0, 0, i .* scaleFactor], sobj.stim_center(1), sobj.stim_center(2));
+        end
+        %DrawFlip
+        for i = 1:flipnum
+            Screen(sobj.shape, sobj.wPtr, sobj.stimcol, Rect(i,:));
             %Screen('FillRect', sobj.wPtr, 255, [0 0 40 40]);
             Screen('FillRect', sobj.wPtr, 255, [0 sobj.RECT(4)-40, 40 sobj.RECT(4)]);
             Screen('Flip', sobj.wPtr);
@@ -815,11 +820,9 @@ end
     function Movebar_stim
         % get grating direction
         angle_list = sobj.concentric_angle_deg_list';
-        
         if get(figUIobj.shiftDir, 'value') < 9
             flag_rand_dir = 3;
             angle_list = sobj.concentric_angle_deg_list(get(figUIobj.shiftDir, 'value'));
-            
         elseif get(figUIobj.shiftDir, 'value') == 9 %ord8
             flag_rand_dir = 2;
         else %randomize
@@ -833,87 +836,105 @@ end
         sobj.stim_size = sobj.stimsz;
         sobj.size_deg = str2double(get(figUIobj.size, 'string'));
         
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % set flipnum
         flipnum = round(sobj.moveDuration/sobj.m_int);
         
-        %transFactor = round(sobj.RECT(3)/flipnum);
+        %transFactor (pix/flip)
         switch get(figUIobj.shiftDir, 'value')
             case {1, 5} %horizontal
                 transFactor = round(sobj.RECT(3)/flipnum);
-            case {2, 4, 6, 8, 9, 10, 11} % diagonal
+            case {2, 4, 6, 8, 9, 10} % diagonal
                 transFactor = round((sobj.RECT(3) + sobj.RECT(4))/flipnum);
             case {3, 7} %vertical
-                transFactor = round(sobj.RECT(3)/flipnum);
+                transFactor = round(sobj.RECT(4)/flipnum);
+            case 11
+                transFactor = round((sobj.RECT(3) + sobj.RECT(4)*2)/flipnum);
         end
+        
+        %Enable alpha blending
+        Screen('BlendFunction', sobj.wPtr, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
         %moving direction setting
         topPriorityLevel =  MaxPriority(sobj.wPtr);
         Priority(topPriorityLevel);
         % Make base stim texture
-        bar_h = ceil(sobj.RECT(4)*sqrt(2));
+        bar_h = ceil(sobj.RECT(4)*3);
         bar_w = sobj.stim_size(1);
         mat_bar = ones(bar_h, bar_w) * sobj.stimlumi;
         
         %%%
         [sobj.angle, sobj.angle_index] = get_condition(5, angle_list, recobj.cycleNum,...
             length(angle_list), flag_rand_dir, angle_list);
-        angle  = 180-sobj.angle;
-        
+        %angle  = 180-sobj.angle;
+        angle = -sobj.angle;
         %%%
         x0 = 0;
         y0 = 0;
+        
         %MakeTexture
-        im_tex = Screen('MakeTexture', sobj.wPtr, mat_bar, angle);
+        im_tex = Screen('MakeTexture', sobj.wPtr, mat_bar, angle, 4);
         
-        %%% Stim on %%%
+        %%% prep stim %%%
+        tex_pos = zeros(flipnum, 4);
         
-        for count = 1:flipnum-1
+        
+        %% 
+        for i = 1:flipnum
             switch sobj.angle
                 case 0 %horizontal rightward
-                    xmove = x0 + count*transFactor;
-                    tex_pos = [xmove-(bar_w/2), sobj.ScrCenterY-(bar_h/2), xmove+(bar_w/2), sobj.ScrCenterY+(bar_h/2)];
-                    
-                case {45, 315} %diagonal rightward
-                    xmove = -round(sobj.RECT(4)/2) + count*transFactor;
-                    tex_pos = [xmove-(bar_w/2), sobj.ScrCenterY-(bar_h/2), xmove+(bar_w/2), sobj.ScrCenterY+(bar_h/2)];
-                    
-                case {135, 225} %diagonal leftward
-                    xmove = sobj.RECT(3)+round(sobj.RECT(4)/2) - count*transFactor;
-                    tex_pos = [xmove-(bar_w/2), sobj.ScrCenterY-(bar_h/2), xmove+(bar_w/2), sobj.ScrCenterY+(bar_h/2)];
+                    xmove = x0 + i*transFactor;
+                    tex_pos(i,:) = [xmove-(bar_w/2), 0, xmove+(bar_w/2), sobj.RECT(4)];
+                    sRect = [1, bar_w; 1. sobj.RECT(4)];
                     
                 case 180 %leftward
-                    xmove = sobj.RECT(3) - count*transFactor;
-                    tex_pos = [xmove-(bar_w/2), sobj.ScrCenterY-(bar_h/2), xmove+(bar_w/2), sobj.ScrCenterY+(bar_h/2)];
+                    xmove = sobj.RECT(3) - i*transFactor;
+                    tex_pos(i,:) = [xmove-(bar_w/2), sobj.ScrCenterY-(bar_h/2), xmove+(bar_w/2), sobj.ScrCenterY+(bar_h/2)];
+                    sRect = [1, bar_w; 1. sobj.RECT(4)];
                     
                 case 90 %upward
-                    ymove = sobj.RECT(4) - count*transFactor;
-                    tex_pos = [sobj.ScrCenterX-(bar_w/2), ymove-(bar_h/2), sobj.ScrCenterX+(bar_w/2), ymove+(bar_h/2)];
+                    ymove = sobj.RECT(4) - i*transFactor;
+                    tex_pos(i,:) = [sobj.ScrCenterX-(bar_w/2), ymove-(bar_h/2), sobj.ScrCenterX+(bar_w/2), ymove+(bar_h/2)];
+                    sRect = [1, bar_w; 1. sobj.RECT(3)];
                     
                 case 270 %downward
-                    ymove = y0 + count*transFactor;
-                    tex_pos = [sobj.ScrCenterX-(bar_w/2), ymove-(bar_h/2), sobj.ScrCenterX+(bar_w/2), ymove+(bar_h/2)];
-            end
-            
-            Screen('DrawTexture', sobj.wPtr, im_tex, [], tex_pos, angle);
-            Screen('FillRect', sobj.wPtr, 255, [0 sobj.RECT(4)-40, 40 sobj.RECT(4)]);
-            if count ==  1
-                [sobj.vbl_2, ~, ~, ~, sobj.BeamposON] =...
-                    Screen('Flip', sobj.wPtr, sobj.vbl_1 + sobj.delayPTB);% put some delay for PTB
-                stim_monitor;
-                TriggerVSon(Testmode, dio,1)
-            else
-                Screen('Flip', sobj.wPtr);
-                %vbl=Screen('Flip', sobj.wPtr, vbl+sobj.m_int);
+                    ymove = y0 + i*transFactor;
+                    tex_pos(i,:) = [sobj.ScrCenterX-(bar_w/2), ymove-(bar_h/2), sobj.ScrCenterX+(bar_w/2), ymove+(bar_h/2)];
+                    sRect = [1, bar_w; 1. sobj.RECT(3)];
+                    
+                case {45, 315, 22.5,  67.5, 292.5, 337.5} %diagonal rightward
+                    xmove = -round(sobj.RECT(4)/2) + i*transFactor;
+                    tex_pos(i,:) = [xmove-(bar_w/2), sobj.ScrCenterY-(bar_h/2), xmove+(bar_w/2), sobj.ScrCenterY+(bar_h/2)];
+                    sRect = [1, bar_w; 1. ceil(sobj.RECT(4)*sqrt(2))];
+                    
+                case {112.5, 157.5, 135, 202.5, 225, 247.5} %diagonal leftward
+                    xmove = sobj.RECT(3)+round(sobj.RECT(4)/2) - i*transFactor;
+                    tex_pos(i,:) = [xmove-(bar_w/2), sobj.ScrCenterY-(bar_h/2), xmove+(bar_w/2), sobj.ScrCenterY+(bar_h/2)];
+                    sRect = [1, bar_w; 1. ceil(sobj.RECT(4)*sqrt(2))];
             end
         end
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        % Draw Screen
+        Screen('FillRect', sobj.wPtr, 255, [0 sobj.RECT(4)-40, 40 sobj.RECT(4)]);
+        Screen('DrawTexture', sobj.wPtr, im_tex, sRect, tex_pos(1,:), angle)
         
+        [sobj.vbl_2, ~, ~, ~, sobj.BeamposON] =...
+            Screen('Flip', sobj.wPtr, sobj.vbl_1 + sobj.delayPTB);% put some delay for PTB
+        stim_monitor;
+        TriggerVSon(Testmode, dio,1)
+        vbl = sobj.vbl_2;
+        
+        for i = 2:flipnum
+            Screen('FillRect', sobj.wPtr, 255, [0 sobj.RECT(4)-40, 40 sobj.RECT(4)]);
+            Screen('DrawTexture', sobj.wPtr, im_tex, sRect, tex_pos(i,:), angle);
+            vbl = Screen('Flip', sobj.wPtr, vbl+(sobj.m_int/2));
+        end
         %%% stim off %%%
         Screen('FillRect', sobj.wPtr, sobj.bgcol);
         [sobj.vbl_3, ~, ~, ~, sobj.BeamposOFF] =...
             Screen('Flip', sobj.wPtr, sobj.vbl_2 + sobj.moveDuration);
         
         TriggerVSon(Testmode, dio,0)
-        
-        
     end
 
 %% Simple simbols, alphabet
@@ -1201,7 +1222,7 @@ else % during stimulation
             
         case 'MoveBar'
             bgcol = 'c';
-            stim_str3 = ['Dir: ', num2str(sobj.angle), 'deg', '; Spd: ', num2str(sobj.loomSpd_deg), 'deg/s'];
+            stim_str3 = ['Dir: ', num2str(sobj.angle), '/Spd: ', num2str(sobj.moveSpd_deg)];
             sobj.center_index = sobj.fixpos;
             
         case 'Images'

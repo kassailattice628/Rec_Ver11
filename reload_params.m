@@ -73,6 +73,7 @@ if get(figUIobj.auto_size, 'value') == 1
     %set(figUIobj.auto_size, 'value',0, 'string', 'Auto OFF')
 else
     sobj.stimsz = getStimSize(sobj.MonitorDist, figUIobj.size, sobj.pixpitch);
+    
 end
 
 %% Stim specific parameters.

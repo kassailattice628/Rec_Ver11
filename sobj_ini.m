@@ -30,7 +30,7 @@ end
 
 %%
 sobj.pixpitch = pixpitch;
-sobj.MonitorDist = 300; % (mm) = distance from moniter to eye, => sobj.MonitorDist*tan(1*2*pi/360)/sobj.pixpitch (pixel/degree)
+sobj.MonitorDist = 260; % (mm) = distance from moniter to eye, => sobj.MonitorDist*tan(1*2*pi/360)/sobj.pixpitch (pixel/degree)
 sobj.stimsz = round(ones(1,2)*Deg2Pix(1,sobj.MonitorDist, pixpitch)); % default: 1 deg
 sobj.stimsz_deg_list = [0.5; 1; 3; 5; 10];
 

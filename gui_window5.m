@@ -25,7 +25,7 @@ hGui.CLSCR = uicontrol('Style', 'pushbutton', 'String', 'CloseScreen',...
 hGui.stim = uicontrol('Style', 'togglebutton', 'String', 'Stim-OFF',...
    'Position', [110 705 100 30], 'Horizontalalignment', 'center', 'Callback', @ch_stimON);
 
-hGui.EXIT = uicontrol('Style', 'pushbutton', 'String', 'EXIT',...
+hGui.EXIT = uicontrol('Style', 'pushbutton', 'String', 'EXIT',... 
    'Position', [680 705 65 30], 'FontSize',12, 'Horizontalalignment', 'center', 'CallBack', {@quit_NBA, s, UseCam});
 
 %Save ON/OFF
@@ -58,7 +58,7 @@ uipanel('Title', 'Vis. Stim.1', 'FontSize', 12, 'Units', 'Pixels', 'Position', [
 uicontrol('Style', 'text', 'String', 'Position', 'Position', [10 620 90 15], 'Horizontalalignment', 'left');
 hGui.mode = uicontrol('Style', 'popupmenu', 'Position', [10 600 90 20],...
     'String', [{'Rand_mat'}, {'Ord_mat'}, {'Concentric'}, {'Fix_Rep'}]);
-set(hGui.mode, 'Callback', @set_fig_pos);
+set(hGui.mode, 'Callback', @change_stim_mode2);
 
 
 %% Select stim pattern
@@ -157,8 +157,8 @@ hGui.get_fine_pos = uicontrol('Style', 'togglebutton', 'String', 'get Pos', 'Pos
 set(hGui.get_fine_pos, 'Callback', {@get_fine_pos, hGui, GUI_x});
 
 %%% The number of Image stimli
-hGui.ImageNum_txt = uicontrol('Style', 'text', 'String', '# of Imgs', 'Position', [10 180 60 15], 'HorizontalAlignment', 'left');
-hGui.ImageNum = uicontrol('Style', 'edit', 'String', sobj.ImageNum, 'Position', [10 155 40 25], 'BackGroundColor', 'w');
+hGui.ImageNum_txt = uicontrol('Style', 'text', 'String', '# of Imgs', 'Position', [10 90 60 15], 'HorizontalAlignment', 'left');
+hGui.ImageNum = uicontrol('Style', 'edit', 'String', sobj.ImageNum, 'Position', [10 65 40 25], 'BackGroundColor', 'w');
 
 %%% Mosaic Dot Density
 hGui.dots_density_txt = uicontrol('Style', 'text', 'String', 'Density', 'Position', [10 180 50 15], 'HorizontalAlignment', 'left');
@@ -167,7 +167,7 @@ set(hGui.dots_density, 'Callback', {@check_mosaic, hGui});
 hGui.dots_density_txt2 = uicontrol('Style', 'text', 'String', '%', 'Position', [40 155 20 15], 'HorizontalAlignment', 'left');
 
 %%% Direction for grating stimulis or concentirc positions
-hGui.shiftDir_txt = uicontrol('Style', 'text', 'Position', [10 180 180 15], 'String', 'Direction (0 => right)', 'Horizontalalignment', 'left');
+hGui.shiftDir_txt = uicontrol('Style', 'text', 'Position', [10 180 140 15], 'String', 'Direction (0 => right)', 'Horizontalalignment', 'left');
 hGui.shiftDir = uicontrol('Style', 'popupmenu', 'Position', [10 155 90 25],...
     'String', [{'0'}, {'45'}, {'90'}, {'135'}, {'180'}, {'225'}, {'270'}, {'315'}, {'Ord8'}, {'Rand8'}, {'Rand16'}]);
 set(hGui.shiftDir, 'Callback', @change_moving_params);
@@ -532,22 +532,7 @@ end
 ch_ButtonColor(hObject, [], 'g')
 end
 
-%%
-function set_fig_pos(hObject, ~)
-global sobj
-global figUIobj
 
-if get(hObject, 'value') == 2
-    set(figUIobj.fixpos, 'BackGroundColor', 'g');
-else
-    switch sobj.pattern
-        case {'FineMap'}
-            set(figUIobj.fixpos, 'BackGroundColor', 'g');
-        otherwise
-            set(figUIobj.fixpos, 'BackGroundColor', 'w');
-    end
-end
-end
 
 %%
 function get_stimRGB(hObject,~)
