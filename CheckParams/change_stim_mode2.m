@@ -81,7 +81,6 @@ switch sobj.pattern
             %div, dist:ON, dir: OFF
             val = {'on', 'on', 'off',   'off', 'off',...
                 'off', 'off',   'off', 'on',   'off', 'off', 'g'};
-        else
         end
         
     case 'FineMap'
