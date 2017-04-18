@@ -1,8 +1,6 @@
 # Change_log
-## (to do)
-Looming の時に，concentric 選んでも，dist と direction 選択できない． \
-
-mode で，Ord 選んだ時に，Fixpos 欄が緑になってしまう場合がある．（value=2 -> 4 に直す）．
+## 11.5.4-m1 - 170418
+stim mode, stim pattern を選択した時の GUI の挙動を修正
 
 ## 11.5.4 - 170403
 どの刺激でも, position randomize できるようにした．
