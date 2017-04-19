@@ -44,7 +44,7 @@ if get(figUIobj.stim,'value') && recobj.cycleNum > 0
     %%% Stim.Pattern Specific Parameters %%%
     switch pattern
         case {'Uni'}
-            if strsmp(mode, 'Concentric')
+            if strcmp(mode, 'Concentric')
                 save.stim1.dist_deg = sobj.concentric_mat_deg(sobj.conc_index, 1);
                 save.stim1.angle_deg = sobj.concentric_mat_deg(sobj.conc_index, 2);
             end

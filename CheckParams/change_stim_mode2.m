@@ -62,7 +62,7 @@ switch sobj.pattern
     case 'MoveBar'
         %div, dist: OFF, dir:  ON
         val = {'off', 'off', 'on',   'off', 'off',...
-            'off', 'off',   'off', 'off',   'off', 'off', 'y'};
+            'on', 'off',   'off', 'off',   'off', 'off', 'y'};
         
     case 'Images'
         if mode ==  1 || mode ==  2 || mode == 4
