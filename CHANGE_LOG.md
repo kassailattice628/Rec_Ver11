@@ -1,4 +1,8 @@
 # Change_log
+## 11.5.4-m2 - 170420
+pattern 毎に position=concentric の挙動を修正．
+ToDo, concentric mode の時，stim monitor の str2 (POS) を dist, angle にしたい．
+
 ## 11.5.4-m1 - 170418
 stim mode, stim pattern を選択した時の GUI の挙動を修正
 

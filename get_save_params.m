@@ -1,4 +1,4 @@
-function save = get_save_params(recobj, sobj, data)
+function save = get_save_params(Testmode, recobj, sobj, data)
 % save parameters for Ver11
 % these paraemters are updated in evely loop and saved in a cell.
 
@@ -11,10 +11,12 @@ mode = sobj.mode;
 
 %%%% Timing Data %%%%
 save.cycleNum = recobj.cycleNum; % > Visual Stim ON
+if Testmode == 0
 save.RecStartTime = recobj.t_AIstart; % AI trigger time from the first AI Trigger.
 save.AIStartTime = data(1, 1);
 save.AIEndTime = data(end, 1);
 save.AIstep = data(2,1) - data(1,1);
+end
 save.vbl_1 = sobj.vbl_1;
 
 if get(figUIobj.stim,'value') && recobj.cycleNum > 0
@@ -43,7 +45,7 @@ if get(figUIobj.stim,'value') && recobj.cycleNum > 0
     
     %%% Stim.Pattern Specific Parameters %%%
     switch pattern
-        case {'Uni'}
+        case {'Uni', 'Size_rand'}
             if strcmp(mode, 'Concentric')
                 save.stim1.dist_deg = sobj.concentric_mat_deg(sobj.conc_index, 1);
                 save.stim1.angle_deg = sobj.concentric_mat_deg(sobj.conc_index, 2);
@@ -79,23 +81,36 @@ if get(figUIobj.stim,'value') && recobj.cycleNum > 0
             
         case 'Looming'
             % looming speed and maximum size
-            save.stim1.LoomingSpd_deg_s = sobj.moveSpd_deg;
+            save.stim1.LoomingSpd_deg_s = sobj.loomSpd_deg;
             save.stim1.LoomingMaxSize_deg =sobj.maxSize_deg;
+            if strcmp(mode, 'Concentric')
+                save.stim1.dist_deg = sobj.concentric_mat_deg(sobj.conc_index, 1);
+                save.stim1.angle_deg = sobj.concentric_mat_deg(sobj.conc_index, 2);
+            end
             
         case 'MoveBar'
             % Mogving direction and speed.
-            save.stim1.MovebarSpd_deg_s = sobj.LoomSpd_deg;
-            save.stim1.MovebarDir_angle_deg = sobj.concentric_mat_deg(sobj.conc_index, 2);
+            save.stim1.MovebarSpd_deg_s = sobj.moveSpd_deg;
+            %save.stim1.MovebarDir_angle_deg = sobj.concentric_mat_deg(sobj.conc_index, 2);
+            save.stim1.MovebarDir_angle_deg =sobj.angle;
             
         case {'Sin', 'Rect', 'Gabor'}
             % Sin, Rect, Gabor, Grating pramas
             save.stim1.gratingSF_cyc_deg = sobj.gratFreq;
             save.stim1.gratingSpd_Hz = sobj.shiftSpd;
             save.stim1.gratingAngle_deg = sobj.angle;
+            if strcmp(mode, 'Concentric')
+                save.stim1.dist_deg = sobj.concentric_mat_deg(sobj.conc_index, 1);
+                save.stim1.angle_deg = sobj.concentric_mat_deg(sobj.conc_index, 2);
+            end
             
         case 'Images'
             % Image
             save.stim1.Image_index = sobj.img_i;
+            if strcmp(mode, 'Concentric')
+                save.stim1.dist_deg = sobj.concentric_mat_deg(sobj.conc_index, 1);
+                save.stim1.angle_deg = sobj.concentric_mat_deg(sobj.conc_index, 2);
+            end
             
         case {'Mosaic'}
             % Mosaic Dot pattern

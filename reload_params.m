@@ -77,16 +77,18 @@ else
 end
 
 %% Stim specific parameters.
+mode =  get(figUIobj.mode, 'Value');
 switch sobj.pattern
-    case 'Uni'
-        mode =  get(figUIobj.mode, 'Value');
+    case {'Uni', 'Size_rand', 'Looming'}
         if mode ==  3
             get_concentric_position;
         end
         
     case {'Sin', 'Rect', 'Gabor', '2P', 'B/W', 'MoveBar'}
         %% Grating
-        
+        if mode ==  3
+            get_concentric_position;
+        end
         sobj.shiftDir = get(figUIobj.shiftDir, 'value');
         sobj.shiftSpd = sobj.shiftSpd_list(get(figUIobj.shiftSpd, 'value'));
         sobj.gratFreq = sobj.gratFreq_list(get(figUIobj.gratFreq, 'value'));
@@ -156,6 +158,9 @@ switch sobj.pattern
         sobj.img_list = randperm(256);
         sobj.ImageNum = re_write(figUIobj.ImageNum);
         sobj.img_sublist = sobj.img_list(1:sobj.ImageNum)';
+        if mode ==  3
+            get_concentric_position;
+        end
         
     case 'Mosaic'
         %% Multi dots

@@ -12,6 +12,7 @@ key = {'div', 'dist', 'dir',   'shiftSpd', 'gratFreq',...
     'panel2', 'getPos', ...
     'rect'};
 
+
 %%
 switch sobj.pattern
     case {'Uni', 'Size_rand'}
@@ -26,12 +27,17 @@ switch sobj.pattern
         end
         
     case {'2P'}
+        if mode == 3
+            set(figUIobj.mode, 'Value', 4), mode = 4;
+        end
         %div, dist, dir: ON
         val = {'on', 'on', 'on',   'off', 'off',...
             'off', 'off',   'off', 'off',   'on', 'off', 'g'};
         
-        
     case {'B/W'}
+        if mode == 3
+            set(figUIobj.mode, 'Value', 4), mode = 4;
+        end
         %div, dist, dir: ON
         val = {'on', 'on', 'on',   'off', 'off',...
             'off', 'off',   'off', 'off',   'off', 'off', 'g'};
@@ -77,11 +83,15 @@ switch sobj.pattern
         
     case 'Mosaic'
         %basically fix position (only mode==4 is used)
+        
+        set(figUIobj.mode, 'Value', 4);
+        mode = 4;
         if mode == 4
             %div, dist:ON, dir: OFF
             val = {'on', 'on', 'off',   'off', 'off',...
                 'off', 'off',   'off', 'on',   'off', 'off', 'g'};
         end
+        
         
     case 'FineMap'
         %basically Rand_mat & Ord_mat are used (mode==1 or 2)
@@ -90,8 +100,24 @@ switch sobj.pattern
             val = {'on', 'on', 'off',   'off', 'off',...
                 'off', 'off',   'off', 'off',   'off', 'on', 'g'};
         else
+            set(figUIobj.mode, 'Value', 2);
+            val = {'on', 'on', 'off',   'off', 'off',...
+                'off', 'off',   'off', 'off',   'off', 'on', 'g'};
         end
         
+end
+%%
+switch mode
+    case {1, 2}
+        set(figUIobj.fixpos, 'BackGroundColor', 'w');
+    case 3
+        set(figUIobj.fixpos, 'BackGroundColor', 'y');
+    case 4
+        if strcmp(sobj.pattern, 'MoveBar')
+            set(figUIobj.fixpos, 'BackGroundColor', 'w');
+        else
+            set(figUIobj.fixpos, 'BackGroundColor', 'g');
+        end
 end
 
 %%
@@ -121,7 +147,13 @@ Set_fig_stim_color(map_list);
                 set(figUIobj.div_zoom, 'Position', [150 205 40 25]);
                 set(figUIobj.dist_txt, 'Position', [150 185 45 15]);
                 set(figUIobj.dist, 'Position', [150 160 40 25]);
-
+                
+            case 'Looming'
+                set(figUIobj.div_zoom_txt, 'Position', [10 90 45 15]);
+                set(figUIobj.div_zoom, 'Position', [10 65 40 25]);
+                set(figUIobj.dist_txt, 'Position', [60 90 45 15]);
+                set(figUIobj.dist, 'Position', [60 65 40 25]);
+                
         end
     end
 
