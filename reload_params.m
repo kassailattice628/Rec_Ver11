@@ -40,7 +40,7 @@ recobj.prestim = re_write(figUIobj.prestimN);
 recobj.cycleNum = 0 - recobj.prestim;
 
 modelist = get(figUIobj.mode, 'string'); % {'Random', 'Fix_Rep', 'Ordered'};
-sobj.mode = modelist{get(figUIobj.mode, 'value')};
+sobj.mode = modelist{get(figUIobj.mode, 'Value')};
 
 % sobj.pattern is reloaded in ./Check_params/change_stim_pattern.m
 
@@ -50,7 +50,7 @@ sobj.dist = re_write(figUIobj.dist);
 
 sobj.bgcol = re_write(figUIobj.bgcol);
 
-sobj.shape = sobj.shapelist{get(figUIobj.shape, 'value'), 1};
+sobj.shape = sobj.shapelist{get(figUIobj.shape, 'Value'), 1};
 
 sobj.stimlumi = re_write(figUIobj.stimlumi);
 sobj.stimcol = sobj.stimlumi * sobj.stimRGB;
@@ -69,8 +69,8 @@ sobj.delayPTB = sobj.delayPTBflip*sobj.m_int;
 
 sobj.size_pix_list = repmat(round(Deg2Pix(sobj.stimsz_deg_list, sobj.MonitorDist, sobj.pixpitch)), 1, 2);
 
-if get(figUIobj.auto_size, 'value') == 1
-    %set(figUIobj.auto_size, 'value',0, 'string', 'Auto OFF')
+if get(figUIobj.auto_size, 'Value') == 1
+    %set(figUIobj.auto_size, 'Value',0, 'string', 'Auto OFF')
 else
     sobj.stimsz = getStimSize(sobj.MonitorDist, figUIobj.size, sobj.pixpitch);
     
@@ -81,40 +81,42 @@ mode =  get(figUIobj.mode, 'Value');
 switch sobj.pattern
     case {'Uni', 'Size_rand', 'Looming'}
         if mode ==  3
-            get_concentric_position;
+            [sobj.concentric_dist_deg_list, sobj.concentric_angle_deg_list,...
+                sobj.concentric_mat, sobj.concentric_mat_deg] = get_concentric_position(1);
         end
         
-    case {'Sin', 'Rect', 'Gabor', '2P', 'B/W', 'MoveBar'}
+    case {'2P', 'B/W', 'MoveBar'}
         %% Grating
         if mode ==  3
-            get_concentric_position;
+            [sobj.concentric_dist_deg_list, sobj.concentric_angle_deg_list,...
+                sobj.concentric_mat, sobj.concentric_mat_deg] = get_concentric_position(1);
         end
-        sobj.shiftDir = get(figUIobj.shiftDir, 'value');
-        sobj.shiftSpd = sobj.shiftSpd_list(get(figUIobj.shiftSpd, 'value'));
-        sobj.gratFreq = sobj.gratFreq_list(get(figUIobj.gratFreq, 'value'));
+        
+        
+        sobj.shiftDir = get(figUIobj.shiftDir, 'Value');
+        sobj.shiftSpd = sobj.shiftSpd_list(get(figUIobj.shiftSpd, 'Value'));
+        sobj.gratFreq = sobj.gratFreq_list(get(figUIobj.gratFreq, 'Value'));
         
         if strcmp(sobj.pattern, 'Gabor')
             sobj.bgcol = sobj.gray;
         end
         
         %% Concentric positions
-        
-        sobj.shiftDir = get(figUIobj.shiftDir, 'value');
-        
+        %{
         % chekc_concentric_position
         % Max distance = sobj.dist
         % number of division = sobj.div_zoom
         sobj.concentric_dist_deg_list = (sobj.dist/sobj.div_zoom) : (sobj.dist/sobj.div_zoom) : sobj.dist; % for save
         conc_dist_pix_list = Deg2Pix(sobj.concentric_dist_deg_list, sobj.MonitorDist, sobj.pixpitch);
         
-        if get(figUIobj.shiftDir, 'value') < 9
+        if get(figUIobj.shiftDir, 'Value') < 9
             % when angle is fixed
-            prep_mat = [[0,1:sobj.div_zoom]; [0, get(figUIobj.shiftDir, 'value')*ones(1, sobj.div_zoom)]];
+            prep_mat = [[0,1:sobj.div_zoom]; [0, get(figUIobj.shiftDir, 'Value')*ones(1, sobj.div_zoom)]];
             sobj.concentric_angle_deg_list = linspace(0, 315, 8);
             conc_angle_rad_list = linspace(0, 2*pi- 2*pi/8, 8);
-            num_directions = get(figUIobj.shiftDir, 'value');
+            num_directions = get(figUIobj.shiftDir, 'Value');
         else
-            if get(figUIobj.shiftDir, 'value') < 11
+            if get(figUIobj.shiftDir, 'Value') < 11
                 % when angle is random or ordered
                 num_directions = 8;
             else
@@ -145,12 +147,33 @@ switch sobj.pattern
             sobj.concentric_mat(sobj.concentric_mat(:,2)==n, 2) = conc_angle_rad_list(n);
             sobj.concentric_mat_deg(sobj.concentric_mat_deg(:,2)==n, 2) = sobj.concentric_angle_deg_list(n);
         end
-        
+        %}
+        %%%%%%%%%%%%%%%%%%%%%%%%%%
         % Color
         if strcmp(sobj.pattern, 'B/W')
             sobj.bgcol = sobj.gray;
         end
+    case {'Sin', 'Rect', 'Gabor'}
+        %% Grating
+        sobj.shiftDir = get(figUIobj.shiftDir, 'Value');
+        sobj.shiftSpd = sobj.shiftSpd_list(get(figUIobj.shiftSpd, 'Value'));
+        sobj.gratFreq = sobj.gratFreq_list(get(figUIobj.gratFreq, 'Value'));
         
+                
+        %position
+        if mode ==  3
+            [sobj.concentric_dist_deg_list, sobj.concentric_angle_deg_list,...
+                sobj.concentric_mat, sobj.concentric_mat_deg] = get_concentric_position(2);
+        end
+        
+        % Gabor on/off
+        if strcmp(sobj.pattern, 'Gabor')
+            sobj.bgcol = sobj.gray;
+        end
+        % Color
+        if strcmp(sobj.pattern, 'B/W')
+            sobj.bgcol = sobj.gray;
+        end
         
     case 'Images'
         %% Select Image Set
@@ -158,8 +181,11 @@ switch sobj.pattern
         sobj.img_list = randperm(256);
         sobj.ImageNum = re_write(figUIobj.ImageNum);
         sobj.img_sublist = sobj.img_list(1:sobj.ImageNum)';
+        
+        %position
         if mode ==  3
-            get_concentric_position;
+            [sobj.concentric_dist_deg_list, sobj.concentric_angle_deg_list,...
+                sobj.concentric_mat, sobj.concentric_mat_deg] = get_concentric_position(1);
         end
         
     case 'Mosaic'
@@ -195,7 +221,7 @@ switch sobj.pattern
 end
 
 %% stim 2 
-sobj.shape2 = sobj.shapelist{get(figUIobj.shape2, 'value'), 1};
+sobj.shape2 = sobj.shapelist{get(figUIobj.shape2, 'Value'), 1};
 sobj.stimlumi2 = re_write(figUIobj.stimlumi2);
 sobj.stimcol2 = sobj.stimlumi2 * sobj.stimRGB;
 
@@ -228,7 +254,7 @@ if Recmode == 2
     recobj.stepCV(2,2) = re_write(figUIobj.Vend);
     recobj.stepCV(2,3) = re_write(figUIobj.Vstep);
     
-    plotnum = get(figUIobj.plot, 'value')+1;
+    plotnum = get(figUIobj.plot, 'Value')+1;
     recobj.stepAmp = recobj.stepCV(plotnum,1):recobj.stepCV(plotnum,3):recobj.stepCV(plotnum,2);
 end
 
@@ -280,7 +306,7 @@ if Testmode == 0
     disp('reset s, dio, EventListener')
     
     %%%%%% session for TTL3 counter pulse generation %%%%%%
-    if get(figUIobj.TTL3, 'value')
+    if get(figUIobj.TTL3, 'Value')
         delay = zeros(recobj.sampf * recobj.TTL3.delay / 1000,1);
         size_pulseON = round(recobj.sampf / recobj.TTL3.Freq * recobj.TTL3.DutyCycle);
         pulseON = ones(size_pulseON, 1);
@@ -304,7 +330,7 @@ end
 
 %% figures
 if isfield(plotUIobj, 'plot')
-    switch get(figUIobj.plot, 'value') %V-plot or I-plot
+    switch get(figUIobj.plot, 'Value') %V-plot or I-plot
         case 0
             col = 'b';
         case 1
@@ -341,26 +367,38 @@ end
 end
 
 %%
-function get_concentric_position
+function [dist_list, angle_list, conc_mat, conc_mat_deg] = get_concentric_position(n)
+% example
+% [sobj.concentric_dist_deg_list, sobj.concentric_angle_deg_list,
+% sobj.concentric_mat, sobj.concentric_mat_deg] =
+% get_concentric_position(1)
+
 global sobj
 global figUIobj
 %% Concentric positions
+if n == 1
+shiftDir = get(figUIobj.shiftDir, 'Value');
+sobj.shiftDir = shiftDir;
+elseif n == 2
+shiftDir = get(figUIobj.shiftDir2, 'Value');
+sobj.shiftDir2 = shiftDir;
+end
 
-sobj.shiftDir = get(figUIobj.shiftDir, 'value');
+
 % chekc_concentric_position
 % Max distance = sobj.dist
 % number of division = sobj.div_zoom
-sobj.concentric_dist_deg_list = (sobj.dist/sobj.div_zoom) : (sobj.dist/sobj.div_zoom) : sobj.dist; % for save
-conc_dist_pix_list = Deg2Pix(sobj.concentric_dist_deg_list, sobj.MonitorDist, sobj.pixpitch);
+dist_list = (sobj.dist/sobj.div_zoom) : (sobj.dist/sobj.div_zoom) : sobj.dist; % for save
+conc_dist_pix_list = Deg2Pix(dist_list, sobj.MonitorDist, sobj.pixpitch);
 
-if get(figUIobj.shiftDir, 'value') < 9
+if shiftDir < 9
     % when angle is fixed
-    prep_mat = [[0,1:sobj.div_zoom]; [0, get(figUIobj.shiftDir, 'value')*ones(1, sobj.div_zoom)]];
-    sobj.concentric_angle_deg_list = linspace(0, 315, 8);
-    conc_angle_rad_list = linspace(0, 2*pi- 2*pi/8, 8);
-    num_directions = get(figUIobj.shiftDir, 'value');
+    prep_mat = [[0,1:sobj.div_zoom]; [0, shiftDir * ones(1, sobj.div_zoom)]];
+    angle_list = linspace(0, 315, 8);
+    conc_angle_rad_list = linspace(0, 2 * pi - 2 * pi/8, 8);
+    num_directions = shiftDir;
 else
-    if get(figUIobj.shiftDir, 'value') < 11
+    if shiftDir < 11
         % when angle is random or ordered
         num_directions = 8;
     else
@@ -372,26 +410,26 @@ else
         prep_mat(1,num_directions*(i_div-1)+2:num_directions*i_div+1) = i_div*ones(1,num_directions);
     end
     prep_mat(2,:) = [0,repmat(1:num_directions, 1,sobj.div_zoom)];
-    sobj.concentric_angle_deg_list = 0: 360/num_directions: 360-360/num_directions;
+    angle_list = 0: 360/num_directions: 360-360/num_directions;
     conc_angle_rad_list = 0: 2*pi/num_directions: 2*pi-2*pi/num_directions;
 end
 
 % for BW:Black/White concentric mapping (position + color)
 % 1st: distance, 2nd: direction, 3rd: 1=white, 2=black
-sobj.concentric_mat = ones(size(prep_mat,2)*2, 3);
-sobj.concentric_mat(:, 1:2) = repmat(prep_mat', 2, 1);
-sobj.concentric_mat(1+size(sobj.concentric_mat,1)/2:end, 3) = 2;
-sobj.concentric_mat_deg = sobj.concentric_mat;
+conc_mat = ones(size(prep_mat,2)*2, 3);
+conc_mat(:, 1:2) = repmat(prep_mat', 2, 1);
+conc_mat(1+size(conc_mat,1)/2:end, 3) = 2;
+
+conc_mat_deg = conc_mat;
+
 for n = sobj.div_zoom:-1:1
     %distance in pixel length
-    sobj.concentric_mat(sobj.concentric_mat(:,1)==n, 1) = conc_dist_pix_list(n);
-    sobj.concentric_mat_deg(sobj.concentric_mat_deg(:,1)==n, 1) = sobj.concentric_dist_deg_list(n);
+    conc_mat(conc_mat(:,1)==n, 1) = conc_dist_pix_list(n);
+    conc_mat_deg(conc_mat_deg(:,1)==n, 1) = dist_list(n);
 end
+
 for n = 1:num_directions
-    sobj.concentric_mat(sobj.concentric_mat(:,2)==n, 2) = conc_angle_rad_list(n);
-    sobj.concentric_mat_deg(sobj.concentric_mat_deg(:,2)==n, 2) = sobj.concentric_angle_deg_list(n);
+    conc_mat(conc_mat(:,2)==n, 2) = conc_angle_rad_list(n);
+    conc_mat_deg(conc_mat_deg(:,2)==n, 2) = angle_list(n);
 end
 end
-
-
-

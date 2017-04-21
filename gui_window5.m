@@ -173,6 +173,14 @@ hGui.shiftDir = uicontrol('Style', 'popupmenu', 'Position', [10 155 90 25],...
 set(hGui.shiftDir, 'Callback', @change_moving_params);
 hGui.shiftDir_txt2 = uicontrol('Style', 'text', 'String', 'deg', 'Position', [100 160 25 15], 'Horizontalalignment', 'left');
 
+hGui.shiftDir2_txt = uicontrol('Style', 'text', 'Position', [110 135 80 15], 'String', 'Conc_Dir', 'Horizontalalignment', 'center');
+hGui.shiftDir2 = uicontrol('Style', 'popupmenu', 'Position', [110 110 90 25],...
+    'String', [{'0'}, {'45'}, {'90'}, {'135'}, {'180'}, {'225'}, {'270'}, {'315'}, {'Ord8'}, {'Rand8'}, {'Rand16'}]);
+
+
+
+
+
 %%% Temporal Frequecy for grating stimuli
 hGui.shiftSpd_txt = uicontrol('Style', 'text', 'String', 'Tempo Freq', 'Position', [10 135 80 15], 'Horizontalalignment', 'left');
 hGui.shiftSpd = uicontrol('Style', 'popupmenu', 'Position', [10 110 70 25],...
@@ -193,7 +201,7 @@ set(hGui.loomSpd, 'Callback', @change_moving_params);
 hGui.loomSpd_txt2 = uicontrol('Style', 'text', 'String', 'deg/s', 'Position', [80 110 35 15], 'Horizontalalignment', 'left');
 
 % Looming Max Size
-hGui.loomSize_txt = uicontrol('Style', 'text', 'String', 'Max Size', 'Position', [125 135 100 15], 'Horizontalalignment', 'left');
+hGui.loomSize_txt = uicontrol('Style', 'text', 'String', 'Max Size', 'Position', [125 135 60 15], 'Horizontalalignment', 'left');
 hGui.loomSize = uicontrol('Style', 'edit', 'String', sobj.looming_Size, 'Position', [125 110 30 25], 'BackGroundColor', 'w');
 set(hGui.loomSize, 'Callback',  @change_moving_params);
 hGui.loomSize_txt2 = uicontrol('Style', 'text', 'String', 'deg', 'Position', [160 110 35 15], 'Horizontalalignment', 'left');

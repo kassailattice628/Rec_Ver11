@@ -38,7 +38,7 @@ if get(hObject, 'value')==1 % loop ON
         % set 1st counter
         recobj.cycleCount = recobj.cycleCount + 1; % for ParamsSave
         recobj.cycleNum = recobj.cycleNum + 1;
-        set(hObject, 'string', 'Looping', 'BackGroundColor', 'g');
+        set(hObject, 'String', 'Looping', 'BackGroundColor', 'g');
         
         %%%%%%%%%%%%%% loop contentes %%%%%%%%%%%%%%%
         % start loop (Trigger + Visual Stimulus)
@@ -159,7 +159,7 @@ end
         if sobj.Num_screens==1
             sca;
         end
-        set(hObject, 'string', 'Loop-Off', 'BackGroundColor', 'r');
+        set(hObject, 'String', 'Loop-Off', 'BackGroundColor', 'r');
         
         %%%%%% Stop DAQ %%%%%%
         if Testmode==0
@@ -192,7 +192,7 @@ end
             
             disp(['Captured Data was saved as :: ', recobj.savefilename])
             recobj.savecount = recobj.savecount + 1;
-            set(hGui.save, 'value', 0, 'string', 'Unsave', 'BackGroundColor', [0.9400 0.9400 0.9400])
+            set(hGui.save, 'value', 0, 'String', 'Unsave', 'BackGroundColor', [0.9400 0.9400 0.9400])
         end
         
         % clear save data from memory
@@ -388,7 +388,7 @@ end
             length(sobj.size_pix_list), flag_size_random, sobj.stimsz);
         if flag_size_random == 3
             %fix size
-            sobj.size_deg = str2double(get(figUIobj.size, 'string'));
+            sobj.size_deg = str2double(get(figUIobj.size, 'String'));
         else
             %random size
             sobj.size_deg = sobj.stimsz_deg_list(sobj.size_index);
@@ -457,7 +457,7 @@ end
         
         % Set stim size, fixed
         sobj.stim_size = sobj.stimsz;
-        sobj.size_deg = str2double(get(figUIobj.size, 'string'));
+        sobj.size_deg = str2double(get(figUIobj.size, 'String'));
         maxDiameter = max(sobj.stim_size) * 1.01;
         
         % define stim position using center and size
@@ -487,11 +487,11 @@ end
         
         % Set stim size, size(fix)
         sobj.stim_size = sobj.stimsz;
-        sobj.size_deg = str2double(get(figUIobj.size, 'string'));
+        sobj.size_deg = str2double(get(figUIobj.size, 'String'));
         maxDiameter = max(sobj.stim_size) * 1.01;
         
         sobj.stim_size2 = sobj.stimsz2;
-        sobj.size_deg2 = str2double(get(figUIobj.size2, 'string'));
+        sobj.size_deg2 = str2double(get(figUIobj.size2, 'String'));
         maxDiameter2 = max(sobj.stim_size2) * 1.01;
         
         % define stim position using center and size
@@ -727,14 +727,14 @@ end
         
         % Set stim size
         sobj.stim_size = sobj.stimsz;
-        sobj.size_deg = str2double(get(figUIobj.size, 'string'));
+        sobj.size_deg = str2double(get(figUIobj.size, 'String'));
         
         sobj.lumi = sobj.stimlumi;
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
         % get Spatial frequency of the grating
         % cycles/deg
-        gratFreq_list_deg = get(figUIobj.gratFreq, 'string');
+        gratFreq_list_deg = get(figUIobj.gratFreq, 'String');
         sobj.gratFreq_deg = str2double(gratFreq_list_deg(get(figUIobj.gratFreq, 'value')));
         % deg/cycles
         deg_per_cycle = 1/sobj.gratFreq_deg;
@@ -824,7 +824,7 @@ end
         
         % set size
         sobj.stim_size = sobj.stimsz;
-        sobj.size_deg = str2double(get(figUIobj.size, 'string'));
+        sobj.size_deg = str2double(get(figUIobj.size, 'String'));
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % set flipnum
@@ -946,7 +946,7 @@ end
         
         % Set stim size
         sobj.stim_size = sobj.stimsz;
-        sobj.size_deg = str2double(get(figUIobj.size, 'string'));
+        sobj.size_deg = str2double(get(figUIobj.size, 'String'));
         %
         
         base_stimRect = [0, 0, sobj.stim_size];
@@ -1018,7 +1018,7 @@ end
         
         % Set stim size
         sobj.stim_size = sobj.stimsz;
-        sobj.size_deg = str2double(get(figUIobj.size, 'string'));
+        sobj.size_deg = str2double(get(figUIobj.size, 'String'));
         maxDiameter = max(sobj.stim_size) * 1.01;
         % define stim position using center and size
         Rect = CenterRectOnPointd([0, 0, sobj.stim_size], sobj.stim_center(1), sobj.stim_center(2));
@@ -1076,8 +1076,14 @@ end
         end
         
         %%%%% for concentric position %%%%%
+        switch sobj.pattern
+            case {'Sin', 'Rect', 'Gabor'}
+                conc_dir = get(figUIobj.shiftDir2, 'Value');
+            otherwise
+                conc_dir = get(figUIobj.shiftDir, 'Value');
+        end
         if mode ==  3
-            if get(figUIobj.shiftDir, 'Value') ==  9 %ord8
+            if conc_dir ==  9 %ord8
                 f_dir_rand = 2; % ord
             else
                 f_dir_rand = 1; % randomize
@@ -1091,7 +1097,6 @@ end
         end
         
         sobj.stim_center = round(sobj.stim_center);
-        disp(sobj.stim_center)
         
         %
     end
@@ -1186,21 +1191,16 @@ global recobj
 
 %
 if recobj.cycleNum <= 0 % prestim
-    set(figUIobj.StimMonitor3, 'string', '', 'BackGroundColor', 'k');
-    set(figUIobj.StimMonitor2, 'string', 'Pre Stim', 'ForeGroundColor', 'w', 'BackGroundColor', 'k');
-    set(figUIobj.StimMonitor1, 'string', '', 'BackGroundColor', 'k');
+    set(figUIobj.StimMonitor3, 'String', '', 'BackGroundColor', 'k');
+    set(figUIobj.StimMonitor2, 'String', 'Pre Stim', 'ForeGroundColor', 'w', 'BackGroundColor', 'k');
+    set(figUIobj.StimMonitor1, 'String', '', 'BackGroundColor', 'k');
     
 else % during stimulation
     switch sobj.pattern
         case 'Uni'
             bgcol = 'm';
-            if get(figUIobj.mode, 'Value') == 3
-                stim_str3 = ['Dist:',num2str(sobj.concentric_mat_deg(sobj.conc_index,1)),...
-                    '/Ang:', num2str(sobj.concentric_mat_deg(sobj.conc_index,2))];
-            else
-                stim_str3 = '';
-            end
-            
+            stim_str3 = [];
+
         case 'Size_rand'
             bgcol = 'y';
             stim_str3 = ['Size: ', num2str(sobj.size_deg), 'deg'];
@@ -1236,9 +1236,20 @@ else % during stimulation
             stim_str3 = ['FinePos: ', num2str(sobj.center_index_FineMap),...
                 '/', num2str(sobj.div_zoom^2)];
     end
-    set(figUIobj.StimMonitor1, 'string', [sobj.pattern, ': #', num2str(recobj.cycleNum)], 'BackGroundColor',bgcol);
-    set(figUIobj.StimMonitor2, 'string',['POS: ',num2str(sobj.center_index), '/',num2str(sobj.divnum^2)], 'ForeGroundColor', 'k', 'BackGroundColor', bgcol);
-    set(figUIobj.StimMonitor3, 'string', stim_str3, 'BackGroundColor',bgcol);
+    %%% STR1: stim pattern & cycle num
+    set(figUIobj.StimMonitor1, 'String', [sobj.pattern, ': #', num2str(recobj.cycleNum)], 'BackGroundColor',bgcol);
+    
+    %%% STR2: stim position
+    switch sobj.mode
+        case 'Concentric'
+            stim_str2 = ['Dist:',num2str(sobj.concentric_mat_deg(sobj.conc_index,1)),...
+                '/Ang:', num2str(sobj.concentric_mat_deg(sobj.conc_index,2))];
+            set(figUIobj.StimMonitor2, 'String', stim_str2, 'ForeGroundColor', 'k', 'BackGroundColor', bgcol);
+        otherwise
+            set(figUIobj.StimMonitor2, 'String',['POS: ',num2str(sobj.center_index), '/',num2str(sobj.divnum^2)], 'ForeGroundColor', 'k', 'BackGroundColor', bgcol);
+    end
+    %%% STR3: stim properties
+    set(figUIobj.StimMonitor3, 'String', stim_str3, 'BackGroundColor', bgcol);
 end
 drawnow;
 %drawnow nocallbacks;

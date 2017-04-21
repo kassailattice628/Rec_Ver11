@@ -8,7 +8,6 @@ global figUIobj
 pattern = sobj.pattern;
 mode = sobj.mode;
 
-
 %%%% Timing Data %%%%
 save.cycleNum = recobj.cycleNum; % > Visual Stim ON
 if Testmode == 0
@@ -99,6 +98,7 @@ if get(figUIobj.stim,'value') && recobj.cycleNum > 0
             save.stim1.gratingSF_cyc_deg = sobj.gratFreq;
             save.stim1.gratingSpd_Hz = sobj.shiftSpd;
             save.stim1.gratingAngle_deg = sobj.angle;
+            
             if strcmp(mode, 'Concentric')
                 save.stim1.dist_deg = sobj.concentric_mat_deg(sobj.conc_index, 1);
                 save.stim1.angle_deg = sobj.concentric_mat_deg(sobj.conc_index, 2);
