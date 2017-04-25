@@ -11,7 +11,7 @@ global sOut
 global dio
 
 global imaq
-
+    
 global lh
 
 global DataSave % save
@@ -378,9 +378,11 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%
     function Uni_stim(flag_size_random)
+        %flag_size_random
         %<get_condition ‚Ì random_flag ‚Í 1:random, 2:ordered, 3:fix>
         
         Set_stim_position;
+        
         %%%%%%%%%%%%%%%%
         % Set stim size
         %%%%%%%%%%%%%%%%
@@ -461,7 +463,7 @@ end
         maxDiameter = max(sobj.stim_size) * 1.01;
         
         % define stim position using center and size
-        Rect = CenterRectOnPointd([0,0, sobj.stim_size], sobj.stim_center(1), sobj.stim_center(2));
+        Rect = CenterRectOnPointd([0, 0, sobj.stim_size], sobj.stim_center(1), sobj.stim_center(2));
         
         %PrepScreen Screen
         Screen(sobj.shape, sobj.wPtr, sobj.stimcol, Rect, maxDiameter);
@@ -485,13 +487,8 @@ end
         
         sobj.stim_center2 = [sobj.stim_center(1) + concX, sobj.stim_center(2) - concY];
         
-        % Set stim size, size(fix)
-        sobj.stim_size = sobj.stimsz;
-        sobj.size_deg = str2double(get(figUIobj.size, 'String'));
+        %Sizes are defiend in reload_params
         maxDiameter = max(sobj.stim_size) * 1.01;
-        
-        sobj.stim_size2 = sobj.stimsz2;
-        sobj.size_deg2 = str2double(get(figUIobj.size2, 'String'));
         maxDiameter2 = max(sobj.stim_size2) * 1.01;
         
         % define stim position using center and size
@@ -597,7 +594,7 @@ end
         stim_monitor_reset;
     end
 
-%% function for Conc_2P
+%%%% function for Conc_2P
     function Flip_Conc2(Stim1, Stim2, Both_Stim1_Stim2, type)
         switch type
             case 1
@@ -611,6 +608,7 @@ end
                 Screen('DrawTexture', sobj.wPtr, Both_Stim1_Stim2)
                 [sobj.vbl2_2, ~, ~, ~, sobj.BeamposON_2] =...
                     Screen('Flip', sobj.wPtr, sobj.vbl_1 + sobj.delayPTB2);
+                
             case 2
                 % Stim1 and Stim2 appear at the same timing
                 Screen('DrawTexture', sobj.wPtr, Both_Stim1_Stim2)
@@ -621,6 +619,7 @@ end
                 
                 sobj.vbl2_2 = sobj.vbl_2;
                 sobj.BeamposON_2 = sobj.BeamposON;
+                
             case 3
                 % Stim1 appears after Stim2
                 Screen('DrawTexture', sobj.wPtr, Stim2)
@@ -643,7 +642,6 @@ end
         Set_stim_position;
         
         % Spd
-        stim_size =  [0, 0, sobj.loomSize_pix];% max_Stim_Size
         sobj.stim_size = sobj.loomSize_pix;
         sobj.size_deg = NaN;
         
@@ -658,11 +656,10 @@ end
         Priority(topPriorityLevel);
         
         %Prep first frame
-        Rect = CenterRectOnPointd(stim_size .* 0, sobj.stim_center(1), sobj.stim_center(2));
+        Rect = CenterRectOnPointd([0, 0, sobj.loomSize_pix] .* 0, sobj.stim_center(1), sobj.stim_center(2));
         
         
         Screen(sobj.shape, sobj.wPtr, sobj.stimcol, Rect);
-        %Screen('FillRect', sobj.wPtr, 255, [0 0 40 40]);
         Screen('FillRect', sobj.wPtr, 255, [0 sobj.RECT(4)-40, 40 sobj.RECT(4)]);
         stim_monitor;
         %%% flip 1st img %%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -705,11 +702,11 @@ end
         end
         
         % get grating direction
-        angle_list = sobj.concentric_angle_deg_list';
+        angle_list = sobj.grating_angle_deg_list';
         
         if get(figUIobj.shiftDir, 'value') < 9
             flag_rand_dir = 3;
-            angle_list = sobj.concentric_angle_deg_list(get(figUIobj.shiftDir, 'value'));
+            angle_list = sobj.grating_angle_deg_list(get(figUIobj.shiftDir, 'value'));
         elseif get(figUIobj.shiftDir, 'value') == 9 %ord8
             flag_rand_dir = 2;
         else %randomize
@@ -721,8 +718,6 @@ end
             length(angle_list), flag_rand_dir, angle_list);
         
         % Position
-        % caution, if mode:concentric is selected, grating direction and
-        % concentirc position is same...
         Set_stim_position;
         
         % Set stim size
@@ -806,7 +801,7 @@ end
     end
 %%
     function Movebar_stim
-        % get grating direction
+        % get move direction
         angle_list = sobj.concentric_angle_deg_list';
         if get(figUIobj.shiftDir, 'value') < 9
             flag_rand_dir = 3;
@@ -816,15 +811,7 @@ end
         else %randomize
             flag_rand_dir = 1;
         end
-        
-        sobj.stim_center=[0,0];
-        
-        % set color / luminance
-        sobj.stimcol = sobj.stimlumi;
-        
-        % set size
-        sobj.stim_size = sobj.stimsz;
-        sobj.size_deg = str2double(get(figUIobj.size, 'String'));
+
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % set flipnum
@@ -856,9 +843,9 @@ end
         %%%
         [sobj.angle, sobj.angle_index] = get_condition(5, angle_list, recobj.cycleNum,...
             length(angle_list), flag_rand_dir, angle_list);
-        %angle  = 180-sobj.angle;
         angle = -sobj.angle;
-        %%%
+        
+        %%% initialize xy position
         x0 = 0;
         y0 = 0;
         

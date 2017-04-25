@@ -12,7 +12,7 @@ sobj.Num_screens = size(sobj.screens,2);
 % Set 2nd display for stim presentation
 sobj.ScrNum = max(sobj.screens);
 % Set Primally monitor for stim preseintation
-%sobj.ScrNum = min(sobj.screens);
+% sobj.ScrNum = min(sobj.screens);
 
 % OSX, main=0, sub(stim monitor) = 1,2,...
 % Windwos, main=1, sub(stim monitor) = 2,3,...
@@ -41,6 +41,7 @@ sobj.pattern = 'Uni'; % uniform or Grating
 
 sobj.mode = 'Random';
 
+%stim duration
 sobj.flipNum = 75;
 
 sobj.divnum = 3;

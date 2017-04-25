@@ -1,6 +1,7 @@
 # Change_log
 ## 11.5.4-m2 - 170420
-pattern 毎に position=concentric の挙動を修正．
+pattern 毎に position=concentric の挙動を修正．\
+stim_monitor を修正．
 
 ## 11.5.4-m1 - 170418
 stim mode, stim pattern を選択した時の GUI の挙動を修正

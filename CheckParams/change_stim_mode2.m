@@ -28,7 +28,7 @@ switch sobj.pattern
         
     case {'2P'}
         if mode == 3
-            set(figUIobj.mode, 'Value', 4), mode = 4;
+            set(figUIobj.mode, 'Value', 4)
         end
         %div, dist, dir: ON
         val = {'on', 'on', 'on', 'off',   'off', 'off',...
@@ -36,7 +36,7 @@ switch sobj.pattern
         
     case {'B/W'}
         if mode == 3
-            set(figUIobj.mode, 'Value', 4), mode = 4;
+            set(figUIobj.mode, 'Value', 4)
         end
         %div, dist, dir: ON
         val = {'on', 'on', 'on', 'off',   'off', 'off',...
@@ -66,8 +66,11 @@ switch sobj.pattern
         end
         
     case 'MoveBar'
+        if mode ~= 4
+            set(figUIobj.mode, 'Value', 4)
+        end
         %div, dist: OFF, dir:  ON
-        val = {'off', 'off', 'on', 'on',   'off', 'off',...
+        val = {'off', 'off', 'on', 'off',   'off', 'off',...
             'on', 'off',   'off', 'off',   'off', 'off', 'y'};
         
     case 'Images'
@@ -107,7 +110,7 @@ switch sobj.pattern
         
 end
 %%
-switch mode
+switch get(figUIobj.mode, 'Value');
     case {1, 2}
         set(figUIobj.fixpos, 'BackGroundColor', 'w');
     case 3
@@ -143,7 +146,7 @@ Set_fig_stim_color(map_list);
                 set(figUIobj.dist_txt, 'Position', [60 180 45 15]);
                 set(figUIobj.dist, 'Position', [60 155 40 25]);
                 
-            case {'Sin', 'Rect', 'Grating'}
+            case {'Sin', 'Rect', 'Gabor'}
                 set(figUIobj.div_zoom_txt, 'Position', [150 230 20 15]);
                 set(figUIobj.div_zoom, 'Position', [150 205 40 25]);
                 set(figUIobj.dist_txt, 'Position', [150 185 20 15]);
