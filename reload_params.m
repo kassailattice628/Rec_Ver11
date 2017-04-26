@@ -89,10 +89,8 @@ switch sobj.pattern
     case {'2P', 'B/W'}
         %%
         %Position
-        if mode ==  3
-            [sobj.concentric_dist_deg_list, sobj.concentric_angle_deg_list,...
-                sobj.concentric_mat, sobj.concentric_mat_deg] = get_concentric_position(1);
-        end
+        [sobj.concentric_dist_deg_list, sobj.concentric_angle_deg_list,...
+            sobj.concentric_mat, sobj.concentric_mat_deg] = get_concentric_position(1);
         
         % Set stim size, size(fix)
         sobj.stim_size = sobj.stimsz;

@@ -44,8 +44,8 @@ getfineUIobj = rmfield(getfineUIobj,'fig');
 if isstruct(figUIobj)
     set(figUIobj.get_fine_pos, 'value', 0, 'BackGroundColor', [0.9400 0.9400 0.9400]);
     set(figUIobj.divnum,'BackGroundColor', 'w');
-    set(figUIobj.mode, 'value', 1);
-    set(figUIobj.fixpos,'BackGroundColor', 'g');
+    %set(figUIobj.mode, 'value', 1);
+    %set(figUIobj.fixpos,'BackGroundColor', 'g');
 end
 end
 
