@@ -100,9 +100,9 @@ elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) > c.Tim
     % captureData(:,1) is timstamp
     % 2:AI0, 3:AI1, 4:AI2 = photosensor, 5:AI3 = Triggermonitor
     % Recmode==1
-    % 6:AI4, 7:AI5, 8:RotaryEnconder
+    % 6:AI4, end:RotaryEnconder
     % Recmode==2
-    % 6:RotaryEncoder
+    % end:RotaryEncoder
     % plotVI = get(figUIobj.plot, 'value'): AI0='V plot, AI1='I plot'
     
     if isfield(plotUIobj,'button4')
@@ -133,12 +133,7 @@ elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) > c.Tim
         %when Rotary ON, plot Angular Position
         if get(plotUIobj.button3,'value')
             %decode rotary
-            if Recmode == 1
-                rot_ch = 6;
-            else
-                rot_ch = 6;
-            end
-            positionDataDeg = DecodeRot(captureData(:, rot_ch));
+            positionDataDeg = DecodeRot(captureData(:, end));
             set(plotUIobj.axes3, 'XLim',[-inf,inf]);
             set(plotUIobj.plot3, 'XData', captureData(:, 1), 'YData', positionDataDeg)%Decoded Angular position data
         end
@@ -150,17 +145,9 @@ elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) > c.Tim
     %%%%%% save setting %%%%%%
     if get(hGui.save, 'value') == 1 % Saving
         ParamsSave{1, trigCount} = get_save_params(0, recobj, sobj, captureData);
-        DataSave(:, :, trigCount) = captureData(:,[2, 3, 4, 6]);
-        %170120
-        %DataSave(:, :, trigCount) = captureData(:,[2, 3, 4, 6, 1]);
-        %
-        %{
-        % when DataSave is saved as a discrete file.
-        [dirname, fname] = fileparts(recobj.savefilename);
-        fid = fopen([dirname, '/', fname, '_Data.mat'], 'a');
-        fwrite(fid, captureData, 'single');
-        fclose(fid);
-        %}
+        %captureData(:,[1,5]) are time and live(triggers) and do not need
+        %to save. (7 = end = rotary encoder)
+        DataSave(:, :, trigCount) = captureData(:,[2,3,4,6,7]);
     end
     
     %%%%%% save imaq %%%%%

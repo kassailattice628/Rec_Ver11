@@ -1,4 +1,9 @@
 # Change_log
+## 11.5.4-m3 - 170510
+1. pupil size を記録するため，AI チャネルを増やす @daq_ini.mat．
+2. Rotary encoder が 1 列後ろにずれるので，GUI の plot を変更．@dataCaptureNBA.m
+3. save する data も修正．@dataCaptureNBA.m
+
 ## 11.5.4-m2 - 170420
 pattern 毎に position=concentric の挙動を修正．\
 stim_monitor を修正．
