@@ -85,7 +85,7 @@ sobj.img_i = 0;
 sobj.ImageNum = 256;
 sobj.list_img = 1:sobj.ImageNum;
 
-%Mosiac dots
+%Mosaic dots
 sobj.dots_density = 30;%
 
 

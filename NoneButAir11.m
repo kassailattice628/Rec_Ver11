@@ -60,9 +60,7 @@ end
 [sobj.ScrCenterX, sobj.ScrCenterY] = RectCenter(sobj.RECT);
 sobj.m_int = Screen('GetFlipInterval', sobj.wPtr);
 sobj.frameRate = Screen('FrameRate', sobj.ScrNum);
-if sobj.frameRate == 0
-    sobj.frameRate = 60;
-end
+
 % set stimulus duration in sec
 sobj.duration = sobj.flipNum * sobj.m_int; % sec
 

@@ -48,7 +48,7 @@ hGui.StimMonitor2 = uicontrol('Style', 'text', 'String', 'OFF', 'Position', [230
 hGui.StimMonitor3 = uicontrol('Style', 'text', 'String', '', 'Position', [230 670 120 20], 'FontSize',12, 'BackGroundColor', 'w', 'Horizontalalignment', 'center');
 
 %%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+ %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%  Visual stimuli1 %%%%%%%%%%%%%%%%%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 

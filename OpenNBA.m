@@ -18,7 +18,7 @@ addpath('ComFunc')
 
 % open GUI
 h.fig = figure(6);
-set(h.fig, 'position',[20, 500, 150, 200], 'Name', 'Open NBA', 'NumberTitle', 'off', 'Menubar', 'none', 'Resize', 'off');
+set(h.fig, 'position',[20, 400, 150, 200], 'Name', 'Open NBA', 'NumberTitle', 'off', 'Menubar', 'none', 'Resize', 'off');
 
 h.SelectTest = uicontrol('style', 'togglebutton', 'position',[10 155 100 40],...
     'string', 'TEST Mode', 'Callback', {@UseTestmode},...
