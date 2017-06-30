@@ -11,7 +11,7 @@ global sOut
 global dio
 
 global imaq
-    
+
 global lh
 
 global DataSave % save
@@ -38,7 +38,7 @@ if get(hObject, 'value')==1 % loop ON
         % set 1st counter
         recobj.cycleCount = recobj.cycleCount + 1; % for ParamsSave
         recobj.cycleNum = recobj.cycleNum + 1;
-        set(hObject, 'String', 'Looping', 'BackGroundColor', 'g');
+        set(hObject, 'String', 'Loopng', 'BackGroundColor', 'g');
         
         %%%%%%%%%%%%%% loop contentes %%%%%%%%%%%%%%%
         % start loop (Trigger + Visual Stimulus)
@@ -340,7 +340,7 @@ elseif recobj.cycleNum > 0 %StimON
             
         case {'Sin', 'Rect', 'Gabor'}
             %Prep, ON
-            GratingGLSL(2);
+            GratingGLSL(1);
             VisStimOFF;
             
         case {'MoveBar'}
@@ -741,117 +741,70 @@ end
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         if ver == 1
-        phase = 0;
-        contrast = 100;
-        base_stimRect = [0, 0, sobj.stim_size(1), sobj.stim_size(2)];
-        stimRect = CenterRectOnPointd(base_stimRect, sobj.stim_center(1), sobj.stim_center(2));
-        
-        % generate grating texture
-        if flag_gabor ==  0
-            % 0 deg: left->right, 90 deg: up, 180 deg : right->left, 270 deg: down
-            angle = 180 - sobj.angle;
-            if flag_sin == 0
-                contrastPreMultiplicator = 1;
-            else
-                contrastPreMultiplicator = 2.55/sobj.stimlumi;
-            end
+            phase = 0;
+            contrast = 100;
+            base_stimRect = [0, 0, sobj.stim_size(1), sobj.stim_size(2)];
+            stimRect = CenterRectOnPointd(base_stimRect, sobj.stim_center(1), sobj.stim_center(2));
             
-            if get(figUIobj.shape, 'value')==1
-                radius = [];
-            else
-                radius = sobj.stim_size(1)/2;
-            end
-            
-            %CreateProceduralSineGrating(windowPtr, width, height [, backgroundColorOffset =(0,0,0,0)] [, radius=inf] [, contrastPreMultiplicator=1])
-            gratingtex =  CreateProceduralSineGrating(sobj.wPtr, sobj.stim_size(1), sobj.stim_size(2), [0,0,0,0.0], radius, contrastPreMultiplicator);
-            Screen('DrawTexture', sobj.wPtr, gratingtex, [], stimRect, angle, [], [], [], [], [], [phase, cycles_per_pix, contrast, 0]);
-            
-        elseif flag_gabor == 1
-            sc = sobj.stim_size(1) * 0.16; %sc = 50.0;
-            % 0 deg: left->right, 90 deg: up, 180 deg : right->left, 270 deg: down
-            angle = sobj.angle - 180;
-            bgcol = sobj.bgcol/sobj.stimlumi;
-            gabortex = CreateProceduralGabor(sobj.wPtr, sobj.stim_size(1), sobj.stim_size(2), [], [bgcol bgcol bgcol 0.0]);
-            Screen('DrawTexture', sobj.wPtr, gabortex, [], stimRect, angle, [], [], [], [], kPsychDontDoRotation, [phase, cycles_per_pix, sc, contrast, 1, 0, 0, 0]);
-        end
-        
-        stim_monitor;
-        
-        % prep 1st frame
-        %%%%%%%%%%%%%%%%%%
-        %AddPhoto Sensor (Left, Bottom in the monitor) for the stimulus timing check
-        Screen('FillRect', sobj.wPtr, 255, [0 sobj.RECT(4)-40, 40 sobj.RECT(4)]);
-        % Flip and rap timer
-        [sobj.vbl_2, ~, ~, ~, sobj.BeamposON] = ...
-            Screen('Flip', sobj.wPtr, sobj.vbl_1 + sobj.delayPTB);% put some delay for PTB
-        
-        TriggerVSon(Testmode, dio, 1);
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        for count = 1:sobj.flipNum-1
-            phase = count * 360/sobj.frameRate * sobj.shiftSpd;
-            
+            % generate grating texture
             if flag_gabor ==  0
+                % 0 deg: left->right, 90 deg: up, 180 deg : right->left, 270 deg: down
+                angle = 180 - sobj.angle;
+                if flag_sin == 0
+                    contrastPreMultiplicator = 1;
+                else
+                    contrastPreMultiplicator = 2.55/sobj.stimlumi;
+                end
+                
+                if get(figUIobj.shape, 'value')==1
+                    radius = [];
+                else
+                    radius = sobj.stim_size(1)/2;
+                end
+                
+                %CreateProceduralSineGrating(windowPtr, width, height [, backgroundColorOffset =(0,0,0,0)] [, radius=inf] [, contrastPreMultiplicator=1])
+                gratingtex =  CreateProceduralSineGrating(sobj.wPtr, sobj.stim_size(1), sobj.stim_size(2), [0,0,0,0.0], radius, contrastPreMultiplicator);
                 Screen('DrawTexture', sobj.wPtr, gratingtex, [], stimRect, angle, [], [], [], [], [], [phase, cycles_per_pix, contrast, 0]);
+                
             elseif flag_gabor == 1
-                %Screen('DrawTexture', sobj.wPtr, gabortex, sRect, stimRect, angle, [], [], [], [], kPsychDontDoRotation, [phase, gratFreq_deg, 50, 100, 1.0, 0, 0, 0]);
+                sc = sobj.stim_size(1) * 0.16; %sc = 50.0;
+                % 0 deg: left->right, 90 deg: up, 180 deg : right->left, 270 deg: down
+                angle = sobj.angle - 180;
+                bgcol = sobj.bgcol/sobj.stimlumi;
+                gabortex = CreateProceduralGabor(sobj.wPtr, sobj.stim_size(1), sobj.stim_size(2), [], [bgcol bgcol bgcol 0.0]);
                 Screen('DrawTexture', sobj.wPtr, gabortex, [], stimRect, angle, [], [], [], [], kPsychDontDoRotation, [phase, cycles_per_pix, sc, contrast, 1, 0, 0, 0]);
             end
-            %Add Photo Sensor (Left, Bottom)
-            Screen('FillRect', sobj.wPtr, 255, [0 sobj.RECT(4)-40, 40 sobj.RECT(4)]);
-            Screen('Flip', sobj.wPtr);
-        end
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-        elseif ver == 2
-            angle = 180 - sobj.angle;
-            fr = cycles_per_pix * 2 * pi; %spatial frequency in radian
-            fullpix = 1700; %near sqrt(1024^2 + 1280^2)
-            RECTsize = ceil(fullpix/pix_per_cycle) * pix_per_cycle;
-            inc = sobj.white - sobj.gray;
             
-            x = meshgrid(0:RECTsize-1,1);
-            grating = sobj.gray + inc * cos(fr*x);
+            stim_monitor;
             
-            gratingtex = Screen('MakeTexture', sobj.wPtr, grating, [], 1);
-            
-            waitframes = 1;
-            waitduration = waitframes * sobj.m_int;
-            
-            %grating speed
-            shift_per_frame = sobj.shiftSpd * pix_per_cycle * waitduration;
-            
-            
-            %%%%%%%%%%%%%
-            % prep first frame
-            % add photosensor
+            % prep 1st frame
+            %%%%%%%%%%%%%%%%%%
+            %AddPhoto Sensor (Left, Bottom in the monitor) for the stimulus timing check
             Screen('FillRect', sobj.wPtr, 255, [0 sobj.RECT(4)-40, 40 sobj.RECT(4)]);
             % Flip and rap timer
             [sobj.vbl_2, ~, ~, ~, sobj.BeamposON] = ...
                 Screen('Flip', sobj.wPtr, sobj.vbl_1 + sobj.delayPTB);% put some delay for PTB
+            
             TriggerVSon(Testmode, dio, 1);
-            
-            
-            vbl_end_time = sobj.vbl_2 + sobj.duration;
-            xoffset = 0;
-            vbl = sobj.vbl_2;
-            %Move gratings
-            while vbl < vbl_end_time
-                %shift
-                xoffset = xoffset + shift_per_frame;
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            for count = 1:sobj.flipNum-1
+                phase = count * 360/sobj.frameRate * sobj.shiftSpd;
                 
-                srcRect = [xoffset 0 xoffset + RECTsize RECTsize];
-                Screen('DrawTexture', sobj.wPtr, gratingtex, srcRect, [], angle);
-                
-                %%
+                if flag_gabor ==  0
+                    Screen('DrawTexture', sobj.wPtr, gratingtex, [], stimRect, angle, [], [], [], [], [], [phase, cycles_per_pix, contrast, 0]);
+                elseif flag_gabor == 1
+                    %Screen('DrawTexture', sobj.wPtr, gabortex, sRect, stimRect, angle, [], [], [], [], kPsychDontDoRotation, [phase, gratFreq_deg, 50, 100, 1.0, 0, 0, 0]);
+                    Screen('DrawTexture', sobj.wPtr, gabortex, [], stimRect, angle, [], [], [], [], kPsychDontDoRotation, [phase, cycles_per_pix, sc, contrast, 1, 0, 0, 0]);
+                end
+                %Add Photo Sensor (Left, Bottom)
                 Screen('FillRect', sobj.wPtr, 255, [0 sobj.RECT(4)-40, 40 sobj.RECT(4)]);
-                vbl = Screen('Flip', sobj.wPtr, vbl + (waitframes-0.5)*sobj.m_int);
+                Screen('Flip', sobj.wPtr);
             end
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+            %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
             
-            % Gray Screen
-            Screen('FillRect', sobj.wPtr, sobj.gray, [0 0 sobj.RECT(3),sobj.RECT(4)]);
-            Screen('Flip', sobj.wPtr);
+            
         end
-        
     end
 %%
     function Movebar_stim
@@ -865,7 +818,7 @@ end
         else %randomize
             flag_rand_dir = 1;
         end
-
+        
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % set flipnum
@@ -885,7 +838,7 @@ end
         
         %Enable alpha blending
         Screen('BlendFunction', sobj.wPtr, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
+        
         %moving direction setting
         topPriorityLevel =  MaxPriority(sobj.wPtr);
         Priority(topPriorityLevel);
@@ -910,7 +863,7 @@ end
         tex_pos = zeros(flipnum, 4);
         
         
-        %% 
+        %%
         for i = 1:flipnum
             switch sobj.angle
                 case 0 %horizontal rightward
@@ -947,6 +900,7 @@ end
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % Draw Screen
         Screen('FillRect', sobj.wPtr, 255, [0 sobj.RECT(4)-40, 40 sobj.RECT(4)]);
+        disp(sRect)
         Screen('DrawTexture', sobj.wPtr, im_tex, sRect, tex_pos(1,:), angle)
         
         [sobj.vbl_2, ~, ~, ~, sobj.BeamposON] =...
@@ -1111,7 +1065,7 @@ end
         
         [sobj.stim_center, sobj.center_index] =  get_condition(1, list_mat, recobj.cycleNum,...
             list_size, f_pos_rand, fix_center);
-
+        
         if mode == 3 || mode == 4
             sobj.center_index = sobj.fixpos;
         end
@@ -1241,7 +1195,7 @@ else % during stimulation
         case 'Uni'
             bgcol = 'm';
             stim_str3 = [];
-
+            
         case 'Size_rand'
             bgcol = 'y';
             stim_str3 = ['Size: ', num2str(sobj.size_deg), 'deg'];

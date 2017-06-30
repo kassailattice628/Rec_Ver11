@@ -367,6 +367,7 @@ end
                 
                 srcRect = [xoffset 0 xoffset + visiblesize visiblesize];
                 Screen('DrawTexture', sobj.wPtr, gratingtex, srcRect, [], angle);
+                %Screen('DrawTexture', sobj.wPtr, gratingtex, [], srcRect, angle, [], [], [], [], kPsychDontDoRotation, [0, cycles_per_pix, 300 * 0.16, 100, 1, 0, 0, 0]);
                 vbl=Screen('Flip', sobj.wPtr, vbl+(waitframes-0.5)*sobj.m_int);
             end
             
