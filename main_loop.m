@@ -340,7 +340,7 @@ elseif recobj.cycleNum > 0 %StimON
             
         case {'Sin', 'Rect', 'Gabor'}
             %Prep, ON
-            GratingGLSL;
+            GratingGLSL(2);
             VisStimOFF;
             
         case {'MoveBar'}
@@ -689,7 +689,8 @@ end
     end
 
 %% function to generate shifting grating stimulus
-    function GratingGLSL
+    function GratingGLSL(ver)
+        
         if strcmp(sobj.pattern, 'Sin')
             flag_gabor = 0;
             flag_sin = 1;
@@ -737,6 +738,9 @@ end
         pix_per_cycle = Deg2Pix(deg_per_cycle, sobj.MonitorDist, sobj.pixpitch);
         cycles_per_pix = 1/pix_per_cycle;
         
+        
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        if ver == 1
         phase = 0;
         contrast = 100;
         base_stimRect = [0, 0, sobj.stim_size(1), sobj.stim_size(2)];
@@ -797,6 +801,56 @@ end
             Screen('Flip', sobj.wPtr);
         end
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        elseif ver == 2
+            angle = 180 - sobj.angle;
+            fr = cycles_per_pix * 2 * pi; %spatial frequency in radian
+            fullpix = 1700; %near sqrt(1024^2 + 1280^2)
+            RECTsize = ceil(fullpix/pix_per_cycle) * pix_per_cycle;
+            inc = sobj.white - sobj.gray;
+            
+            x = meshgrid(0:RECTsize-1,1);
+            grating = sobj.gray + inc * cos(fr*x);
+            
+            gratingtex = Screen('MakeTexture', sobj.wPtr, grating, [], 1);
+            
+            waitframes = 1;
+            waitduration = waitframes * sobj.m_int;
+            
+            %grating speed
+            shift_per_frame = sobj.shiftSpd * pix_per_cycle * waitduration;
+            
+            
+            %%%%%%%%%%%%%
+            % prep first frame
+            % add photosensor
+            Screen('FillRect', sobj.wPtr, 255, [0 sobj.RECT(4)-40, 40 sobj.RECT(4)]);
+            % Flip and rap timer
+            [sobj.vbl_2, ~, ~, ~, sobj.BeamposON] = ...
+                Screen('Flip', sobj.wPtr, sobj.vbl_1 + sobj.delayPTB);% put some delay for PTB
+            TriggerVSon(Testmode, dio, 1);
+            
+            
+            vbl_end_time = sobj.vbl_2 + sobj.duration;
+            xoffset = 0;
+            vbl = sobj.vbl_2;
+            %Move gratings
+            while vbl < vbl_end_time
+                %shift
+                xoffset = xoffset + shift_per_frame;
+                
+                srcRect = [xoffset 0 xoffset + RECTsize RECTsize];
+                Screen('DrawTexture', sobj.wPtr, gratingtex, srcRect, [], angle);
+                
+                %%
+                Screen('FillRect', sobj.wPtr, 255, [0 sobj.RECT(4)-40, 40 sobj.RECT(4)]);
+                vbl = Screen('Flip', sobj.wPtr, vbl + (waitframes-0.5)*sobj.m_int);
+            end
+            
+            % Gray Screen
+            Screen('FillRect', sobj.wPtr, sobj.gray, [0 0 sobj.RECT(3),sobj.RECT(4)]);
+            Screen('Flip', sobj.wPtr);
+        end
         
     end
 %%
