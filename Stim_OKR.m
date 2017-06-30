@@ -265,13 +265,16 @@ end
 
 while get(hObj, 'Value')
     sobj.cycleNum = sobj.cycleNum + 1;
-    GratingGLSL;
+    disp(sobj.cycleNum);
+    
+    GratingGLSL(2);
     
     pause(sobj.iti)
 end
 
 %% subfunctions
-    function GratingGLSL
+    function GratingGLSL(ver)
+        
         angle_list = sobj.grating_angle_deg_list';
         if sobj.shiftDir < 9
             flag_rand_dir = 3;
@@ -295,35 +298,82 @@ end
         % Generate grating texture
         angle = 180 - sobj.angle;
         
-        %contrastPreMultiplicator = 2.55/sobj.white;
-        %CreateProceduralSineGrating(windowPtr, width, height [, backgroundColorOffset =(0,0,0,0)] [, radius=inf] [, contrastPreMultiplicator=1])
-        %gratingtex = CreateProceduralSineGrating(sobj.wPtr, sobj.RECT(3), sobj.RECT(4), [0,0,0,0.0], [], contrastPreMultiplicator);
-        gratingtex = CreateProceduralSineGrating(sobj.wPtr, sobj.RECT(3), sobj.RECT(4), [0,0,0,0.0], [], 0.01);
-        
-        RECT = [-sobj.RECT(3)/2, -sobj.RECT(4)/2, sobj.RECT(3)*1.5, sobj.RECT(4)*1.5];
-        Screen('DrawTexture', sobj.wPtr, gratingtex, [], RECT, angle, [], [], [], [], [], [phase, cycles_per_pix, contrast, 0]);
-        
-        % prep 1st frame
-        [sobj.vbl_1] = Screen('Flip', sobj.wPtr);
-        
-        disp(sobj.shiftSpd)
-        for count = 1:sobj.flipNum - 1
-            phase = count * 360/sobj.frameRate * sobj.shiftSpd;
+        if ver == 1
+            %contrastPreMultiplicator = 2.55/sobj.white;
+            %CreateProceduralSineGrating(windowPtr, width, height [, backgroundColorOffset =(0,0,0,0)] [, radius=inf] [, contrastPreMultiplicator=1])
+            %gratingtex = CreateProceduralSineGrating(sobj.wPtr, sobj.RECT(3), sobj.RECT(4), [0,0,0,0.0], [], contrastPreMultiplicator);
+            gratingtex = CreateProceduralSineGrating(sobj.wPtr, sobj.RECT(3), sobj.RECT(4), [0,0,0,0.0], [], 0.01);
+            
+            RECT = [-sobj.RECT(3)/2, -sobj.RECT(4)/2, sobj.RECT(3)*1.5, sobj.RECT(4)*1.5];
             Screen('DrawTexture', sobj.wPtr, gratingtex, [], RECT, angle, [], [], [], [], [], [phase, cycles_per_pix, contrast, 0]);
-            if count==1
-                [sobj.vbl_2] = ...
-            Screen('Flip', sobj.wPtr, sobj.vbl_1 + sobj.delay);
-            else
-                Screen('Flip', sobj.wPtr);
+            
+            % prep 1st frame
+            [sobj.vbl_1] = Screen('Flip', sobj.wPtr);
+            
+            for count = 1:sobj.flipNum - 1
+                phase = count * 360/sobj.frameRate * sobj.shiftSpd;
+                Screen('DrawTexture', sobj.wPtr, gratingtex, [], RECT, angle, [], [], [], [], [], [phase, cycles_per_pix, contrast, 0]);
+                if count==1
+                    [sobj.vbl_2] = ...
+                        Screen('Flip', sobj.wPtr, sobj.vbl_1 + sobj.delay);
+                else
+                    Screen('Flip', sobj.wPtr);
+                end
             end
+            
+            Screen('FillRect', sobj.wPtr, sobj.gray, [0 0 sobj.RECT(3),sobj.RECT(4)]);
+            [sobj.vbl_3] = ...
+                Screen('Flip', sobj.wPtr, sobj.vbl_2 + sobj.duration);
+            
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% 
+        elseif ver == 2;
+            %cyclepersecond : sobj.shiftSpd
+            %p [pix/cycle]
+            
+            %spatial freq
+            f = 1/sobj.gratFreq;  %[deg/cycle]
+            p = Deg2Pix(f, sobj.MonitorDist, sobj.pixpitch); %[pix/cycle]
+            f = 1/p; %cycle/pix
+            fr = f*2*pi; % freq in radians???
+            %change from sobj.gratFreq[cpd]
+            
+            fullpix = 2000;
+            visiblesize = ceil(fullpix/p)*p; % [pix]
+            inc = sobj.white-sobj.gray;
+            
+            
+            %create single static 1D grating image;
+            %only need a texture with a single row of pix to define the
+            %whole grating!
+            x = meshgrid(0:visiblesize-1,1); % made of pixels
+            grating = sobj.gray + inc * cos(fr*x);
+            
+            gratingtex = Screen('MakeTexture', sobj.wPtr, grating, [], 1);
+            
+            waitframes = 1;
+            waitduration = waitframes * sobj.m_int;
+            
+            %grating speed
+            shift_per_frame = sobj.shiftSpd * p * waitduration;
+            
+            vbl = Screen('Flip', sobj.wPtr);
+            
+            vbl_end_time = vbl+ sobj.duration;
+            xoffset = 0;
+            
+            %Shifting loop
+            while(vbl < vbl_end_time)
+                xoffset = xoffset + shift_per_frame;
+                
+                srcRect = [xoffset 0 xoffset + visiblesize visiblesize];
+                Screen('DrawTexture', sobj.wPtr, gratingtex, srcRect, [], angle);
+                vbl=Screen('Flip', sobj.wPtr, vbl+(waitframes-0.5)*sobj.m_int);
+            end
+            
+            Screen('FillRect', sobj.wPtr, sobj.gray, [0 0 sobj.RECT(3),sobj.RECT(4)]);
+            Screen('Flip', sobj.wPtr);
         end
-        
-        Screen('FillRect', sobj.wPtr, sobj.gray, [0 0 sobj.RECT(3),sobj.RECT(4)]);
-        [sobj.vbl_3] = ...
-            Screen('Flip', sobj.wPtr, sobj.vbl_2 + sobj.duration);
-        
     end
-
 end
 
 %% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
