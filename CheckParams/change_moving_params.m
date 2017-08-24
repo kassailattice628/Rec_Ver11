@@ -50,7 +50,7 @@ switch sobj.pattern
         
         %change recording duration
         rect_in_sec = (sobj.moveDuration+1)*10; %add 1sec
-        recobj.rect =  100*round(rect_in_sec);
+        recobj.rect = 100*round(rect_in_sec);
         set(figUIobj.rect, 'String', recobj.rect);
         disp(['Recording Time:: ', num2str(recobj.rect), ' ms'])
 end
