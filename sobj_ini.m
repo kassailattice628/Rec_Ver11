@@ -30,9 +30,9 @@ end
 
 %%
 sobj.pixpitch = pixpitch;
-sobj.MonitorDist = 260; % (mm) = distance from moniter to eye, => sobj.MonitorDist*tan(1*2*pi/360)/sobj.pixpitch (pixel/degree)
+sobj.MonitorDist = 250; % (mm) = distance from moniter to eye, => sobj.MonitorDist*tan(1*2*pi/360)/sobj.pixpitch (pixel/degree)
 sobj.stimsz = round(ones(1,2)*Deg2Pix(1,sobj.MonitorDist, pixpitch)); % default: 1 deg
-sobj.stimsz_deg_list = [0.5; 1; 3; 5; 10];
+sobj.stimsz_deg_list = [0.5; 1; 3; 5; 10; 30; 50];%[0.5; 1; 3; 5; 10];
 
 sobj.shapelist = [{'FillRect'};{'FillOval'}];
 sobj.shape = 'FillOval'; % default Oval
@@ -44,7 +44,7 @@ sobj.mode = 'Random';
 %stim duration
 sobj.flipNum = 75;
 
-sobj.divnum = 3;
+sobj.divnum = 9;
 % position in matrix
 sobj.fixpos = 5;
 

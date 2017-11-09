@@ -38,7 +38,7 @@ if get(hObject, 'value')==1 % loop ON
         % set 1st counter
         recobj.cycleCount = recobj.cycleCount + 1; % for ParamsSave
         recobj.cycleNum = recobj.cycleNum + 1;
-        set(hObject, 'String', 'Loopng', 'BackGroundColor', 'g');
+        set(hObject, 'String', 'Looping', 'BackGroundColor', 'g');
         
         %%%%%%%%%%%%%% loop contentes %%%%%%%%%%%%%%%
         % start loop (Trigger + Visual Stimulus)
@@ -379,7 +379,7 @@ end
 %%
     function Uni_stim(flag_size_random)
         %flag_size_random
-        %<get_condition ‚Ì random_flag ‚Í 1:random, 2:ordered, 3:fix>
+        %<get_condition ?½?½ random_flag ?½?½ 1:random, 2:ordered, 3:fix>
         
         Set_stim_position;
         
@@ -819,22 +819,65 @@ end
             flag_rand_dir = 1;
         end
         
+        %%%
+        [sobj.angle, sobj.angle_index] = get_condition(5, angle_list, recobj.cycleNum,...
+            length(angle_list), flag_rand_dir, angle_list);
+        angle = -sobj.angle;
+        
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % set flipnum
-        flipnum = round(sobj.moveDuration/sobj.m_int);
+        %flipnum = round(sobj.moveDuration/sobj.m_int);
         
-        %transFactor (pix/flip)
+        %transFactor (pix/flip) = deltaX
         switch get(figUIobj.shiftDir, 'value')
             case {1, 5} %horizontal
-                transFactor = round(sobj.RECT(3)/flipnum);
-            case {2, 4, 6, 8, 9, 10} % diagonal
-                transFactor = round((sobj.RECT(3) + sobj.RECT(4))/flipnum);
+                dist = sobj.RECT(3) + sobj.stimsz(1);
+                flipnum = round(sobj.moveDuration/sobj.m_int);
+                
+            case {2, 4, 6, 8} % diagonal
+                dist = sobj.RECT(3) + sobj.RECT(4);
+                flipnum = round(sobj.moveDuration/sobj.m_int);
+                
             case {3, 7} %vertical
-                transFactor = round(sobj.RECT(4)/flipnum);
-            case 11
-                transFactor = round((sobj.RECT(3) + sobj.RECT(4)*2)/flipnum);
+                dist = sobj.RECT(4) + sobj.stimsz(1);
+                flipnum = round(sobj.moveDuration/sobj.m_int);
+                
+            case {9, 10, 11, 12} %Ord8, Rand8, Rand16, Rand12
+                switch sobj.angle
+                    case {0, 180}
+                        dist = sobj.RECT(3) + sobj.stimsz(1);
+                        flipnum = round(sobj.moveDuration(1)/sobj.m_int);
+                        
+                    case {90, 270}
+                        dist = sobj.RECT(4) + sobj.stimsz(1);
+                        flipnum = round(sobj.moveDuration(end)/sobj.m_int);
+                        
+                    case {45, 135, 225, 315}
+                        dist = sobj.RECT(3) + sobj.RECT(4);
+                        flipnum = round(sobj.moveDuration(2)/sobj.m_int);
+                        
+                    case {22.5, 337.5, 157.5, 202.5}
+                        dist = sobj.RECT(3) + sobj.RECT(4)/tan(3*pi/8);
+                        flipnum = round(sobj.moveDuration(3)/sobj.m_int);
+                        
+                    case {67.5, 112.5, 247.5, 292.5}
+                        dist = sobj.RECT(3) + sobj.RECT(4)/tan(pi/8);
+                        flipnum = round(sobj.moveDuration(4)/sobj.m_int);
+                        
+                    case {30, 330, 150, 210}
+                        dist = sobj.RECT(3) + sobj.RECT(4)/tan(pi/3);
+                        flipnum = round(sobj.moveDuration(2)/sobj.m_int);
+                        
+                    case {60, 120, 240, 300}
+                        dist = sobj.RECT(3) + sobj.RECT(4)/tan(pi/6);
+                        flipnum = round(sobj.moveDuration(3)/sobj.m_int);
+                end
         end
+        disp(dist)
+        disp(flipnum)
+        
+        transFactor = round(dist/flipnum);
         
         %Enable alpha blending
         Screen('BlendFunction', sobj.wPtr, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -842,19 +885,22 @@ end
         %moving direction setting
         topPriorityLevel =  MaxPriority(sobj.wPtr);
         Priority(topPriorityLevel);
+        
         % Make base stim texture
-        bar_h = ceil(sobj.RECT(4)*3);
+        if ismember(sobj.angle, [90, 270]);
+            bar_h = sobj.RECT(3);
+            
+        elseif ismember(sobj.angle, [0, 180]);
+            bar_h = sobj.RECT(4);
+            
+        else
+            bar_h = ceil(sobj.RECT(4)/abs(cos(deg2rad(sobj.angle))));
+            
+        end
+        
+        bar_h = bar_h + 30;
         bar_w = sobj.stim_size(1);
         mat_bar = ones(bar_h, bar_w) * sobj.stimlumi;
-        
-        %%%
-        [sobj.angle, sobj.angle_index] = get_condition(5, angle_list, recobj.cycleNum,...
-            length(angle_list), flag_rand_dir, angle_list);
-        angle = -sobj.angle;
-        
-        %%% initialize xy position
-        x0 = 0;
-        y0 = 0;
         
         %MakeTexture
         im_tex = Screen('MakeTexture', sobj.wPtr, mat_bar, angle, 4);
@@ -862,45 +908,44 @@ end
         %%% prep stim %%%
         tex_pos = zeros(flipnum, 4);
         
-        
+        sRect = [1, bar_w; 1, bar_h];
         %%
         for i = 1:flipnum
+            %xmove = start position + flip# * transfer factor (=trasFactor)
+            %tex_pos(i,:) is the texture position of i_th frame.
+            
             switch sobj.angle
-                case 0 %horizontal rightward
-                    xmove = x0 + i*transFactor;
-                    tex_pos(i,:) = [xmove-(bar_w/2), 0, xmove+(bar_w/2), sobj.RECT(4)];
-                    sRect = [1, bar_w; 1. sobj.RECT(4)];
+                case 0 %rightward
+                    xmove = (i-1) * transFactor;
+                    tex_pos(i,:) = [xmove - bar_w, 0, xmove, sobj.RECT(4)];
                     
                 case 180 %leftward
-                    xmove = sobj.RECT(3) - i*transFactor;
-                    tex_pos(i,:) = [xmove-(bar_w/2), sobj.ScrCenterY-(bar_h/2), xmove+(bar_w/2), sobj.ScrCenterY+(bar_h/2)];
-                    sRect = [1, bar_w; 1. sobj.RECT(4)];
+                    xmove = sobj.RECT(3) - (i-1) * transFactor;
+                    tex_pos(i,:) = [xmove, 0, xmove +  bar_w, sobj.RECT(4)];
                     
                 case 90 %upward
-                    ymove = sobj.RECT(4) - i*transFactor;
+                    ymove = sobj.RECT(4) - (i-1) * transFactor;
                     tex_pos(i,:) = [sobj.ScrCenterX-(bar_w/2), ymove-(bar_h/2), sobj.ScrCenterX+(bar_w/2), ymove+(bar_h/2)];
-                    sRect = [1, bar_w; 1. sobj.RECT(3)];
                     
                 case 270 %downward
-                    ymove = y0 + i*transFactor;
+                    ymove = (i-1) * transFactor;
                     tex_pos(i,:) = [sobj.ScrCenterX-(bar_w/2), ymove-(bar_h/2), sobj.ScrCenterX+(bar_w/2), ymove+(bar_h/2)];
-                    sRect = [1, bar_w; 1. sobj.RECT(3)];
                     
-                case {45, 315, 22.5,  67.5, 292.5, 337.5} %diagonal rightward
-                    xmove = -round(sobj.RECT(4)/2) + i*transFactor;
+                case {45, 315, 22.5,  67.5, 292.5, 337.5, 30, 60, 300, 330} %angled rightward
+                    xmove = -round(sobj.RECT(4)*abs(tan(deg2rad(sobj.angle))/2)) + (i-1) * transFactor;
+                    %xmove = -round(sobj.RECT(4)*tan(sobj.angle)) + i*transFactor;
                     tex_pos(i,:) = [xmove-(bar_w/2), sobj.ScrCenterY-(bar_h/2), xmove+(bar_w/2), sobj.ScrCenterY+(bar_h/2)];
-                    sRect = [1, bar_w; 1. ceil(sobj.RECT(4)*sqrt(2))];
                     
-                case {112.5, 157.5, 135, 202.5, 225, 247.5} %diagonal leftward
-                    xmove = sobj.RECT(3)+round(sobj.RECT(4)/2) - i*transFactor;
+                case {112.5, 157.5, 135, 202.5, 225, 247.5, 120, 150, 210, 240} %angled leftward
+                    xmove = sobj.RECT(3)+round(sobj.RECT(4)*abs(tan(deg2rad(sobj.angle))/2)) - (i-1) * transFactor;
                     tex_pos(i,:) = [xmove-(bar_w/2), sobj.ScrCenterY-(bar_h/2), xmove+(bar_w/2), sobj.ScrCenterY+(bar_h/2)];
-                    sRect = [1, bar_w; 1. ceil(sobj.RECT(4)*sqrt(2))];
             end
         end
+        
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         % Draw Screen
         Screen('FillRect', sobj.wPtr, 255, [0 sobj.RECT(4)-40, 40 sobj.RECT(4)]);
-        disp(sRect)
+        %disp(sRect)
         Screen('DrawTexture', sobj.wPtr, im_tex, sRect, tex_pos(1,:), angle)
         
         [sobj.vbl_2, ~, ~, ~, sobj.BeamposON] =...
@@ -917,7 +962,7 @@ end
         %%% stim off %%%
         Screen('FillRect', sobj.wPtr, sobj.bgcol);
         [sobj.vbl_3, ~, ~, ~, sobj.BeamposOFF] =...
-            Screen('Flip', sobj.wPtr, sobj.vbl_2 + sobj.moveDuration);
+            Screen('Flip', sobj.wPtr, vbl);
         
         TriggerVSon(Testmode, dio,0)
     end
@@ -1234,14 +1279,21 @@ else % during stimulation
     %%% STR1: stim pattern & cycle num
     set(figUIobj.StimMonitor1, 'String', [sobj.pattern, ': #', num2str(recobj.cycleNum)], 'BackGroundColor',bgcol);
     
-    %%% STR2: stim position
+    %%% STR2: stim position / stim spd (for MoveBar)
     switch sobj.mode
         case 'Concentric'
             stim_str2 = ['Dist:',num2str(sobj.concentric_mat_deg(sobj.conc_index,1)),...
                 '/Ang:', num2str(sobj.concentric_mat_deg(sobj.conc_index,2))];
             set(figUIobj.StimMonitor2, 'String', stim_str2, 'ForeGroundColor', 'k', 'BackGroundColor', bgcol);
+            
         otherwise
-            set(figUIobj.StimMonitor2, 'String',['POS: ',num2str(sobj.center_index), '/',num2str(sobj.divnum^2)], 'ForeGroundColor', 'k', 'BackGroundColor', bgcol);
+            if strcmp(sobj.pattern,'MoveBar')
+                
+                set(figUIobj.StimMonitor2, 'String',['Spd: ', num2str(sobj.moveSpd_deg), ' deg/s'], 'ForeGroundColor', 'k', 'BackGroundColor', bgcol);
+            else
+                
+                set(figUIobj.StimMonitor2, 'String',['POS: ',num2str(sobj.center_index), '/',num2str(sobj.divnum^2)], 'ForeGroundColor', 'k', 'BackGroundColor', bgcol);
+            end
     end
     %%% STR3: stim properties
     set(figUIobj.StimMonitor3, 'String', stim_str3, 'BackGroundColor', bgcol);

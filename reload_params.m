@@ -363,10 +363,12 @@ else
     if shiftDir < 11
         % when angle is random or ordered
         num_directions = 8;
-    else
+    elseif shiftDir == 11
         num_directions = 16;
+    elseif shiftDir == 12
+        num_directions = 12;
     end
-    % 8 or 16 directions and center (: +1)
+    % 8, 16, 12 directions and center (: +1)
     prep_mat = zeros(2,sobj.div_zoom*num_directions + 1);
     for i_div = 1:sobj.div_zoom
         prep_mat(1,num_directions*(i_div-1)+2:num_directions*i_div+1) = i_div*ones(1,num_directions);
