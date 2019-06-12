@@ -266,7 +266,7 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 function ResetTTLall(Testmode, dio, sobj)
 % Reset all TTL leve to zero.
-if Testmode == 0; %Test mode off
+if Testmode == 0 %Test mode off
     outputSingleScan(dio.TrigAIFV,[0,0]);
     outputSingleScan(dio.VSon,0);
 else
@@ -887,10 +887,10 @@ end
         Priority(topPriorityLevel);
         
         % Make base stim texture
-        if ismember(sobj.angle, [90, 270]);
+        if ismember(sobj.angle, [90, 270])
             bar_h = sobj.RECT(3);
             
-        elseif ismember(sobj.angle, [0, 180]);
+        elseif ismember(sobj.angle, [0, 180])
             bar_h = sobj.RECT(4);
             
         else
@@ -1014,7 +1014,7 @@ end
         
         select = randperm(size(sobj.positions_deg,2));
         
-        if sobj.num_dots == 0;
+        if sobj.num_dots == 0
         else
             sobj.dot_position_deg = sobj.positions_deg(:, select(1:sobj.num_dots));
         end
