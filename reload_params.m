@@ -155,7 +155,7 @@ switch sobj.pattern
         %% Multi dots
         rng('shuffle');
         sobj.int_seed = randperm(1000);
-        
+        sobj.stim_size = sobj.stimsz;
         dim = sobj.dist; % deg
         div = sobj.div_zoom; % deg
         div_step = dim/div;

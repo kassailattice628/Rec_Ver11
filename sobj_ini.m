@@ -32,7 +32,7 @@ end
 sobj.pixpitch = pixpitch;
 sobj.MonitorDist = 250; % (mm) = distance from moniter to eye, => sobj.MonitorDist*tan(1*2*pi/360)/sobj.pixpitch (pixel/degree)
 sobj.stimsz = round(ones(1,2)*Deg2Pix(1,sobj.MonitorDist, pixpitch)); % default: 1 deg
-sobj.stimsz_deg_list = [0.5; 1; 3; 5; 10; 30; 50];%[0.5; 1; 3; 5; 10];
+sobj.stimsz_deg_list = [0.5; 1; 3; 5; 10; 20 ;30];%[0.5; 1; 3; 5; 10];
 
 sobj.shapelist = [{'FillRect'};{'FillOval'}];
 sobj.shape = 'FillOval'; % default Oval
