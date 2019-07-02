@@ -54,6 +54,10 @@ end
 
 %PsychDefaultSetup(2);
 % usage:: [sobj.wPtr, sobj.RECT] = Screen('OpenWindow', sobj.ScrNum,sobj.bgcol);
+
+%For macOS mojave < 
+Screen('Preference', 'SkipSyncTests', 1);
+
 [sobj.wPtr, sobj.RECT] = PsychImaging('OpenWindow', sobj.ScrNum, sobj.bgcol);
 
 % get center position in pix of stim monitor
