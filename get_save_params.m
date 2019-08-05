@@ -92,7 +92,16 @@ if get(figUIobj.stim,'value') && recobj.cycleNum > 0
             % Mogving direction and speed.
             save.stim1.MovebarSpd_deg_s = sobj.moveSpd_deg;
             save.stim1.MovebarDir_angle_deg = sobj.angle;
-             
+            
+        case 'StaticBar'
+            %Orientation, Bar length
+            save.stim1.BarOri_angle_deg = wrapTo360(sobj.angle*2)/2;
+            %bar legnth => sobj.stim_length
+            
+        case 'MoveSpot'
+            save.stim1.MovebarSpd_deg_s = sobj.moveSpd_deg;
+            save.stim1.MovebarDir_angle_deg = sobj.angle;
+            
         case {'Sin', 'Rect', 'Gabor'}
             % Sin, Rect, Gabor, Grating pramas
             save.stim1.gratingSF_cyc_deg = sobj.gratFreq;

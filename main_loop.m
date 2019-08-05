@@ -69,12 +69,22 @@ end
                     mkdir([recobj.dirname, 'Movie_', fname, num2str(recobj.savecount)]);
                 end
             end
+            
             dirname_movie = [recobj.dirname, 'Movie_', fname, num2str(recobj.savecount), '/'];
             logvid = VideoWriter([dirname_movie, 'mov_', num2str(recobj.cycleCount)], 'MPEG-4');
             logvid.FrameRate = imaq.frame_rate;
             logvid.Quality = 50;
+            
+            if strcmp(imaq.vid.LoggingMode, 'disk')
+                imaq.vid.DiskLogger = logvid;
+            end
+            
             if isrunning(imaq.vid) == 0
                 start(imaq.vid)
+            end
+            
+            if strcmp(imaq.vid.LoggingMode, 'disk')
+                trigger(imaq.vid);
             end
         end
         
@@ -116,26 +126,30 @@ end
             
             %%%%%%%%%%%%%%%%%%%% SAVE IMAQ %%%%%%%%%%%%%%%%%%%%%
             if SetCam && get(hGui.save, 'value')
-                disp('save movie')
-                [Img, timeStamp] = getdata(imaq.vid, imaq.vid.FramesAcquired);
-                open(logvid)
-                start_vid = tic;
-                for ii = 1:length(timeStamp)
-                    writeVideo(logvid, Img(:,:,:,ii))
+                if strcmp(imaq.vid.LoggingMode, 'disk')
+                    
+                else
+                    disp('save movie')
+                    [Img, timeStamp] = getdata(imaq.vid, imaq.vid.FramesAcquired);
+                    open(logvid)
+                    start_vid = tic;
+                    for ii = 1:length(timeStamp)
+                        writeVideo(logvid, Img(:,:,:,ii))
+                    end
+                    t_vid_save = toc(start_vid);
+                    close(logvid)
+                    disp('finish save movie')
+                    
+                    %ParamsSave{1, recobj.cycleCount}.Img = Img;
+                    clear Img
+                    %figure;
+                    %plot(timeStamp,'x');
+                    FPS = length(timeStamp)/(timeStamp(end)-timeStamp(1));
+                    disp(['actual FPS = ', num2str(FPS)]);
+                    
+                    flushdata(imaq.vid)
+                    clear logvid
                 end
-                t_vid_save = toc(start_vid);
-                close(logvid)
-                disp('finish save movie')
-                
-                %ParamsSave{1, recobj.cycleCount}.Img = Img;
-                clear Img
-                %figure;
-                %plot(timeStamp,'x');
-                FPS = length(timeStamp)/(timeStamp(end)-timeStamp(1));
-                disp(['actual FPS = ', num2str(FPS)]);
-                
-                flushdata(imaq.vid)
-                clear logvid
             end
             
             %%%%% loop interval %%%%%
@@ -350,6 +364,16 @@ elseif recobj.cycleNum > 0 %StimON
             pause_time = time1;
             %VisStimON;
             %VisStimOFF;
+            
+        case 'StaticBar'
+            StaticBar_stim;
+            VisStimOFF;
+            
+        case 'MoveSpot'
+            Movespot_stim;
+            stim_monitor_reset;
+            time1 = recobj.rect/1000 - (sobj.vbl_3 - sobj.vbl_1);
+            pause_time = time1;
             
         case 'Images'
             %Prep
@@ -808,6 +832,7 @@ end
     end
 %%
     function Movebar_stim
+        
         % get move direction
         angle_list = sobj.concentric_angle_deg_list';
         if get(figUIobj.shiftDir, 'value') < 9
@@ -963,6 +988,140 @@ end
         Screen('FillRect', sobj.wPtr, sobj.bgcol);
         [sobj.vbl_3, ~, ~, ~, sobj.BeamposOFF] =...
             Screen('Flip', sobj.wPtr, vbl);
+        
+        TriggerVSon(Testmode, dio,0)
+    end
+
+%% Static bar
+    function StaticBar_stim
+        
+        Set_stim_position
+        
+        %Bar orientation,,,,, direction actualy
+        angle_list = sobj.concentric_angle_deg_list';
+        if get(figUIobj.shiftDir, 'value') < 9
+            flag_rand_dir = 3;
+            angle_list = sobj.concentric_angle_deg_list(get(figUIobj.shiftDir, 'value'));
+        elseif get(figUIobj.shiftDir, 'value') == 9
+            flag_rand_dir = 2;
+        else
+            flag_rand_dir = 1;
+        end
+        
+        [sobj.angle, sobj.angle_index] = get_condition(5, angle_list, recobj.cycleNum,...
+            length(angle_list), flag_rand_dir, angle_list);
+        angle = -sobj.angle;
+        
+        %%% bar texture
+        bar_h = Deg2Pix(sobj.stim_length, sobj.MonitorDist, sobj.pixpitch);
+        bar_w = sobj.stim_size(1);
+        mat_bar = ones(round(bar_h), round(bar_w)) * sobj.stimlumi;
+        
+        %MakeTexture
+        im_tex = Screen('MakeTexture', sobj.wPtr, mat_bar, 0, 4);
+        
+        sRect = [1, bar_w; 1, bar_h];
+        tex_pos = [sobj.stim_center(1) - round(bar_w/2),...
+            sobj.stim_center(2) - round(bar_h/2),...
+            sobj.stim_center(1) + round(bar_w/2),...
+            sobj.stim_center(2) + round(bar_h/2)];
+            
+        
+        %%%%%%%%%% %%%%%%%%%% %%%%%%%%%%
+        %Stim ON
+        Screen('FillRect', sobj.wPtr, 255, [0 sobj.RECT(4)-40, 40 sobj.RECT(4)]);
+        %Screen('DrawTexture', sobj.wPtr, im_tex, sRect, tex_pos, angle);
+        Screen('DrawTexture', sobj.wPtr, im_tex, sRect, tex_pos, angle-90)
+        
+        % Flip and rap timer
+        [sobj.vbl_2, ~, ~, ~, sobj.BeamposON] = ...
+            Screen('Flip', sobj.wPtr, sobj.vbl_1 + sobj.delayPTB);% put some delay for PTB
+        TriggerVSon(Testmode, dio, 1)
+        stim_monitor;
+    end
+
+%% Moving Spot
+    function Movespot_stim
+        
+        Set_stim_position
+        
+        %moving direction
+        angle_list = sobj.concentric_angle_deg_list';
+        if get(figUIobj.shiftDir, 'value') < 9
+            flag_rand_dir = 3;
+            angle_list = sobj.concentric_angle_deg_list(get(figUIobj.shiftDir, 'value'));
+        elseif get(figUIobj.shiftDir, 'value') == 9
+            flag_rand_dir = 2;
+        else
+            flag_rand_dir = 1;
+        end
+        
+        [sobj.angle, sobj.angle_index] = get_condition(5, angle_list, recobj.cycleNum,...
+            length(angle_list), flag_rand_dir, angle_list);
+        angle = -sobj.angle;
+        
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        
+        %Moving speed (pix/sec)
+        moveSpd_pix = Deg2Pix(sobj.moveSpd_deg, sobj.MonitorDist, sobj.pixpitch);
+        
+        %Whole Travel Distance(pix) 
+        dist = Deg2Pix(str2double(get(figUIobj.dist, 'String')), sobj.MonitorDist, sobj.pixpitch);
+        
+        %set flip num
+        flipnum = round(sobj.moveDuration/sobj.m_int);
+        
+        topPriorityLevel = MaxPriority(sobj.wPtr);
+        Priority(topPriorityLevel);
+        
+        %initial center position
+        center_x = sobj.stim_center(1) + (dist/2*cos(angle + pi));
+        center_y = sobj.stim_center(2) + (dist/2*sin(angle + pi));
+        
+        %trabel distance per frame
+        %tF:Trans Factor, pix/sec * sec/frame => pix/frame
+        tF = moveSpd_pix * sobj.m_int;
+        
+        %Prep first frame
+        Rect = CenterRectOnPointd([0, 0, sobj.stim_size], round(center_x), round(center_y));
+        
+        %center_xy = zeros(flipnum, 2);
+        %center_xy(1,1) = center_x;
+        %center_xy(1,2) = center_y;
+        
+        Rect_ = zeros(flipnum, 4);
+        Rect_(1,:) = Rect;
+        for i = 2:flipnum
+            %center_xy(i,1) = center_xy(i-1, 1) + transFactor * transFactor * cos(sobj.angle+pi);
+            %center_xy(i,2) = center_xy(i-1, 2) + transFactor * sin(sobj.angle);
+            center_x = center_x + tF * cos(angle);
+            center_y = center_y + tF * sin(angle);
+            Rect_(i,:) = CenterRectOnPointd([0, 0, sobj.stim_size], center_x, center_y);
+        end
+        
+        %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+        % Draw Screen
+        Screen(sobj.shape, sobj.wPtr, sobj.stimcol, Rect);
+        Screen('FillRect', sobj.wPtr, 255, [0 sobj.RECT(4)-40, 40 sobj.RECT(4)]);
+        stim_monitor;
+        
+        %%% flip 1st frame %%%%%%%%%%%%%%%%%%%%
+        [sobj.vbl_2, ~, ~, ~, sobj.BeamposON] =...
+            Screen('Flip', sobj.wPtr, sobj.vbl_1 + sobj.delayPTB);% put some delay for PTB
+        TriggerVSon(Testmode, dio,1)
+        
+        %%% Draw flip
+        for i = 2:flipnum
+            Screen(sobj.shape, sobj.wPtr, sobj.stimcol, Rect_(i,:));
+            %Screen('FillRect', sobj.wPtr, 255, [0 0 40 40]);
+            Screen('FillRect', sobj.wPtr, 255, [0 sobj.RECT(4)-40, 40 sobj.RECT(4)]);
+            Screen('Flip', sobj.wPtr);
+        end
+        
+        %%% stim off %%%
+        Screen('FillRect', sobj.wPtr, sobj.bgcol);
+        [sobj.vbl_3, ~, ~, ~, sobj.BeamposOFF] =...
+            Screen('Flip', sobj.wPtr, sobj.vbl_1 + sobj.moveDuration);
         
         TriggerVSon(Testmode, dio,0)
     end
@@ -1260,6 +1419,17 @@ else % during stimulation
             
         case 'MoveBar'
             bgcol = 'c';
+            stim_str3 = ['Dir: ', num2str(sobj.angle)];%, '/Spd: ', num2str(sobj.moveSpd_deg)];
+            sobj.center_index = sobj.fixpos;
+            
+        case 'StaticBar'
+            bgcol = 'c';
+            bar_ori = wrapTo360(2 * sobj.angle)/2;
+            stim_str3 = ['Ori: ', num2str(bar_ori)];%, '/Spd: ', num2str(sobj.moveSpd_deg)];
+            sobj.center_index = sobj.fixpos;
+            
+        case 'MoveSpot'
+            bgcol = 'm';
             stim_str3 = ['Dir: ', num2str(sobj.angle)];%, '/Spd: ', num2str(sobj.moveSpd_deg)];
             sobj.center_index = sobj.fixpos;
             

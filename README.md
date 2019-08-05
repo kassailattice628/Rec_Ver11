@@ -172,13 +172,23 @@ AI 記録で実行されるイベントの，event handle.
 
 ---
 ### To Do
+New Stimlus
+1. Moving spot
+  * center pos, travel distance, moving direction, spot shape, spot size
+2. Static bar
+  * center pos, bar witdth, bar length, bar orientation 
+
+動画保存方法変更なんとか eye camera の保存を早くできないか
+* SSD drive に直接書き込みできるようにする？
+* 500 Hz をどう保証するか
+
 
 
 ---
 ## 刺激セットを追加・変更するとき
-gui_window.m 内，figUIobj.mode, figUIobj.pattern に内容を変更．＼
+gui_window.m 内，hGUI.mode, hGUIobj.pattern に内容を変更．＼
 
 main_loop.m > function VisStim > に GUI で追加した pattern を追加，内容を変更＼
-刺激に合わせて スクリプトを追加．
+刺激に合わせて スクリプトを追加．function ****_stim
 
-main_loop.m > finction stim_monitor をに追加した条件を追加．
+main_loop.m > finction stim_monitor 条件を追加．

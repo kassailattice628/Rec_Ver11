@@ -90,5 +90,28 @@ switch sobj.pattern
         recobj.rect = 100 * round(rect_in_sec);
         set(figUIobj.rect, 'String', recobj.rect);
         disp(['Recording Time:: ', num2str(recobj.rect), ' ms'])
+        
+    case 'MoveSpot'
+        
+        Spd_list = get(figUIobj.loomSpd, 'string');
+        %deg/sec
+        sobj.moveSpd_deg = str2double(Spd_list{get(figUIobj.loomSpd, 'Value'), 1});
+        %Speed, pix/sec
+        moveSpd_pix = Deg2Pix(sobj.moveSpd_deg, sobj.MonitorDist, sobj.pixpitch);
+        
+        %Travel Distance(pix)
+        dist = Deg2Pix(str2double(get(figUIobj.dist, 'String')), sobj.MonitorDist, sobj.pixpitch);
+        
+        %Duration (sec)
+        sobj.moveDuration = round(dist./moveSpd_pix);
+        
+        
+        sobj.stimsz = getStimSize(sobj.MonitorDist, figUIobj.size, sobj.pixpitch);
+        
+        %change recording duration
+        rect_in_sec = (sobj.moveDuration + 1) * 10; %add 1 sec
+        recobj.rect = 100 * round(rect_in_sec);
+        set(figUIobj.rect, 'String', recobj.rect);
+        disp(['Recordign Time:: ', num2str(recobj.rect), ' ms']);
 end
 end

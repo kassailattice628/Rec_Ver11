@@ -105,6 +105,7 @@ switch sobj.pattern
         end
         
     case {'MoveBar'}
+        %% Moving bar
         %Move angle
         [~, sobj.concentric_angle_deg_list, ~, ~] = get_concentric_position(1);
         
@@ -116,6 +117,31 @@ switch sobj.pattern
         % set size
         sobj.stim_size = sobj.stimsz;
         sobj.size_deg = str2double(get(figUIobj.size, 'String'));
+        
+    case 'StaticBar'
+        %Bar angle
+        [~, sobj.concentric_angle_deg_list, ~, ~] = get_concentric_position(1);
+        % set color / luminance
+        sobj.stimcol = sobj.stimlumi;
+        
+        % set size
+        sobj.stim_size = sobj.stimsz;
+        sobj.size_deg = str2double(get(figUIobj.size, 'String'));
+        
+        sobj.stim_length = str2double(get(figUIobj.dist, 'String'));
+
+    case 'MoveSpot'
+        %% Moving dot
+        %Move angle
+        [~, sobj.concentric_angle_deg_list, ~, ~] = get_concentric_position(1);
+        
+        % set color / luminance
+        sobj.stimcol = sobj.stimlumi;
+        
+        % set size
+        sobj.stim_size = sobj.stimsz;
+        sobj.size_deg = str2double(get(figUIobj.size, 'String'));
+        
         
     case {'Sin', 'Rect', 'Gabor'}
         %% Grating 

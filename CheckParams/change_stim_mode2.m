@@ -7,10 +7,10 @@ sobj.pattern = pattern_list{get(figUIobj.pattern, 'Value'),1};
 mode = get(figUIobj.mode, 'Value');
 
 %%
-key = {'div', 'dist', 'dir', 'dir2',   'shiftSpd', 'gratFreq',...
-    'loomSpd', 'loomSize', 'ImageNum', 'dots_density',...
-    'panel2', 'getPos', ...
-    'rect'};
+%rect = Recording Time
+
+key = {'div', 'dist', 'dir', 'dir2', 'shiftSpd', 'gratFreq',...
+    'loomSpd', 'loomSize', 'ImageNum', 'dots_density', 'panel2', 'getPos', 'rect'};
 
 
 %%
@@ -54,7 +54,7 @@ switch sobj.pattern
             
         end
         
-    case {'Sin', 'Rect', 'Gabor'};
+    case {'Sin', 'Rect', 'Gabor'}
         if mode ==  1 || mode ==  2 || mode == 4
             %div, dist, dir: OFF
             val = {'off', 'off', 'on', 'off',    'on', 'on',...
@@ -71,6 +71,24 @@ switch sobj.pattern
         end
         %div, dist: OFF, dir:  ON
         val = {'off', 'off', 'on', 'off',   'off', 'off',...
+            'on', 'off',   'off', 'off',   'off', 'off', 'y'};
+        
+    case 'StaticBar'
+        if mode ~= 4
+            %fixed center position
+            set(figUIobj.mode, 'Value', 4)
+        end
+        
+        val = {'off', 'on', 'on', 'off',   'off', 'off',...
+            'off', 'off',   'off', 'off',   'off', 'off', 'g'};
+        
+    case 'MoveSpot'
+        if mode ~= 4
+            %fixed center position
+            set(figUIobj.mode, 'Value', 4)
+        end
+        %distance, direction, speed
+        val = {'off', 'on', 'on', 'off',   'off', 'off',...
             'on', 'off',   'off', 'off',   'off', 'off', 'y'};
         
     case 'Images'
@@ -110,7 +128,7 @@ switch sobj.pattern
         
 end
 %%
-switch get(figUIobj.mode, 'Value');
+switch get(figUIobj.mode, 'Value')
     case {1, 2}
         set(figUIobj.fixpos, 'BackGroundColor', 'w');
     case 3
@@ -147,9 +165,9 @@ Set_fig_stim_color(map_list);
                 set(figUIobj.dist, 'Position', [60 155 40 25]);
                 
             case {'Sin', 'Rect', 'Gabor'}
-                set(figUIobj.div_zoom_txt, 'Position', [150 230 20 15]);
+                set(figUIobj.div_zoom_txt, 'Position', [150 230 30 15]);
                 set(figUIobj.div_zoom, 'Position', [150 205 40 25]);
-                set(figUIobj.dist_txt, 'Position', [150 185 20 15]);
+                set(figUIobj.dist_txt, 'Position', [150 185 30 15]);
                 set(figUIobj.dist, 'Position', [150 160 40 25]);
                 
             case 'Looming'
@@ -157,6 +175,15 @@ Set_fig_stim_color(map_list);
                 set(figUIobj.div_zoom, 'Position', [10 65 40 25]);
                 set(figUIobj.dist_txt, 'Position', [60 90 45 15]);
                 set(figUIobj.dist, 'Position', [60 65 40 25]);
+                
+            case 'StaticBar'
+                set(figUIobj.dist_txt, 'Position', [10 135 150 15]);
+                set(figUIobj.dist, 'Position', [10 110 40 25]);
+                
+            case 'MoveSpot'
+                set(figUIobj.dist_txt, 'Position', [10 90 150 15]);
+                set(figUIobj.dist, 'Position', [10 65 40 25]);
+               
                 
         end
     end
