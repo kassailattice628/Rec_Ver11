@@ -49,7 +49,7 @@ end
 %% Analog Output
 sOut = daq.createSession(dev.Vendor.ID);
 sOut.Rate = recobj.sampf;
-addAnalogOutputChannel(sOut, dev.ID, 0, 'Voltage');
+add Channel(sOut, dev.ID, 0, 'Voltage');
 %(1):
 %(2): Curretn Pulse (C clamp), Voltage Pulse (V clamp)
 addTriggerConnection(sOut,'External',[dev.ID,'/PFI0'],'StartTrigger');

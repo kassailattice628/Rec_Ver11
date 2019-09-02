@@ -48,17 +48,23 @@ end
 if UseCam
     imaqreset;
     imaq = imaq_ini(recobj);
+    
+    %make today folder for eye capture
+    dd = date;
+    if ~exist(['H:/',dd], 'dir')
+        mkdir(['H:/',dd])
+    end
+    recobj.vid_dirname = ['H:/',dd];
 end
 
 %% open Window PTB %%
 
 %PsychDefaultSetup(2);
 % usage:: [sobj.wPtr, sobj.RECT] = Screen('OpenWindow', sobj.ScrNum,sobj.bgcol);
+[sobj.wPtr, sobj.RECT] = PsychImaging('OpenWindow', sobj.ScrNum, sobj.bgcol);
 
 %For macOS mojave < 
-Screen('Preference', 'SkipSyncTests', 1);
-
-[sobj.wPtr, sobj.RECT] = PsychImaging('OpenWindow', sobj.ScrNum, sobj.bgcol);
+%Screen('Preference', 'SkipSyncTests', 1);
 
 % get center position in pix of stim monitor
 [sobj.ScrCenterX, sobj.ScrCenterY] = RectCenter(sobj.RECT);

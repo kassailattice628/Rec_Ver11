@@ -59,21 +59,21 @@ end
 %% %%%%%%%%%%%% nested functions %%%%%%%%%%%%%%
 %%
     function Loop_contents(dio, hGui, Testmode, SetCam)
-        persistent fname
+        %persistent fname
         
         %% ready to start USB Cam
         if SetCam && get(hGui.save, 'value')
-            if recobj.cycleCount == 1
-                [~, fname] = fileparts([recobj.dirname, recobj.fname]);
-                if exist([recobj.dirname, 'Movie_', fname, num2str(recobj.savecount)], 'dir') == 0
-                    mkdir([recobj.dirname, 'Movie_', fname, num2str(recobj.savecount)]);
-                end
+            [~, fname] = fileparts([recobj.dirname, recobj.fname]);
+            dirname_vid = [recobj.vid_dirname, '/Movie_', fname, num2str(recobj.savecount)];
+            
+            if recobj.cycleCount == 1 && exist(dirname_vid, 'dir') == 0
+                mkdir(dirname_vid)
             end
             
-            dirname_movie = [recobj.dirname, 'Movie_', fname, num2str(recobj.savecount), '/'];
-            logvid = VideoWriter([dirname_movie, 'mov_', num2str(recobj.cycleCount)], 'MPEG-4');
+            
+            logvid = VideoWriter([dirname_vid, '/mov_', num2str(recobj.cycleCount, '%03u')], 'Grayscale AVI');
             logvid.FrameRate = imaq.frame_rate;
-            logvid.Quality = 50;
+            %logvid.Quality = 50;
             
             if strcmp(imaq.vid.LoggingMode, 'disk')
                 imaq.vid.DiskLogger = logvid;
@@ -82,10 +82,11 @@ end
             if isrunning(imaq.vid) == 0
                 start(imaq.vid)
             end
-            
+            %{
             if strcmp(imaq.vid.LoggingMode, 'disk')
                 trigger(imaq.vid);
             end
+            %}
         end
         
         %% ready to start DAQ
@@ -127,7 +128,8 @@ end
             %%%%%%%%%%%%%%%%%%%% SAVE IMAQ %%%%%%%%%%%%%%%%%%%%%
             if SetCam && get(hGui.save, 'value')
                 if strcmp(imaq.vid.LoggingMode, 'disk')
-                    
+                    disp('save movie')
+                    stop(imaq.vid)
                 else
                     disp('save movie')
                     [Img, timeStamp] = getdata(imaq.vid, imaq.vid.FramesAcquired);
@@ -193,7 +195,7 @@ end
                 stop(imaq.vid)
                 disp('stop imaq.')
             end
-            %delete(imaq.vid)
+            
         end
         
         %%%%%% Save Data %%%%%%
@@ -226,20 +228,25 @@ end
 %%% subfunctions %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%
-function Trigger_Rec(Testmode, UseCam, dio)
+function Trigger_Rec(Testmode, ~, dio) %Trigger_Rec(Testmode, UseCam, dio)
+
 % put TTL signal and start timer
 
 global recobj
 global sobj
-global imaq
+%global imaq
 
 %start timer & Trigger AI & FV
 Screen('FillRect', sobj.wPtr, sobj.bgcol); %prepare background
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-if UseCam && isrunning(imaq.vid)
-    trigger(imaq.vid)
-end
+
+%Now use External trigger
+% if UseCam && isrunning(imaq.vid)
+%     trigger(imaq.vid)
+% end
+
+
 % timer start, digital out
 if recobj.cycleNum == -recobj.prestim +1
     %background ScreenON;

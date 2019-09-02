@@ -313,7 +313,10 @@ end
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 if SetCam == 1
     imaq = imaq_ini(recobj);
-    %imaq.vid.FramesPerTrigger = (recobj.rect/1000 * imaq.frame_rate)-10; 
+    rec_time = sobj.duration + 2;
+    imaq.vid.FramesPerTrigger = rec_time * imaq.frame_rate;
+    disp('Camera frame rate: ', num2str(imaq.frame_rate), 'Hz');
+
 end
 
 %% figures

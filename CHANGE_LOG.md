@@ -1,4 +1,8 @@
 # Change_log
+##11.5.5 - 190902
+Eye Camera ように Grasshopper3 を追加購入．
+各トライアルごとに Video file を保存できるようにした．
+
 ## 11.5.4-m3 - 170510
 1. pupil size を記録するため，AI チャネルを増やす @daq_ini.mat．
 2. Rotary encoder が 1 列後ろにずれるので，GUI の plot を変更．@dataCaptureNBA.m
