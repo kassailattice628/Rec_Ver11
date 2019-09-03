@@ -1,6 +1,7 @@
 function imaq = imaq_ini(varargin)
 
 recobj = varargin{1};
+position = varargin{2};
 
 
 %imaq.vid = videoinput( 'pointgrey' , 1, 'F7_Raw8_640x512_Mode1');
@@ -26,8 +27,8 @@ triggerconfig(imaq.vid, 'hardware', 'risingEdge', 'externalTriggerMode0-Source0'
 %triggerconfig(vid, 'hardware' , 'risingEdge', 'externalTriggerMode0-Source0' );
 
 %Important #GUI ‚Å Full size image ‚©‚ç‘I‚×‚é‚æ‚¤‚É‚Å‚«‚é‚Æ—Ç‚¢
-%imaq.vid.ROIPosition = [792 194 416 370];
-imaq.vid.ROIPosition = [396 86 192 168];
+imaq.vid.ROIPosition = position;
+%imaq.vid.ROIPosition = [380 174 192 168];
 
 %imaq.src.Brightness = 0.635;
 imaq.src.Exposure = 1.358;

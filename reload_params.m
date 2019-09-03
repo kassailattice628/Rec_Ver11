@@ -315,7 +315,8 @@ if SetCam == 1
     imaq = imaq_ini(recobj);
     rec_time = sobj.duration + 2;
     imaq.vid.FramesPerTrigger = rec_time * imaq.frame_rate;
-    disp('Camera frame rate: ', num2str(imaq.frame_rate), 'Hz');
+    disp(['Camera frame rate: ', num2str(imaq.frame_rate), 'Hz']);
+    disp(['Video duratio: ', num2str(rec_time)]);
 
 end
 

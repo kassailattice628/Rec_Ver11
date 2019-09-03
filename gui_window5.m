@@ -357,14 +357,14 @@ switch UseCam
         uicontrol('Style', 'text', 'Position', [410 290 200 30],...
             'String', 'Imaq Camera is not used.', 'FontSize', 12);
     case 1
-        hGui.setCam = uicontrol('Style', 'togglebutton', 'Position', [410 290 50 30],...
-            'String', 'ON', 'Callback', {@ch_ButtonColor, 'g'},'FontSize', 13);
+        hGui.setCam = uicontrol('Style', 'togglebutton', 'Position', [410 290 70 30],...
+            'String', 'Save', 'Callback', {@ch_ButtonColor, 'g'},'FontSize', 13);
         
-        hGui.imaqPrev = uicontrol('Style', 'togglebutton', 'Position', [470 290 100 30],...
+        hGui.imaqPrev = uicontrol('Style', 'togglebutton', 'Position', [490 290 100 30],...
             'String', 'Preview', 'Callback', @Cam_Preview,'FontSize', 13);
         
-        %hGui.saveCam = uicontrol('Style', 'togglebutton', 'Position', [410 250 120 30],...
-        %   'String', 'Disk', 'Callback', {@ch_saveCam}, 'FontSize', 13);
+        hGui.setCamROI = uicontrol('Style', 'togglebutton', 'Position', [600 290 100 30],...
+            'String', 'Reset ROI', 'Callback', @Cam_SetROI,'FontSize', 13);
         
         
 end
@@ -758,19 +758,14 @@ ch_ButtonColor(hObject, [], 'g')
 end
 
 %%
-%{
-function ch_saveCam(hObject, ~)
-global recobj
+function Cam_SetROI(~, ~)
 global imaq
-if get(hObject, 'value')
-    set(hObject ,'String', 'memory');
-    imaq = imaq_ini(recobj, 1);
-elseif get(hObject, 'value')==0
-    set(hObject ,'String', 'disk');
-    imaq = imaq_ini(recobj, 0);
-end
-end
-%}
+global recobj
+SetImgROI;
+imaqreset;
+imaq = imaq_ini(recobj, imaq.roi_position);
+
+end 
 
 %%%%%%%%%%%%% save setting %%%%%%%%%%%%%%
 %%

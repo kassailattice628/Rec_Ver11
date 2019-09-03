@@ -15,6 +15,7 @@ function OpenNBA
 % adding path for sub functions.
 addpath('CheckParams')
 addpath('ComFunc')
+addpath('Camera')
 
 % open GUI
 h.fig = figure(6);
@@ -73,6 +74,7 @@ if get(hObject, 'value') == 0
     end
 end
 ch_ButtonColor(hObject, [], 'g')
+
 end
 
 %%
@@ -91,6 +93,9 @@ if get(hObject, 'value')
     end
 end
 ch_ButtonColor(hObject, [], 'g')
+
+%Preview & Set ROI
+SetImgROI;
 end
 
 %%

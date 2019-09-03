@@ -1,7 +1,11 @@
 # Change_log
+##11.5.6 - 190903
+ROI のポジションを interactive に変更できるようにした．
+
 ##11.5.5 - 190902
 Eye Camera ように Grasshopper3 を追加購入．
 各トライアルごとに Video file を保存できるようにした．
+カメラは NI start の trigger と同期する．
 
 ## 11.5.4-m3 - 170510
 1. pupil size を記録するため，AI チャネルを増やす @daq_ini.mat．

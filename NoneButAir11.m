@@ -47,14 +47,16 @@ end
 %% Initialize IMAQ params
 if UseCam
     imaqreset;
-    imaq = imaq_ini(recobj);
+    imaq = imaq_ini(recobj, imaq.roi_position);
     
     %make today folder for eye capture
     dd = date;
-    if ~exist(['H:/',dd], 'dir')
-        mkdir(['H:/',dd])
+    dir_name = ['F:/Users/lattice/Documents/EyeTracking/',dd];
+    %dir_name = ['H:/',dd];
+    if ~exist(dir_name, 'dir')
+        mkdir(dir_name) 
     end
-    recobj.vid_dirname = ['H:/',dd];
+    recobj.vid_dirname = dir_name;
 end
 
 %% open Window PTB %%
