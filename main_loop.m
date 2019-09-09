@@ -70,9 +70,10 @@ end
                 mkdir(dirname_vid)
             end
             
-            
-            logvid = VideoWriter([dirname_vid, '/mov_', num2str(recobj.cycleCount, '%03u')], 'Grayscale AVI');
+            mov_type = 'MPEG-4'; %'Grayscale AVI' mpeg4 ÇÃï˚Ç™à≥èkó¶Ç™çÇÇ¢ÅH
+            logvid = VideoWriter([dirname_vid, '/mov_', num2str(recobj.cycleCount, '%03u')], mov_type);
             logvid.FrameRate = imaq.frame_rate;
+            %Ç∆ÇËÇ†Ç¶Ç∏ 100% quality Ç≈ãLò^
             %logvid.Quality = 50;
             
             if strcmp(imaq.vid.LoggingMode, 'disk')
