@@ -31,6 +31,15 @@ recobj = recobj_ini(Recmode);
 % cycle number counter set 0
 recobj.cycleNum = 0 - recobj.prestim; %loop cycle number
 
+%% Create DataFolder
+%make today folder for eye capture
+dd = char(datetime('now', 'Format', 'yyMMdd'));
+dir_name1 = ['C:/Users/lattice/Desktop/data/',dd, 'mat'];
+if ~exist(dir_name1, 'dir')
+    mkdir(dir_name1)
+end
+recobj.save_dirname = dir_name1;
+
 %% Initialize Stimulus params
 % monitor dependent prameter (DeLL 19-inch)
 pixpitch = 0.264;%(mm)
@@ -50,13 +59,13 @@ if UseCam
     imaq = imaq_ini(recobj, imaq.roi_position);
     
     %make today folder for eye capture
-    dd = date;
-    dir_name = ['F:/Users/lattice/Documents/EyeTracking/',dd];
+    %dd = char(datetime('now', 'Format', 'yyMMdd'));
+    dir_name2 = ['F:/Users/lattice/Documents/EyeTracking/',dd, 'EyeMov'];
     %dir_name = ['H:/',dd];
-    if ~exist(dir_name, 'dir')
-        mkdir(dir_name) 
+    if ~exist(dir_name2, 'dir')
+        mkdir(dir_name2) 
     end
-    recobj.vid_dirname = dir_name;
+    recobj.vid_dirname = dir_name2;
 end
 
 %% open Window PTB %%

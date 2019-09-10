@@ -773,10 +773,11 @@ function SelectSaveFile(~, ~)
 global recobj
 
 if isfield(recobj, 'dirname') == 0 % 1st time to define filename
-    [recobj.fname, recobj.dirname] = uiputfile('*.mat');
+    dirname1 = recobj.save_dirname;
+    [recobj.fname, recobj.dirname] = uiputfile([dirname1,'/*.mat']);
 else %open the same folder when any foder was selected previously.
     if recobj.dirname == 0
-        recobj.dirname = pwd;
+        recobj.dirname = recobj.save_dirname;
     else
         [recobj.fname, recobj.dirname] = uiputfile('*.mat', 'Select File to Write', recobj.dirname);
     end
