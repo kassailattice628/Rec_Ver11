@@ -244,9 +244,9 @@ if Testmode == 0
     sOut.Rate = recobj.sampf;
     
     if strcmp(sobj.pattern, 'MouseCursor')
-        s.NotifyWhenDataAvailableExceeds = round(recobj.recp/75);
+        s.NotifyWhenDataAvailableExceeds = round(recobj.sampf/100);
     else
-        s.NotifyWhenDataAvailableExceeds = round(recobj.recp/10);
+        s.NotifyWhenDataAvailableExceeds = round(recobj.sampf/10);
     end
     
     %%%%%% data capture settings %%%%%%
