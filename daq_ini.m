@@ -10,10 +10,9 @@ dev = daq.getDevices;
 s = daq.createSession(dev.Vendor.ID);
 
 s.Rate = recobj.sampf;
-s.DurationInSeconds = recobj.rect/1000;%sec
+s.DurationInSeconds = recobj.rect/1000; %when AO channel is set, s.DurationInSeconds is replaced with 's.scansqued/s.rate'.
 
-%when AO channel is set, s.DurationInSeconds is replaced with 's.scansqued/s.rate'.
-%s.NotifyWhenDataAvailableExceeds = recobj.recp; %10 times/sec in default
+%s.NotifyWhenDataAvailableExceeds = %10 times/sec in default
 s.IsContinuous = true;
 
 if Recmode == 1
@@ -49,7 +48,7 @@ end
 %% Analog Output
 sOut = daq.createSession(dev.Vendor.ID);
 sOut.Rate = recobj.sampf;
-add Channel(sOut, dev.ID, 0, 'Voltage');
+addAnalogOutputChannel(sOut, dev.ID, 0, 'Voltage');
 %(1):
 %(2): Curretn Pulse (C clamp), Voltage Pulse (V clamp)
 addTriggerConnection(sOut,'External',[dev.ID,'/PFI0'],'StartTrigger');

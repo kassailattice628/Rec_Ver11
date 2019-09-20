@@ -2,20 +2,14 @@ function main_loop(hObject, ~, hGui, Testmode, Recmode)
 % Main loop structure and subfunctions for GUI setting and visual stimuli
 
 %% call global vars
-global sobj
-global recobj
+global sobj recobj
 
-global s
-global sOut
-
-global dio
+global s sOut dio lh
 
 global imaq
 
-global lh
-
-global DataSave % save
-global ParamsSave % save
+%Save
+global DataSave ParamsSave DataCursor
 
 %%
 if isfield(hGui, 'setCam')
@@ -83,11 +77,6 @@ end
             if isrunning(imaq.vid) == 0
                 start(imaq.vid)
             end
-            %{
-            if strcmp(imaq.vid.LoggingMode, 'disk')
-                trigger(imaq.vid);
-            end
-            %}
         end
         
         %% ready to start DAQ
@@ -115,7 +104,7 @@ end
                     % loop interval %
                     pause(recobj.rect/1000);
                     
-                    %%%%%%%%%%%%%%%%%%%% Visual Stimulus ON %%%%%%%%%%%%%%%%%%%%%
+                %%%%%%%%%%%%%%%%%%%% Visual Stimulus ON %%%%%%%%%%%%%%%%%%%%%
                 case 1
                     % start timer, start FV and start Visu Stim
                     VisStim(Testmode, SetCam, dio);
@@ -131,27 +120,6 @@ end
                 if strcmp(imaq.vid.LoggingMode, 'disk')
                     disp('save movie')
                     stop(imaq.vid)
-                else
-                    disp('save movie')
-                    [Img, timeStamp] = getdata(imaq.vid, imaq.vid.FramesAcquired);
-                    open(logvid)
-                    start_vid = tic;
-                    for ii = 1:length(timeStamp)
-                        writeVideo(logvid, Img(:,:,:,ii))
-                    end
-                    t_vid_save = toc(start_vid);
-                    close(logvid)
-                    disp('finish save movie')
-                    
-                    %ParamsSave{1, recobj.cycleCount}.Img = Img;
-                    clear Img
-                    %figure;
-                    %plot(timeStamp,'x');
-                    FPS = length(timeStamp)/(timeStamp(end)-timeStamp(1));
-                    disp(['actual FPS = ', num2str(FPS)]);
-                    
-                    flushdata(imaq.vid)
-                    clear logvid
                 end
             end
             
@@ -167,7 +135,7 @@ end
             Screen('CloseAll');
             rethrow(ME1);
         end
-    end
+    end %Loop_Contentes
 
 %%
     function Loop_Off
@@ -202,7 +170,7 @@ end
         %%%%%% Save Data %%%%%%
         if get(hGui.save, 'value')
             if Testmode == 0
-                save(recobj.savefilename, 'DataSave', 'ParamsSave', 'recobj', 'sobj');
+                save(recobj.savefilename, 'DataCursor', 'DataSave', 'ParamsSave', 'recobj', 'sobj');
             else
                 save(recobj.savefilename, 'ParamsSave', 'recobj', 'sobj');
             end
@@ -215,44 +183,44 @@ end
         % clear save data from memory
         DataSave = [];
         ParamsSave = [];
+        DataCursor = [];
         
         disp(':::Loop-Out:::');
         
         %reset all triggers
         ResetTTLall(Testmode, dio, sobj);
-    end
+    end %Loop-off
 
-end
+end %main_loop
 
-%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+
+
+
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%% subfunctions %%%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%
 function Trigger_Rec(Testmode, ~, dio) %Trigger_Rec(Testmode, UseCam, dio)
 
 % put TTL signal and start timer
-
-global recobj
-global sobj
-%global imaq
+global recobj sobj %imaq
 
 %start timer & Trigger AI & FV
 Screen('FillRect', sobj.wPtr, sobj.bgcol); %prepare background
 
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%Now use External trigger
+%Now useing External trigger
 % if UseCam && isrunning(imaq.vid)
 %     trigger(imaq.vid)
 % end
 
-
 % timer start, digital out
-if recobj.cycleNum == -recobj.prestim +1
+if recobj.cycleNum == -recobj.prestim + 1
     %background ScreenON;
     [sobj.vbl_1, sobj.onset, sobj.flipend] = Screen('Flip', sobj.wPtr);
-    generate_trigger([1,1]); % Start AI & FV
+    
+    % Start AI & FV
+    generate_trigger([1,1]); 
     disp('Timer Start')
     recobj.t_START = tic;
     recobj.t_AIstart = 0;
@@ -268,12 +236,13 @@ end
 %reset Trigger level
 generate_trigger([0,0]);
 
-%%nested%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
     function generate_trigger(pattern)
         if Testmode == 0
             outputSingleScan(dio.TrigAIFV, pattern)
         end
     end
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 end
 
 %%
@@ -398,6 +367,10 @@ elseif recobj.cycleNum > 0 %StimON
         case 'FineMap'
             %Prep
             Fine_Mapping;
+            VisStimON;
+            VisStimOFF;
+            
+        case 'MouseCursor'
             VisStimON;
             VisStimOFF;
     end
@@ -626,7 +599,7 @@ end
         stim_monitor_reset;
     end
 
-%%%% function for Conc_2P
+%% function for Conc_2P
     function Flip_Conc2(Stim1, Stim2, Both_Stim1_Stim2, type)
         switch type
             case 1
@@ -670,7 +643,7 @@ end
 %%
     function Looming
         % Looming parameters
-        
+
         Set_stim_position;
         
         % Spd
@@ -838,9 +811,10 @@ end
             
         end
     end
-%%
+
+%% Moving Bar
     function Movebar_stim
-        
+
         % get move direction
         angle_list = sobj.concentric_angle_deg_list';
         if get(figUIobj.shiftDir, 'value') < 9
@@ -942,7 +916,8 @@ end
         tex_pos = zeros(flipnum, 4);
         
         sRect = [1, bar_w; 1, bar_h];
-        %%
+        
+        %%%%%%%
         for i = 1:flipnum
             %xmove = start position + flip# * transfer factor (=trasFactor)
             %tex_pos(i,:) is the texture position of i_th frame.
@@ -1000,7 +975,7 @@ end
         TriggerVSon(Testmode, dio,0)
     end
 
-%% Static bar
+%% Static Bar
     function StaticBar_stim
         
         Set_stim_position
@@ -1247,6 +1222,10 @@ end
         
     end
 
+%% Freehand Mouse Cursor
+%     function Stim_MouseCursor
+%     end
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %%
     function Set_stim_position
@@ -1385,8 +1364,7 @@ end
 end
 
 
-%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % sub functions %
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%
@@ -1453,26 +1431,37 @@ else % during stimulation
             bgcol = 'm';
             stim_str3 = ['FinePos: ', num2str(sobj.center_index_FineMap),...
                 '/', num2str(sobj.div_zoom^2)];
+            
+        case 'MouseCursor'
+            bgcol = 'w';
+            stim_str3 = 'Mouse Cursor';
+            sobj.center_index = 0;
     end
-    %%% STR1: stim pattern & cycle num
-    set(figUIobj.StimMonitor1, 'String', [sobj.pattern, ': #', num2str(recobj.cycleNum)], 'BackGroundColor',bgcol);
-    
-    %%% STR2: stim position / stim spd (for MoveBar)
+
+    %%%
     switch sobj.mode
         case 'Concentric'
             stim_str2 = ['Dist:',num2str(sobj.concentric_mat_deg(sobj.conc_index,1)),...
                 '/Ang:', num2str(sobj.concentric_mat_deg(sobj.conc_index,2))];
-            set(figUIobj.StimMonitor2, 'String', stim_str2, 'ForeGroundColor', 'k', 'BackGroundColor', bgcol);
             
         otherwise
-            if strcmp(sobj.pattern,'MoveBar')
-                
-                set(figUIobj.StimMonitor2, 'String',['Spd: ', num2str(sobj.moveSpd_deg), ' deg/s'], 'ForeGroundColor', 'k', 'BackGroundColor', bgcol);
-            else
-                
-                set(figUIobj.StimMonitor2, 'String',['POS: ',num2str(sobj.center_index), '/',num2str(sobj.divnum^2)], 'ForeGroundColor', 'k', 'BackGroundColor', bgcol);
+            switch sobj.pattern
+                case 'MoveBar'
+                    stim_str2 = ['Spd: ', num2str(sobj.moveSpd_deg), ' deg/s'];
+                case 'MouseCursor'
+                    stim_str2 = [];
+                otherwise
+                    stim_str2 = ['POS: ',num2str(sobj.center_index), '/',num2str(sobj.divnum^2)];
             end
+            
     end
+    
+    %%% STR1: stim pattern & cycle num
+    set(figUIobj.StimMonitor1, 'String', [sobj.pattern, ': #', num2str(recobj.cycleNum)], 'BackGroundColor', bgcol);
+    
+    %%% STR2: stim position / stim spd (for MoveBar)
+    set(figUIobj.StimMonitor2, 'String', stim_str2, 'ForeGroundColor', 'k', 'BackGroundColor', bgcol);
+    
     %%% STR3: stim properties
     set(figUIobj.StimMonitor3, 'String', stim_str3, 'BackGroundColor', bgcol);
 end

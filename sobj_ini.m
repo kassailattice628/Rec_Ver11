@@ -2,7 +2,7 @@ function [sobj, GUI_Display_x] = sobj_ini(pixpitch)
 % initialize sobj (PTB parameters)
 
 % get monitor information
-MP = get(0,'MonitorPosition'); %position matrix for malti monitors
+sobj.MP = get(0,'MonitorPosition'); %position matrix for malti monitors
 sobj.screens = Screen('Screens');
 
 % the number of displays connected
@@ -20,7 +20,7 @@ sobj.ScrNum = max(sobj.screens);
 %% Set horizontal cordinate for GUI Controler
 if sobj.Num_screens > 1
     if sobj.ScrNum == 0
-        GUI_Display_x = MP(3) + 1;
+        GUI_Display_x = sobj.MP(3) + 1;
     else
         GUI_Display_x = 0;
     end

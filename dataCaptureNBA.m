@@ -1,6 +1,7 @@
-function dataCaptureNBA(src, event, c, hGui, Recmode, SetCam)
-%dataCapture Process DAQ acquired data when called by DataAvailable event.
-%  dataCapture (SRC, EVENT, C, HGUI) processes latest acquired data (EVENT.DATA)
+function dataCaptureNBA(src, event, c, hGui, Recmode)
+%dataCaptureNBA
+%  Process DAQ acquired data when called by DataAvailable event.
+%  dataCapture (SRC, EVENT, C, HGUI, RECMODE) processes latest acquired data (EVENT.DATA)
 %  and timestamps (EVENT.TIMESTAMPS) from session (SRC), and, based on specified
 %  capture parameters (C structure) and trigger configuration parameters from
 %  the user interface elements (HGUI handles structure), updates UI plots
@@ -17,17 +18,13 @@ function dataCaptureNBA(src, event, c, hGui, Recmode, SetCam)
 % capture, a trigger condition flag (trigActive) and a corresponding
 % data timestamp (trigMoment) are used as persistent variables.
 % Persistent variables retain their values between calls to the function.
+
 %%
-global plotUIobj
-global recobj
-global sobj
-global DataSave
-global ParamsSave
+global plotUIobj recobj sobj DataSave ParamsSave DataCursor
 
+% keep parameter during loop
+persistent dataBuffer trigActive trigMoment trigCount MouseEvent
 
-
-%% keep parameter during loop
-persistent dataBuffer trigActive trigMoment trigCount
 %%
 % If dataCapture is running for the first time, initialize persistent vars
 if event.TimeStamps(1)==0
@@ -81,6 +78,9 @@ if captureRequested && (~trigActive)
     trigConfig.Channel = 4; %Trigger monitor
     trigConfig.Level = 3; %(V) Trigger threshold
     % Determine whether trigger condition is met in the latest acquired data
+    
+    MouseEvent.XY =[];
+    MouseEvent.Time = [];
     [trigActive, trigMoment] = trigDetectNBA(latestData, trigConfig);
     
 elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) > c.TimeSpan)
@@ -145,17 +145,21 @@ elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) > c.Tim
     %%%%%% save setting %%%%%%
     if get(hGui.save, 'value') == 1 % Saving
         ParamsSave{1, trigCount} = get_save_params(0, recobj, sobj, captureData);
-        %captureData(:,[1,5]) are time and live(triggers) and do not need
-        %to save. (7 = end = rotary encoder)
+        %captureData(:,[1,5]) are time and live(triggers) and do not need to save. (7 = end = rotary encoder)
         DataSave(:, :, trigCount) = captureData(:,[2,3,4,6,7]);
+        DataCursor{1, trigCount} = MouseEvent;
     end
     
-    %%%%%% save imaq %%%%%
-    if SetCam
-    end
     
 elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) < c.TimeSpan)
-    %disp('data short ')
+    
+    %Get current mouse position
+    p = get(0, 'PointerLocation');
+    t = toc(recobj.t_START);
+    %Add new data
+    MouseEvent.XY = [MouseEvent.XY; p];
+    MouseEvent.Time = [MouseEvent.Time; t];
+    
 elseif ~captureRequested
     % State: "Loop Out"
     trigActive = false;

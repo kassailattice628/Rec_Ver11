@@ -2,24 +2,9 @@ function reload_params(~, ~, Testmode, Recmode, SetCam)
 % reload all paraemter and settings before start loop.
 
 %% call global vars
-global sobj
-global recobj
+global sobj recobj figUIobj plotUIobj s sOut dio capture lh imaq
 
-global figUIobj
-global plotUIobj
-
-global s
-global sOut
-
-global dio
-
-global capture
-global lh
-
-global DataSave
-global ParamsSave
-
-global imaq
+global DataSave ParamsSave DataCursor
 
 %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -69,25 +54,20 @@ sobj.delayPTB = sobj.delayPTBflip*sobj.m_int;
 
 sobj.size_pix_list = repmat(round(Deg2Pix(sobj.stimsz_deg_list, sobj.MonitorDist, sobj.pixpitch)), 1, 2);
 
-if get(figUIobj.auto_size, 'Value') == 1
-    %set(figUIobj.auto_size, 'Value',0, 'string', 'Auto OFF')
-else
+if ~(get(figUIobj.auto_size, 'Value') == 1)
     sobj.stimsz = getStimSize(sobj.MonitorDist, figUIobj.size, sobj.pixpitch);
-    
 end
 
 %% Stim specific parameters.
 mode =  get(figUIobj.mode, 'Value');
 switch sobj.pattern
     case {'Uni', 'Size_rand', 'Looming'}
-        %%
         if mode ==  3
             [sobj.concentric_dist_deg_list, sobj.concentric_angle_deg_list,...
                 sobj.concentric_mat, sobj.concentric_mat_deg] = get_concentric_position(1);
         end
         
     case {'2P', 'B/W'}
-        %%
         %Position
         [sobj.concentric_dist_deg_list, sobj.concentric_angle_deg_list,...
             sobj.concentric_mat, sobj.concentric_mat_deg] = get_concentric_position(1);
@@ -95,7 +75,7 @@ switch sobj.pattern
         % Set stim size, size(fix)
         sobj.stim_size = sobj.stimsz;
         sobj.size_deg = str2double(get(figUIobj.size, 'String'));
-                
+        
         sobj.stim_size2 = sobj.stimsz2;
         sobj.size_deg2 = str2double(get(figUIobj.size2, 'String'));
         %%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -105,7 +85,6 @@ switch sobj.pattern
         end
         
     case {'MoveBar'}
-        %% Moving bar
         %Move angle
         [~, sobj.concentric_angle_deg_list, ~, ~] = get_concentric_position(1);
         
@@ -129,9 +108,8 @@ switch sobj.pattern
         sobj.size_deg = str2double(get(figUIobj.size, 'String'));
         
         sobj.stim_length = str2double(get(figUIobj.dist, 'String'));
-
+        
     case 'MoveSpot'
-        %% Moving dot
         %Move angle
         [~, sobj.concentric_angle_deg_list, ~, ~] = get_concentric_position(1);
         
@@ -144,7 +122,6 @@ switch sobj.pattern
         
         
     case {'Sin', 'Rect', 'Gabor'}
-        %% Grating 
         %Position
         if mode ==  3
             [sobj.concentric_dist_deg_list, sobj.concentric_angle_deg_list,...
@@ -165,7 +142,6 @@ switch sobj.pattern
         end
         
     case 'Images'
-        %% Select Image Set
         
         sobj.img_list = randperm(256);
         sobj.ImageNum = re_write(figUIobj.ImageNum);
@@ -178,7 +154,6 @@ switch sobj.pattern
         end
         
     case 'Mosaic'
-        %% Multi dots
         rng('shuffle');
         sobj.int_seed = randperm(1000);
         sobj.stim_size = sobj.stimsz;
@@ -194,7 +169,6 @@ switch sobj.pattern
         sobj.num_dots = round(numAllDots * sobj.dots_density/100);
         
     case 'FineMap'
-        %% Get small area for fine mapping
         FineMapArea_deg = [0, 0, sobj.dist, sobj.dist]; % deg
         FineMapArea = Deg2Pix(FineMapArea_deg, sobj.MonitorDist, sobj.pixpitch);
         
@@ -206,9 +180,13 @@ switch sobj.pattern
         
         sobj.center_pos_list_FineMap = get_stim_center_mat(RECT, sobj.div_zoom);
         
+    case 'MouseCursor'
+        sobj.stim_center = [0,0];
+        sobj.size_deg = 0;
+        sobj.stim_size = [0,0];
 end
 
-%% stim 2 
+%% stim 2
 sobj.shape2 = sobj.shapelist{get(figUIobj.shape2, 'Value'), 1};
 sobj.stimlumi2 = re_write(figUIobj.stimlumi2);
 sobj.stimcol2 = sobj.stimlumi2 * sobj.stimRGB;
@@ -221,8 +199,7 @@ sobj.delayPTB2 = sobj.delayPTBflip2*sobj.m_int;
 
 sobj.stimsz2 = getStimSize(sobj.MonitorDist,figUIobj.size2, sobj.pixpitch);
 
-%%
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %%%%%%% NIDAQ Recording %%
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -266,6 +243,12 @@ if Testmode == 0
     s.Rate = recobj.sampf;
     sOut.Rate = recobj.sampf;
     
+    if strcmp(sobj.pattern, 'MouseCursor')
+        s.NotifyWhenDataAvailableExceeds = round(recobj.recp/75);
+    else
+        s.NotifyWhenDataAvailableExceeds = round(recobj.recp/10);
+    end
+    
     %%%%%% data capture settings %%%%%%
     % Specify triggered capture timespan, in seconds
     capture.TimeSpan = recobj.rect/1000;% sec
@@ -283,11 +266,16 @@ if Testmode == 0
     % Determine data buffer size
     capture.bufferSize =  round(capture.bufferTimeSpan * s.Rate);
     
-    delete(lh)% <-- important!!!
     
+    % Reset SaveData
     DataSave =[]; %reset save data
     ParamsSave =[]; % reset save parameters
-    lh = addlistener(s, 'DataAvailable', @(src,event) dataCaptureNBA(src, event, capture, figUIobj, Recmode, SetCam)); 
+    DataCursor = [];
+    
+    % Reset listner handle
+    delete(lh)% <-- important!!!
+    lh = addlistener(s, 'DataAvailable', @(src,event) dataCaptureNBA(src, event, capture, figUIobj, Recmode));
+    
     % dio reset
     outputSingleScan(dio.TrigAIFV,[0,0])
     outputSingleScan(dio.VSon,0)
@@ -317,7 +305,7 @@ if SetCam == 1
     imaq.vid.FramesPerTrigger = rec_time * imaq.frame_rate;
     disp(['Camera frame rate: ', num2str(imaq.frame_rate), 'Hz']);
     disp(['Video duratio: ', num2str(rec_time)]);
-
+    
 end
 
 %% figures
@@ -330,8 +318,6 @@ if isfield(plotUIobj, 'plot')
     end
     set(plotUIobj.plot1, 'Color', col);
 end
-
-%% check vars
 
 end
 
@@ -364,17 +350,15 @@ function [dist_list, angle_list, conc_mat, conc_mat_deg] = get_concentric_positi
 % [sobj.concentric_dist_deg_list, sobj.concentric_angle_deg_list,
 % sobj.concentric_mat, sobj.concentric_mat_deg] =
 % get_concentric_position(1)
+global sobj figUIobj
 
-
-global sobj
-global figUIobj
 %% Concentric positions
 if n == 1
-shiftDir = get(figUIobj.shiftDir, 'Value');
-sobj.shiftDir = shiftDir;
+    shiftDir = get(figUIobj.shiftDir, 'Value');
+    sobj.shiftDir = shiftDir;
 elseif n == 2
-shiftDir = get(figUIobj.shiftDir2, 'Value');
-sobj.shiftDir2 = shiftDir;
+    shiftDir = get(figUIobj.shiftDir2, 'Value');
+    sobj.shiftDir2 = shiftDir;
 end
 
 % chekc_concentric_position
