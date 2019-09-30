@@ -8,7 +8,7 @@ function NoneButAir11(Testmode, Recmode, UseCam)
 
 %% set global vars
 global sobj recobj figUIobj plotUIobj s sOut dio dev capture lh imaq
-
+Screen('Preference', 'SkipSyncTests', 1); 
 %% Create DataFolder
 %make today folder for eye capture
 dd = char(datetime('now', 'Format', 'yyMMdd'));

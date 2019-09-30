@@ -2,6 +2,7 @@ function imaq = imaq_ini(varargin)
 
 recobj = varargin{1};
 position = varargin{2};
+imaq.roi_position = position;
 
 
 %imaq.vid = videoinput( 'pointgrey' , 1, 'F7_Raw8_640x512_Mode1');
