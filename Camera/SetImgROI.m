@@ -28,7 +28,10 @@ img = getdata(imaq.vid);
 fh = figure;
 set(fh, 'WindowButtonUpFcn', @GetPos)
 imshow(img);
-imaq.roi_position = [380 174 192 168];
+
+if ~isfield(imaq, 'roi_position')
+    imaq.roi_position = [380 174 192 168];
+end
 
 roi = imrect(gca, imaq.roi_position);
 
