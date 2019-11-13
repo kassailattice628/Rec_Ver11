@@ -84,6 +84,7 @@ hGui.div_zoom = uicontrol('Style', 'edit', 'String', sobj.div_zoom, 'Position', 
 %%% distance from the center position
 hGui.dist_txt = uicontrol('Style', 'text', 'String', 'Dist', 'Position', [140 575 50 15], 'Horizontalalignment', 'left');
 hGui.dist = uicontrol('Style', 'edit', 'String', sobj.dist, 'Position', [140 550 40 25], 'BackGroundColor', 'w');
+set(hGui.dist, 'Callback', @change_moving_params);
 
 %%% Luminance %%%
 uicontrol('Style', 'text', 'String', 'S.Lumi', 'Position', [10 530 55 15], 'Horizontalalignment', 'left');
@@ -745,6 +746,7 @@ end
 %%
 function Cam_Preview(hObject, ~)
 global prevobj
+
 if get(hObject, 'value')
     prevobj = open_prev_window(hObject);
     disp('open preview')

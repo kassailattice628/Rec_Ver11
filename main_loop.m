@@ -1042,7 +1042,7 @@ end
         [sobj.angle, sobj.angle_index] = get_condition(5, angle_list, recobj.cycleNum,...
             length(angle_list), flag_rand_dir, angle_list);
         angle = -sobj.angle;
-        
+        angle = deg2rad(angle);
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
         %Moving speed (pix/sec)
@@ -1068,18 +1068,13 @@ end
         %Prep first frame
         Rect = CenterRectOnPointd([0, 0, sobj.stim_size], round(center_x), round(center_y));
         
-        %center_xy = zeros(flipnum, 2);
-        %center_xy(1,1) = center_x;
-        %center_xy(1,2) = center_y;
-        
         Rect_ = zeros(flipnum, 4);
         Rect_(1,:) = Rect;
         for i = 2:flipnum
-            %center_xy(i,1) = center_xy(i-1, 1) + transFactor * transFactor * cos(sobj.angle+pi);
-            %center_xy(i,2) = center_xy(i-1, 2) + transFactor * sin(sobj.angle);
             center_x = center_x + tF * cos(angle);
             center_y = center_y + tF * sin(angle);
-            Rect_(i,:) = CenterRectOnPointd([0, 0, sobj.stim_size], center_x, center_y);
+            %Rect_(i,:) = CenterRectOnPointd([0, 0, sobj.stim_size], center_x, center_y);
+            Rect_(i,:) = CenterRectOnPointd([0, 0, sobj.stim_size], round(center_x), round(center_y));
         end
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
