@@ -8,7 +8,8 @@ function NoneButAir11(Testmode, Recmode, UseCam)
 
 %% set global vars
 global sobj recobj figUIobj plotUIobj s sOut dio dev capture lh imaq
-Screen('Preference', 'SkipSyncTests', 1); 
+
+
 %% Create DataFolder
 %make today folder for eye capture
 dd = char(datetime('now', 'Format', 'yyMMdd'));
@@ -56,6 +57,7 @@ end
 %PsychDefaultSetup(2);
 % usage:: [sobj.wPtr, sobj.RECT] = Screen('OpenWindow', sobj.ScrNum,sobj.bgcol);
 [sobj.wPtr, sobj.RECT] = PsychImaging('OpenWindow', sobj.ScrNum, sobj.bgcol);
+Screen('BlendFunction', sobj.wPtr, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 %For macOS mojave 
 Screen('Preference', 'SkipSyncTests', 1);
