@@ -3,9 +3,7 @@ function main_loop(hObject, ~, hGui, Testmode, Recmode)
 
 %% call global vars
 global sobj recobj
-
 global s sOut dio lh
-
 global imaq
 
 %Save
@@ -58,7 +56,12 @@ end
         %% ready to start USB Cam
         if SetCam && get(hGui.save, 'value')
             [~, fname] = fileparts([recobj.dirname, recobj.fname]);
-            dirname_vid = [recobj.vid_dirname, '/Movie_', fname, num2str(recobj.savecount)];
+            %use mouse folder
+            dir_mouse = split(recobj.dirname, "/");
+            dir_mouse = dir_mouse{end};
+            
+            dirname_vid = [recobj.vid_dirname, '/', dir_mouse,...
+                '/Movie_', fname, num2str(recobj.savecount)];
             
             if recobj.cycleCount == 1 && exist(dirname_vid, 'dir') == 0
                 mkdir(dirname_vid)
@@ -371,7 +374,8 @@ elseif recobj.cycleNum > 0 %StimON
             VisStimOFF;
             
         case 'MouseCursor'
-            VisStimON;
+            Stim_MouseCursor
+            %VisStimON;
             VisStimOFF;
     end
     pause(pause_time);
@@ -1042,7 +1046,7 @@ end
         [sobj.angle, sobj.angle_index] = get_condition(5, angle_list, recobj.cycleNum,...
             length(angle_list), flag_rand_dir, angle_list);
         angle = -sobj.angle;
-        
+        angle = deg2rad(angle);
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
         
         %Moving speed (pix/sec)
@@ -1068,18 +1072,13 @@ end
         %Prep first frame
         Rect = CenterRectOnPointd([0, 0, sobj.stim_size], round(center_x), round(center_y));
         
-        %center_xy = zeros(flipnum, 2);
-        %center_xy(1,1) = center_x;
-        %center_xy(1,2) = center_y;
-        
         Rect_ = zeros(flipnum, 4);
         Rect_(1,:) = Rect;
         for i = 2:flipnum
-            %center_xy(i,1) = center_xy(i-1, 1) + transFactor * transFactor * cos(sobj.angle+pi);
-            %center_xy(i,2) = center_xy(i-1, 2) + transFactor * sin(sobj.angle);
             center_x = center_x + tF * cos(angle);
             center_y = center_y + tF * sin(angle);
-            Rect_(i,:) = CenterRectOnPointd([0, 0, sobj.stim_size], center_x, center_y);
+            %Rect_(i,:) = CenterRectOnPointd([0, 0, sobj.stim_size], center_x, center_y);
+            Rect_(i,:) = CenterRectOnPointd([0, 0, sobj.stim_size], round(center_x), round(center_y));
         end
         
         %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1223,8 +1222,41 @@ end
     end
 
 %% Freehand Mouse Cursor
-%     function Stim_MouseCursor
-%     end
+    function Stim_MouseCursor
+        
+        Screen('DrawDots', sobj.wPtr, [20, sobj.RECT(4)-20], 40, [1 1 1]);
+        %Get cursor position
+        [x, y, ~] = GetMouse(sobj.wPtr);
+        if x > 0
+            HideCursor(sobj.wPtr)
+        else
+            ShowCursor('Arrow', sobj.wPtr)
+        end
+        x0 = x;
+        
+        Screen('DrawDots', sobj.wPtr, [x; y], sobj.stim_size(1), sobj.stimcol, [0 0], 1);
+        
+        %Flip and rap timer
+        [sobj.vbl_2, ~, ~, ~, sobj.BeamposON] = ...
+            Screen('Flip', sobj.wPtr, sobj.vbl_1 + sobj.delayPTB);% put some delay for PTB
+        TriggerVSon(Testmode, dio, 1)
+        stim_monitor;
+        
+        for n = 2:sobj.flipNum
+            %Updated cursor position
+            [x, y, ~] = GetMouse(sobj.wPtr);
+            if x0*x < 0 && x0 < 0
+                HideCursor(sobj.wPtr)
+            elseif x0*x < 0 && x0 > 0
+                ShowCursor('Arrow', sobj.wPtr)
+            end
+            
+            Screen('DrawDots', sobj.wPtr, [x; y], sobj.stim_size(1), sobj.stimcol, [0 0], 1);
+            Screen('DrawDots', sobj.wPtr, [20, sobj.RECT(4)-20], 40, [1 1 1]);
+            Screen('Flip', sobj.wPtr);
+            x0 = x; %previous condition
+        end
+    end
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %% %%

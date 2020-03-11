@@ -182,8 +182,8 @@ switch sobj.pattern
         
     case 'MouseCursor'
         sobj.stim_center = [0,0];
-        sobj.size_deg = 0;
-        sobj.stim_size = [0,0];
+        sobj.stim_size = sobj.stimsz;
+        sobj.size_deg = str2double(get(figUIobj.size, 'String'));
 end
 
 %% stim 2

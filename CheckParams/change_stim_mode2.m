@@ -126,6 +126,10 @@ switch sobj.pattern
                 'off', 'off',   'off', 'off',   'off', 'on', 'g'};
         end
         
+    case 'MouseCursor'
+        val = {'off', 'off', 'off', 'off', 'off', 'off',...
+            'off', 'off', 'off', 'off', 'off', 'off', 'g'};
+        
 end
 %%
 switch get(figUIobj.mode, 'Value')
@@ -183,6 +187,9 @@ Set_fig_stim_color(map_list);
             case 'MoveSpot'
                 set(figUIobj.dist_txt, 'Position', [10 90 150 15]);
                 set(figUIobj.dist, 'Position', [10 65 40 25]);
+                
+            otherwise
+                
                
                 
         end

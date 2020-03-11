@@ -147,6 +147,7 @@ elseif captureRequested && trigActive && ((dataBuffer(end,1)-trigMoment) > c.Tim
         ParamsSave{1, trigCount} = get_save_params(0, recobj, sobj, captureData);
         %captureData(:,[1,5]) are time and live(triggers) and do not need to save. (7 = end = rotary encoder)
         DataSave(:, :, trigCount) = captureData(:,[2,3,4,6,7]);
+        
         DataCursor{1, trigCount} = MouseEvent;
     end
     
