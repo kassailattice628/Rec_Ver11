@@ -56,7 +56,12 @@ end
         %% ready to start USB Cam
         if SetCam && get(hGui.save, 'value')
             [~, fname] = fileparts([recobj.dirname, recobj.fname]);
-            dirname_vid = [recobj.vid_dirname, '/Movie_', fname, num2str(recobj.savecount)];
+            %use mouse folder
+            dir_mouse = split(recobj.dirname, "/");
+            dir_mouse = dir_mouse{end};
+            
+            dirname_vid = [recobj.vid_dirname, '/', dir_mouse,...
+                '/Movie_', fname, num2str(recobj.savecount)];
             
             if recobj.cycleCount == 1 && exist(dirname_vid, 'dir') == 0
                 mkdir(dirname_vid)

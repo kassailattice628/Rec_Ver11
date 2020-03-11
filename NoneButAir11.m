@@ -8,7 +8,8 @@ function NoneButAir11(Testmode, Recmode, UseCam)
 
 %% set global vars
 global sobj recobj figUIobj plotUIobj s sOut dio dev capture lh imaq
-
+%For macOS mojave 
+%Screen('Preference', 'SkipSyncTests', 1);
 
 %% Create DataFolder
 %make today folder for eye capture
@@ -45,8 +46,7 @@ if UseCam
     
     %make today folder for eye capture
     %dd = char(datetime('now', 'Format', 'yyMMdd'));
-    dir_name2 = ['F:/Users/lattice/Documents/EyeTracking/',dd, 'EyeMov'];
-    %dir_name = ['H:/',dd];
+    dir_name2 = ['F:/Users/lattice/Documents/EyeTracking/', dd, 'EyeMov'];
     if ~exist(dir_name2, 'dir')
         mkdir(dir_name2) 
     end
@@ -58,9 +58,6 @@ end
 % usage:: [sobj.wPtr, sobj.RECT] = Screen('OpenWindow', sobj.ScrNum,sobj.bgcol);
 [sobj.wPtr, sobj.RECT] = PsychImaging('OpenWindow', sobj.ScrNum, sobj.bgcol);
 Screen('BlendFunction', sobj.wPtr, GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
-%For macOS mojave 
-Screen('Preference', 'SkipSyncTests', 1);
 
 % get center position in pix of stim monitor
 [sobj.ScrCenterX, sobj.ScrCenterY] = RectCenter(sobj.RECT);
