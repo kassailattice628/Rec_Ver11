@@ -1,4 +1,6 @@
 # Change_log
+## 11-20200311a
+EyeCmaera 保存の際に，mouseごとに別のフォルダに分ける
 ## 11-100920a
 DAQ の eventlistner で カーソル位置を取得するように変更
 
