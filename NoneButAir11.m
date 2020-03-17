@@ -13,7 +13,7 @@ global sobj recobj figUIobj plotUIobj s sOut dio dev capture lh imaq
 
 %% Create DataFolder
 %make today folder for eye capture
-dd = char(datetime('now', 'Format', 'yyMMdd'));
+dd = char(datetime('now', 'Format', 'yyyyMMdd'));
 dir_name1 = ['C:/Users/lattice/Desktop/data/',dd, 'mat'];
 if ~exist(dir_name1, 'dir')
     mkdir(dir_name1)

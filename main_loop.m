@@ -57,8 +57,10 @@ end
         if SetCam && get(hGui.save, 'value')
             [~, fname] = fileparts([recobj.dirname, recobj.fname]);
             %use mouse folder
-            dir_mouse = split(recobj.dirname, "/");
-            dir_mouse = dir_mouse{end};
+            %dir_mouse = split(recobj.dirname, '/');% split can not used in 2016a
+            %dir_mouse = dir_mouse{end};
+            dir_mouse = regexp(recobj.dirname, filesep, 'split');
+            dir_mouse = dir_mouse{end-1};
             
             dirname_vid = [recobj.vid_dirname, '/', dir_mouse,...
                 '/Movie_', fname, num2str(recobj.savecount)];
